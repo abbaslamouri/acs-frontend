@@ -1,10 +1,16 @@
 <script setup>
+const props = defineProps({
+  eligibilities: {
+    type: Array,
+    required: true,
+  },
+})
 const emit = defineEmits(['toggleProductFiltersSlideout'])
 const router = useRouter()
 // const { cart, updateLocalStorage } = useCart()
 // const { showCartSlideout } = useAppState()
 const { saveDoc } = useHttp()
-// const showfiltersSlideout
+const eligibilityKeyword = ref('')
 
 // const checkout = async () => {
 //   showCartSlideout.value = false
@@ -22,7 +28,7 @@ const { saveDoc } = useHttp()
 <template>
   <div>
     <div class="fixed inset-0 w-100vw h-100vh z-99 bg-slate-900 opacity-70"></div>
-    <div class="fixed top-0 right-0 h-100vh z-99 max-w-415p w-100-percent text-slate-800">
+    <div class="fixed top-0 left-0 h-100vh z-99 max-w-415p w-100-percent text-slate-800">
       <ClientOnly>
         <div class="h-100vh flex-col justify-between bg-white">
           <div class="bg-stone-300 p-1 flex-row items-center justify-between py-1 px-2">
@@ -43,6 +49,15 @@ const { saveDoc } = useHttp()
               <span>Free shipping from $35</span>
             </div>
             <div>
+              <FormsBaseSelectMultiple
+                label="Search By Eligibility"
+                :options="
+                  eligibilities.map((e) => {
+                    return { key: e.id, name: e.name }
+                  })
+                "
+                v-model="eligibilityKeyword"
+              />
               <!-- <EcommerceCheckoutCartItemList /> -->
               <!-- <EcommerceCheckoutCartTotal /> -->
               <p class="text-xs">(Shipping costs, special offers not included)</p>

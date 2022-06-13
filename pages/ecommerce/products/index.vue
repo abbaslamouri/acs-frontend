@@ -11,10 +11,11 @@ const listType = ref('tile')
 const showProductFiltersSlideout = ref(false)
 
 const products = ref([])
+const eligibilities = ref([])
 const totalCount = ref(null) // Total item count in the database
 const count = ref(null) // item count taking into account params
 const page = ref(1)
-const perPage = ref(10)
+const perPage = ref(20)
 const fields = '-updatedAt'
 const keyword = ref('')
 const sort = reactive({
@@ -104,6 +105,10 @@ const deleteProduct = async (productId) => {
 }
 
 await fetchAllProducts()
+
+response = await fetchAll('eligibilities')
+console.log('E', response)
+eligibilities.value = response.docs
 </script>
 
 <template>
@@ -135,10 +140,13 @@ await fetchAllProducts()
           <section class="flex-row justify-center">
             <div class="w-996p">
               <!-- <EcommerceProductsHero /> -->
-              <EcommerceProductsFiltersAndViews
-                @setListType="listType = $event"
-                @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
-              />
+              <div class="sticky top-18 bg-slate-50 z-9">
+                <EcommerceProductsFiltersAndViews
+                  @setListType="listType = $event"
+                  @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
+                />
+              </div>
+
               <div
                 class="flex-col gap-4 justify-center items-center h-16 bg-center bg-no-repeat bg-size-cover"
                 :style="{ backgroundImage: `url('${config.backendUrl}/uploads/acshomepage-1654948453809.jpg')` }"
@@ -184,6 +192,7 @@ await fetchAllProducts()
 
     <EcommerceProductsFiltersSlidout
       v-if="showProductFiltersSlideout"
+      :eligibilities="eligibilities"
       @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
     />
   </div>

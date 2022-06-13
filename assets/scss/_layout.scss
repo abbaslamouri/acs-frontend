@@ -16,6 +16,10 @@
   display: inline-block;
 }
 
+.z--1 {
+  z-index: -1;
+}
+
 .z-9 {
   z-index: 9;
 }
@@ -74,6 +78,10 @@
 
 .top-7 {
   top: 7rem;
+}
+
+.top-18 {
+  top: 18rem;
 }
 
 .bottom-4 {
