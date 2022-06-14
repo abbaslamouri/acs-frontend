@@ -242,7 +242,33 @@ const useHttp = () => {
     }
   }
 
-  return { fetchAll, fetchDoc, saveDoc, deleteDoc, deleteDocs, saveMedia, seedProducts }
+  const productsFetchAll = async (params = {}) => {
+    errorMsg.value = null
+    message.value = null
+    try {
+      const esc = encodeURIComponent
+      const query = Object.keys(params)
+        .map((k) => esc(k) + '=' + esc(params[k]))
+        .join('&')
+      const response = await fetch(`${config.apiUrl}/products/searchAll?${query}`, {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        }),
+      })
+      // console.log(response)
+      if (response.ok) return await response.json()
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+    } catch (err) {
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return { docs: [], count: 0, totalCount: 0 }
+    }
+  }
+
+  return { fetchAll, fetchDoc, saveDoc, deleteDoc, deleteDocs, saveMedia, seedProducts, productsFetchAll }
 }
 
 export default useHttp
