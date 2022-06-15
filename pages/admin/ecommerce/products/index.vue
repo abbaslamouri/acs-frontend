@@ -115,14 +115,14 @@ await fetchAllProducts()
             />
             <Search class="flex-1" @searchKeywordSelected="handleSearch" v-if="totalCount && products.length > 1" />
           </div>
-          <EcommerceAdminProductsList :products="products" :totalCount="totalCount" @deleteProduct="deleteProduct" />
+          <AdminEcommerceProductsList :products="products" :totalCount="totalCount" @deleteProduct="deleteProduct" />
         </div>
       </main>
       <footer class="w-full max-width-130">
         <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1 && !keyword" />
       </footer>
     </div>
-    <EcommerceAdminEmptyMsg v-else>
+    <AdminEmptyMsg v-else>
       <template #header>Add your first physical or digital product</template>
       <template #default>
         <div class="">Add your product and variants. Products must have at least a name and a price</div>
@@ -134,7 +134,7 @@ await fetchAllProducts()
           <span>Add</span>
         </NuxtLink>
       </template>
-    </EcommerceAdminEmptyMsg>
+    </AdminEmptyMsg>
   </div>
 </template>
 

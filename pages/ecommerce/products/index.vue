@@ -155,7 +155,7 @@ await fetchAllProducts()
           <section class="flex-row justify-center">
             <div class="w-996p">
               <!-- <EcommerceProductsHero /> -->
-              <div class="sticky top-18 bg-slate-50 z-9 ">
+              <div class="sticky top-18 bg-slate-50 z-1 ">
                 <EcommerceProductsFiltersAndViews
                   @setListType="listType = $event"
                   @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"

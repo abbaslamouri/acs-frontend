@@ -70,7 +70,7 @@ const deleteProduct = (productId) => {
         <td class="w-12 text-center">{{ product.orders }}</td>
         <td class="w-12 text-center">{{ product.sales }}</td>
         <td class="w-12">
-          <EcommerceAdminRowActions
+          <AdminRowActions
             :showAction="showActionKeys[index]"
             :showEdit="true"
             @moreHoriz="setActions({ index: index, action: !showActionKeys[index] })"
