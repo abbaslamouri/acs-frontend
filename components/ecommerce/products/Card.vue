@@ -5,7 +5,7 @@ const props = defineProps({
   },
   listType: {
     type: String,
-    default: 'tile',
+    default: "tile",
   },
   showQuantitySelector: {
     type: Boolean,
@@ -13,10 +13,10 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'selectQuantityBtnClicked',
-  'closeSelectQuantity',
-  'toggleQuantitySelectors',
-  'resetSelectQuantities',
+  "selectQuantityBtnClicked",
+  "closeSelectQuantity",
+  "toggleQuantitySelectors",
+  "resetSelectQuantities",
 ])
 
 const config = useRuntimeConfig()
@@ -48,21 +48,41 @@ const getcartItemCount = () => {
         >
           {{ product.description }}
         </div>
-        <div class="image w-14 h-14 flex-row justify-center items-center overflow-hidden" v-if="!hideImage">
-          <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
+        <div
+          class="image w-14 h-14 flex-row justify-center items-center overflow-hidden"
+          v-if="!hideImage"
+        >
+          <NuxtLink
+            class=""
+            :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
+          >
             <img
               class="w-full h-full cover br-3"
-              v-if="product.gallery.length && product.gallery[0] && product.gallery[0].mimetype.includes('image')"
+              v-if="
+                product.gallery.length &&
+                product.gallery[0] &&
+                product.gallery[0].mimetype.includes('image')
+              "
               :src="`${config.backendUrl}/${product.gallery[0].path}`"
             />
           </NuxtLink>
         </div>
       </div>
-      <div class="image w-14 h-14 flex-row justify-center items-center overflow-hidden" v-else>
-        <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
+      <div
+        class="image w-14 h-14 flex-row justify-center items-center overflow-hidden"
+        v-else
+      >
+        <NuxtLink
+          class=""
+          :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
+        >
           <img
             class="w-full h-full cover br-3"
-            v-if="product.gallery.length && product.gallery[0] && product.gallery[0].mimetype.includes('image')"
+            v-if="
+              product.gallery.length &&
+              product.gallery[0] &&
+              product.gallery[0].mimetype.includes('image')
+            "
             :src="`${config.backendUrl}/${product.gallery[0].path}`"
           />
         </NuxtLink>
@@ -70,13 +90,18 @@ const getcartItemCount = () => {
 
       <div class="title w-full flex-1 text-sm">
         <div>
-          <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
+          <NuxtLink
+            class=""
+            :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
+          >
             <div class="name font-bold">{{ product.name }}</div>
           </NuxtLink>
-          <div class="text-slate-500" v-if="listType == 'list'">{{ product.description }}</div>
+          <div class="text-slate-500" v-if="listType == 'list'">
+            {{ product.description }}
+          </div>
         </div>
         <div>
-          <div class="price text-yellow-700">${{ product.price }}</div>
+          <div class="price text-yellow-700">${{ product.price.toFixed(2) }}</div>
         </div>
       </div>
       <div>
@@ -105,7 +130,7 @@ const getcartItemCount = () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/variables';
+@import "@/assets/scss/variables";
 
 .card {
   border: 1px solid $slate-400;

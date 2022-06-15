@@ -1,33 +1,49 @@
 <script setup>
 const props = defineProps({
-  // products: {
-  //   type: Array,
-  //   required: true,
-  // },
+  products: {
+    type: Array,
+    // required: true,
+  },
+  eligibilities: {
+    type: Array,
+    // required: true,
+  },
+  nextHigherAssemblies: {
+    type: Array,
+    // required: true,
+  },
+  oems: {
+    type: Array,
+    // required: true,
+  },
+  oemPartNumbers: {
+    type: Array,
+    // required: true,
+  },
   searchObject: {
     type: Object,
-    required: true,
+    // required: true,
   },
 })
-const emit = defineEmits(['toggleProductFiltersSlideout', 'showSearchResults'])
+const emit = defineEmits(["toggleProductFiltersSlideout", "showSearchResults"])
 const router = useRouter()
 // const { cart, updateLocalStorage } = useCart()
 // const { showCartSlideout } = useAppState()
 const { fetchAll, saveDoc } = useHttp()
 
-const products = ref([])
-const eligibilities = ref([])
-const oems = ref([])
-const oemPartNumbers = ref([])
-const nextHigherAssemblies = ref([])
+// const products = ref([])
+// const eligibilities = ref([])
+// const oems = ref([])
+// const oemPartNumbers = ref([])
+// const nextHigherAssemblies = ref([])
 // const nextHigherAssemblyKeyword = ref('')
 
 const composeSearchObject = () => {
   const searchObj = {}
-  console.log('PROP SERCH OBJ', props.searchObject)
+  console.log("PROP SERCH OBJ", props.searchObject)
 
-  const product = products.value.find((p) => p.id == props.searchObject.acsPartNumber.id)
-  console.log('PRODUCT', product)
+  const product = props.products.find((p) => p.id == props.searchObject.acsPartNumber.id)
+  console.log("PRODUCT", product)
   if (product) {
     searchObj.acsPartNumber = {
       id: props.searchObject.acsPartNumber.id,
@@ -36,14 +52,20 @@ const composeSearchObject = () => {
     }
   }
 
-  const oem = oems.value.find((p) => p.id == props.searchObject.oem.id)
-  console.log('OEM', oem)
+  const oem = props.oems.find((p) => p.id == props.searchObject.oem.id)
+  console.log("OEM", oem)
   if (oem) {
-    searchObj.oem = { id: props.searchObject.oem.id, name: oem.name, title: props.searchObject.oem.title }
+    searchObj.oem = {
+      id: props.searchObject.oem.id,
+      name: oem.name,
+      title: props.searchObject.oem.title,
+    }
   }
 
-  const oemPartNumber = oemPartNumbers.value.find((p) => p.id == props.searchObject.oemPartNumber.id)
-  console.log('OEMPARTNUMBER', oemPartNumber)
+  const oemPartNumber = props.oemPartNumbers.find(
+    (p) => p.id == props.searchObject.oemPartNumber.id
+  )
+  console.log("OEMPARTNUMBER", oemPartNumber)
   if (oemPartNumber) {
     searchObj.oemPartNumber = {
       id: props.searchObject.oemPartNumber.id,
@@ -52,8 +74,10 @@ const composeSearchObject = () => {
     }
   }
 
-  const eligibility = eligibilities.value.find((p) => p.id == props.searchObject.eligibility.id)
-  console.log('ELIGIBILITY', eligibility)
+  const eligibility = props.eligibilities.find(
+    (p) => p.id == props.searchObject.eligibility.id
+  )
+  console.log("ELIGIBILITY", eligibility)
   if (eligibility) {
     searchObj.eligibility = {
       id: props.searchObject.eligibility.id,
@@ -62,8 +86,10 @@ const composeSearchObject = () => {
     }
   }
 
-  const nextHigherAssembly = nextHigherAssemblies.value.find((p) => p.id == props.searchObject.nextHigherAssembly.id)
-  console.log('NEXTHIGHERASSEMLY', nextHigherAssembly)
+  const nextHigherAssembly = props.nextHigherAssemblies.find(
+    (p) => p.id == props.searchObject.nextHigherAssembly.id
+  )
+  console.log("NEXTHIGHERASSEMLY", nextHigherAssembly)
   if (nextHigherAssembly) {
     searchObj.nextHigherAssembly = {
       id: props.searchObject.nextHigherAssembly.id,
@@ -91,12 +117,12 @@ const composeSearchObject = () => {
   // 	name: nextHigherAssemblies.value.find((p) => p.id == props.searchObject.nextHigherAssemblies.id).name,
   // }
 
-  console.log('OBJ', searchObj)
+  console.log("OBJ", searchObj)
 
-  emit('showSearchResults', searchObj)
+  emit("showSearchResults", searchObj)
 }
 
-let response = ''
+let response = ""
 
 // const checkout = async () => {
 //   showCartSlideout.value = false
@@ -135,12 +161,17 @@ let response = ''
       <div class="h-100vh flex-col justify-between bg-white">
         <header class="bg-stone-300 p-1 flex-row items-center justify-between py-1 px-2">
           <h3 class="font-bold text-md uppercase">Filters</h3>
-          <button class="btn btn__close" @click.prevent="$emit('toggleProductFiltersSlideout')">
+          <button
+            class="btn btn__close"
+            @click.prevent="$emit('toggleProductFiltersSlideout')"
+          >
             <IconsClose />
           </button>
         </header>
         <Suspense>
           <main class="flex-1 p-2 flex-col gap-2">
+            <!-- {{ eligibilities }}ppppppp -->
+
             <h3>Filter by</h3>
             <div class="flex-col gap-2">
               <FormsBaseSelectSearch
@@ -199,7 +230,9 @@ let response = ''
         </Suspense>
         <footer class="p-1 bg-stone-300">
           <div class="flex-row justify-end px-3">
-            <button class="btn btn__checkout px-3 py-1" @click="composeSearchObject">Show Results</button>
+            <button class="btn btn__checkout px-3 py-1" @click="composeSearchObject">
+              Show Results
+            </button>
           </div>
         </footer>
       </div>

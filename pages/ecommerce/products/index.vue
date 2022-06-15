@@ -1,41 +1,46 @@
 <script setup>
-const title = ref('Products | YRL')
+const title = ref("Products | YRL")
 
 const config = useRuntimeConfig()
 const { errorMsg, message } = useAppState()
 const { fetchAll, productsSearchAll, deleteDoc, deleteDocs } = useHttp()
 
 const quantitySelectors = ref([])
-const listType = ref('tile')
+const listType = ref("tile")
 
 const showProductFiltersSlideout = ref(false)
 
 const products = ref([])
+const eligibilities = ref([])
+const oems = ref([])
+const oemPartNumbers = ref([])
+const nextHigherAssemblies = ref([])
+
 const totalCount = ref(null) // Total item count in the database
 const count = ref(null) // item count taking into account params
 
 const searchObject = ref({
-  acsPartNumber: { title: 'ACS Part Number' },
-  oem: { title: 'OEM' },
-  oemPartNumber: { title: 'OEM Part Number' },
-  eligibility: { title: 'Eligibility' },
-  nextHigherAssembly: { title: 'Next Higher Assenbly' },
+  acsPartNumber: { title: "ACS Part Number" },
+  oem: { title: "OEM" },
+  oemPartNumber: { title: "OEM Part Number" },
+  eligibility: { title: "Eligibility" },
+  nextHigherAssembly: { title: "Next Higher Assenbly" },
 })
 const searchResults = ref(0)
 const page = ref(1)
 const perPage = ref(10)
-const fields = '-updatedAt'
-const keyword = ref('')
+const fields = "-updatedAt"
+const keyword = ref("")
 const sort = reactive({
-  field: 'createdAt',
-  order: '',
+  field: "createdAt",
+  order: "",
 })
 
 let response = null
 const sortOptions = [
-  { key: 'sortOrder', name: 'Order' },
-  { key: 'name', name: 'Name' },
-  { key: 'createdAt', name: 'Date Created' },
+  { key: "sortOrder", name: "Order" },
+  { key: "name", name: "Name" },
+  { key: "createdAt", name: "Date Created" },
 ]
 
 const params = computed(() => {
@@ -57,7 +62,7 @@ const pages = computed(() => {
 })
 
 const fetchAllProducts = async () => {
-  response = await fetchAll('products', params.value)
+  response = await fetchAll("products")
   console.log(response)
   if (!response) return
   products.value = response.docs
@@ -101,21 +106,24 @@ const setPerPage = async () => {
 }
 
 const showSearchResults = async (event) => {
-  console.log('EVENT', event)
+  console.log("EVENT", event)
   searchObject.value = { ...searchObject.value, ...event }
   showProductFiltersSlideout.value = false
   perPage.value = 10000
   const queyParams = {}
-  if (event.acsPartNumber && event.acsPartNumber.id) queyParams._id = event.acsPartNumber.id
-  if (event.oemPartNumber && event.oemPartNumber.id) queyParams.oemPartNumber = event.oemPartNumber.id
+  if (event.acsPartNumber && event.acsPartNumber.id)
+    queyParams._id = event.acsPartNumber.id
+  if (event.oemPartNumber && event.oemPartNumber.id)
+    queyParams.oemPartNumber = event.oemPartNumber.id
   if (event.oem && event.oem.id) queyParams.oem = event.oem.id
-  if (event.eligibility && event.eligibility.id) queyParams.eligibilities = event.eligibility.id
+  if (event.eligibility && event.eligibility.id)
+    queyParams.eligibilities = event.eligibility.id
   if (event.nextHigherAssembly && event.nextHigherAssembly.id)
     queyParams.nextHigherAssemblies = event.nextHigherAssembly.id
 
-  console.log('queyParams', queyParams)
+  console.log("queyParams", queyParams)
 
-  response = await fetchAll('products', { ...params.value, ...queyParams })
+  response = await fetchAll("products", { ...params.value, ...queyParams })
   console.log(response)
   if (!response) return
   products.value = response.docs
@@ -123,34 +131,38 @@ const showSearchResults = async (event) => {
   console.log(searchResults.value)
 }
 
-const eligibilities = ref([])
-const oems = ref([])
-const oemPartNumbers = ref([])
-const nextHigherAssemblies = ref([])
-
 await fetchAllProducts()
 
 // response = await fetchAll('products')
 // if (response && response.docs) products.value = response.docs
+onMounted(async () => {
+  response = await fetchAll("eligibilities")
+  console.log("E", response)
+  if (response && response.docs) eligibilities.value = response.docs
 
-response = await fetchAll('eligibilities')
-console.log('E', response)
-if (response && response.docs) eligibilities.value = response.docs
+  response = await fetchAll("nexthigherassemblies")
+  console.log("N", response)
 
-response = await fetchAll('nexthigherassemblies')
-console.log('N', response)
+  if (response && response.docs) nextHigherAssemblies.value = response.docs
 
-if (response && response.docs) nextHigherAssemblies.value = response.docs
+  response = await fetchAll("oems")
+  console.log("OEM", response)
 
-response = await fetchAll('oems')
-console.log('OEM', response)
+  if (response && response.docs) oems.value = response.docs
 
-if (response && response.docs) oems.value = response.docs
+  response = await fetchAll("oempartnumbers")
+  console.log("OEMP", response)
 
-response = await fetchAll('oempartnumbers')
-console.log('OEMP', response)
+  if (response && response.docs) oemPartNumbers.value = response.docs
+})
 
-if (response && response.docs) oemPartNumbers.value = response.docs
+if (process.client) {
+  window.addEventListener("scroll", () => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+    console.log({ scrollTop, scrollHeight, clientHeight })
+  })
+  // checkScreen()
+}
 // })
 </script>
 
@@ -186,14 +198,18 @@ if (response && response.docs) oemPartNumbers.value = response.docs
               <div class="sticky top-18 bg-slate-50 z-1">
                 <EcommerceProductsFiltersAndViews
                   @setListType="listType = $event"
-                  @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
+                  @toggleProductFiltersSlideout="
+                    showProductFiltersSlideout = !showProductFiltersSlideout
+                  "
                 />
                 <div class="flex-row items-center gap-2 p-1">
                   <div>{{ searchResults }} products found</div>
                   <div class="flex-row gap-1 wrap text-xs">
                     <div class="" v-for="(value, key, index) in searchObject">
                       <div class="flex-row items-center" v-if="value.name">
-                        <div class="search-object-key flex-row items-center bg-slate-400 px-1 h-3 text-slate-50">
+                        <div
+                          class="search-object-key flex-row items-center bg-slate-400 px-1 h-3 text-slate-50"
+                        >
                           {{ value.title }}
                         </div>
                         <div
@@ -204,20 +220,32 @@ if (response && response.docs) oemPartNumbers.value = response.docs
                       </div>
                     </div>
                   </div>
-                  <button class="btn link px-2 py-1 items-self-end" @click="searchObject = {}">Clear All Filtes</button>
+                  <button
+                    class="btn link px-2 py-1 items-self-end"
+                    @click="searchObject = {}"
+                  >
+                    Clear All Filtes
+                  </button>
                 </div>
               </div>
 
               <div
                 class="flex-col gap-4 justify-center items-center h-16 bg-center bg-no-repeat bg-size-cover"
-                :style="{ backgroundImage: `url('${config.backendUrl}/uploads/acshomepage-1654948453809.jpg')` }"
+                :style="{
+                  backgroundImage: `url('${config.backendUrl}/uploads/acshomepage-1654948453809.jpg')`,
+                }"
               >
-                <h3 class="text-4xl text-slate-50 tracking-wider uppercase">Aviation Component Solutions</h3>
+                <h3 class="text-4xl text-slate-50 tracking-wider uppercase">
+                  Aviation Component Solutions
+                </h3>
                 <h4 class="text-md text-slate-50 tracking-wider uppercase">
                   Delivering the Difference Through Innovation and Integrity
                 </h4>
               </div>
-              <div class="list" :class="{ list: listType == 'list', tile: listType == 'tile' }">
+              <div
+                class="list"
+                :class="{ list: listType == 'list', tile: listType == 'tile' }"
+              >
                 <EcommerceProductsCard
                   v-for="(product, i) in products"
                   :key="product.id"
@@ -234,13 +262,20 @@ if (response && response.docs) oemPartNumbers.value = response.docs
         </div>
       </main>
       <footer class="w-full max-width-130">
-        <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1 && !keyword" />
+        <Pagination
+          :page="page"
+          :pages="pages"
+          @pageSet="setPage"
+          v-if="pages > 1 && !keyword"
+        />
       </footer>
     </div>
     <AdminEmptyMsg v-else>
       <template #header>Add your first physical or digital product</template>
       <template #default>
-        <div class="">Add your product and variants. Products must have at least a name and a price</div>
+        <div class="">
+          Add your product and variants. Products must have at least a name and a price
+        </div>
         <NuxtLink
           class="btn btn__primary btn__pill px-3 py-05 text-xs items-self-end"
           :to="{ name: 'admin-ecommerce-products-slug', params: { slug: '_' } }"
@@ -253,8 +288,15 @@ if (response && response.docs) oemPartNumbers.value = response.docs
 
     <EcommerceProductsFiltersSlidout
       v-if="showProductFiltersSlideout"
+      :eligibilities="eligibilities"
+      :nextHigherAssemblies="nextHigherAssemblies"
+      :products="products"
+      :oems="oems"
+      :oemPartNumbers="oemPartNumbers"
       :searchObject="searchObject"
-      @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
+      @toggleProductFiltersSlideout="
+        showProductFiltersSlideout = !showProductFiltersSlideout
+      "
       @showSearchResults="showSearchResults"
     />
   </div>
