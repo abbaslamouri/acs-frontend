@@ -110,20 +110,20 @@ let response = ''
 //   }
 // }
 // onMounted(async () => {
-response = await fetchAll('products')
-if (response && response.docs) products.value = response.docs
+// response = await fetchAll('products')
+// if (response && response.docs) products.value = response.docs
 
-response = await fetchAll('eligibilities')
-if (response && response.docs) eligibilities.value = response.docs
+// response = await fetchAll('eligibilities')
+// if (response && response.docs) eligibilities.value = response.docs
 
-response = await fetchAll('nexthigherassemblies')
-if (response && response.docs) nextHigherAssemblies.value = response.docs
+// response = await fetchAll('nexthigherassemblies')
+// if (response && response.docs) nextHigherAssemblies.value = response.docs
 
-response = await fetchAll('oems')
-if (response && response.docs) oems.value = response.docs
+// response = await fetchAll('oems')
+// if (response && response.docs) oems.value = response.docs
 
-response = await fetchAll('oempartnumbers')
-if (response && response.docs) oemPartNumbers.value = response.docs
+// response = await fetchAll('oempartnumbers')
+// if (response && response.docs) oemPartNumbers.value = response.docs
 // })
 </script>
 
@@ -131,14 +131,15 @@ if (response && response.docs) oemPartNumbers.value = response.docs
   <div>
     <div class="fixed inset-0 w-100vw h-100vh z-99 bg-slate-900 opacity-70"></div>
     <div class="fixed top-0 left-0 h-100vh z-99 max-w-415p w-100-percent text-slate-800">
-      <ClientOnly>
-        <div class="h-100vh flex-col justify-between bg-white">
-          <header class="bg-stone-300 p-1 flex-row items-center justify-between py-1 px-2">
-            <h3 class="font-bold text-md uppercase">Filters</h3>
-            <button class="btn btn__close" @click.prevent="$emit('toggleProductFiltersSlideout')">
-              <IconsClose />
-            </button>
-          </header>
+      <!-- <ClientOnly> -->
+      <div class="h-100vh flex-col justify-between bg-white">
+        <header class="bg-stone-300 p-1 flex-row items-center justify-between py-1 px-2">
+          <h3 class="font-bold text-md uppercase">Filters</h3>
+          <button class="btn btn__close" @click.prevent="$emit('toggleProductFiltersSlideout')">
+            <IconsClose />
+          </button>
+        </header>
+        <Suspense>
           <main class="flex-1 p-2 flex-col gap-2">
             <h3>Filter by</h3>
             <div class="flex-col gap-2">
@@ -194,13 +195,16 @@ if (response && response.docs) oemPartNumbers.value = response.docs
               />
             </div>
           </main>
-          <footer class="p-1 bg-stone-300">
-            <div class="flex-row justify-end px-3">
-              <button class="btn btn__checkout px-3 py-1" @click="composeSearchObject">Show Results</button>
-            </div>
-          </footer>
-        </div>
-      </ClientOnly>
+          <template #fallback> Loading... </template>
+        </Suspense>
+        <footer class="p-1 bg-stone-300">
+          <div class="flex-row justify-end px-3">
+            <button class="btn btn__checkout px-3 py-1" @click="composeSearchObject">Show Results</button>
+          </div>
+        </footer>
+      </div>
+
+      <!-- </ClientOnly> -->
     </div>
   </div>
 </template>

@@ -28,7 +28,7 @@ const fields = '-updatedAt'
 const keyword = ref('')
 const sort = reactive({
   field: 'createdAt',
-  order: '-',
+  order: '',
 })
 
 let response = null
@@ -123,7 +123,35 @@ const showSearchResults = async (event) => {
   console.log(searchResults.value)
 }
 
+const eligibilities = ref([])
+const oems = ref([])
+const oemPartNumbers = ref([])
+const nextHigherAssemblies = ref([])
+
 await fetchAllProducts()
+
+// response = await fetchAll('products')
+// if (response && response.docs) products.value = response.docs
+
+response = await fetchAll('eligibilities')
+console.log('E', response)
+if (response && response.docs) eligibilities.value = response.docs
+
+response = await fetchAll('nexthigherassemblies')
+console.log('N', response)
+
+if (response && response.docs) nextHigherAssemblies.value = response.docs
+
+response = await fetchAll('oems')
+console.log('OEM', response)
+
+if (response && response.docs) oems.value = response.docs
+
+response = await fetchAll('oempartnumbers')
+console.log('OEMP', response)
+
+if (response && response.docs) oemPartNumbers.value = response.docs
+// })
 </script>
 
 <template>
@@ -155,12 +183,12 @@ await fetchAllProducts()
           <section class="flex-row justify-center">
             <div class="w-996p">
               <!-- <EcommerceProductsHero /> -->
-              <div class="sticky top-18 bg-slate-50 z-1 ">
+              <div class="sticky top-18 bg-slate-50 z-1">
                 <EcommerceProductsFiltersAndViews
                   @setListType="listType = $event"
                   @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
                 />
-                <div class="flex-row items-center gap-2  p-1">
+                <div class="flex-row items-center gap-2 p-1">
                   <div>{{ searchResults }} products found</div>
                   <div class="flex-row gap-1 wrap text-xs">
                     <div class="" v-for="(value, key, index) in searchObject">
@@ -223,7 +251,7 @@ await fetchAllProducts()
       </template>
     </AdminEmptyMsg>
 
-    <LazyEcommerceProductsFiltersSlidout
+    <EcommerceProductsFiltersSlidout
       v-if="showProductFiltersSlideout"
       :searchObject="searchObject"
       @toggleProductFiltersSlideout="showProductFiltersSlideout = !showProductFiltersSlideout"
