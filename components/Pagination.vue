@@ -11,7 +11,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['pageSet'])
-const active = ref(1)
+const active = computed(() => props.page)
 
 const setCurrentPage = async (p) => {
   if (p < 1) {
@@ -22,7 +22,6 @@ const setCurrentPage = async (p) => {
     p = props.pages
     return
   }
-  active.value = p
   emit('pageSet', p)
 }
 </script>

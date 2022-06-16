@@ -3,9 +3,9 @@ const props = defineProps({
   product: {
     type: Object,
   },
-  listType: {
+  listStyle: {
     type: String,
-    default: "tile",
+    default: 'tile',
   },
   showQuantitySelector: {
     type: Boolean,
@@ -13,10 +13,10 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  "selectQuantityBtnClicked",
-  "closeSelectQuantity",
-  "toggleQuantitySelectors",
-  "resetSelectQuantities",
+  'selectQuantityBtnClicked',
+  'closeSelectQuantity',
+  'toggleQuantitySelectors',
+  'resetSelectQuantities',
 ])
 
 const config = useRuntimeConfig()
@@ -34,55 +34,35 @@ const getcartItemCount = () => {
 }
 </script>
 <template>
-  <div class="card" :class="{ list: listType == 'list', tile: listType == 'tile' }">
+  <div class="card" :class="{ list: listStyle == 'list', tile: listStyle == 'tile' }">
     <div class="content">
       <div
         class="image-description cursor-pointer"
         @mouseenter="hideImage = true"
         @mouseleave="hideImage = false"
-        v-if="listType == 'tile'"
+        v-if="listStyle == 'tile'"
       >
         <div
           class="description w-14 h-14 flex-row justify-center items-center text-xs text-slate-600"
-          v-if="listType == 'tile' && hideImage"
+          v-if="listStyle == 'tile' && hideImage"
         >
           {{ product.description }}
         </div>
-        <div
-          class="image w-14 h-14 flex-row justify-center items-center overflow-hidden"
-          v-if="!hideImage"
-        >
-          <NuxtLink
-            class=""
-            :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
-          >
+        <div class="image w-14 h-14 flex-row justify-center items-center overflow-hidden" v-if="!hideImage">
+          <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
             <img
               class="w-full h-full cover br-3"
-              v-if="
-                product.gallery.length &&
-                product.gallery[0] &&
-                product.gallery[0].mimetype.includes('image')
-              "
+              v-if="product.gallery.length && product.gallery[0] && product.gallery[0].mimetype.includes('image')"
               :src="`${config.backendUrl}/${product.gallery[0].path}`"
             />
           </NuxtLink>
         </div>
       </div>
-      <div
-        class="image w-14 h-14 flex-row justify-center items-center overflow-hidden"
-        v-else
-      >
-        <NuxtLink
-          class=""
-          :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
-        >
+      <div class="image w-14 h-14 flex-row justify-center items-center overflow-hidden" v-else>
+        <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
           <img
             class="w-full h-full cover br-3"
-            v-if="
-              product.gallery.length &&
-              product.gallery[0] &&
-              product.gallery[0].mimetype.includes('image')
-            "
+            v-if="product.gallery.length && product.gallery[0] && product.gallery[0].mimetype.includes('image')"
             :src="`${config.backendUrl}/${product.gallery[0].path}`"
           />
         </NuxtLink>
@@ -90,13 +70,10 @@ const getcartItemCount = () => {
 
       <div class="title w-full flex-1 text-sm">
         <div>
-          <NuxtLink
-            class=""
-            :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }"
-          >
+          <NuxtLink class="" :to="{ name: 'ecommerce-products-slug', params: { slug: product.slug } }">
             <div class="name font-bold">{{ product.name }}</div>
           </NuxtLink>
-          <div class="text-slate-500" v-if="listType == 'list'">
+          <div class="text-slate-500" v-if="listStyle == 'list'">
             {{ product.description }}
           </div>
         </div>
@@ -130,7 +107,7 @@ const getcartItemCount = () => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/assets/scss/variables";
+@import '@/assets/scss/variables';
 
 .card {
   border: 1px solid $slate-400;

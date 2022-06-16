@@ -2,7 +2,8 @@
 const title = ref('Products | YRL')
 
 const config = useRuntimeConfig()
-const { fetchAll } = useHttp()
+const { errorMsg, message } = useAppState()
+const { fetchAll, productsSearchAll, deleteDoc, deleteDocs } = useHttp()
 
 const quantitySelectors = ref([])
 const listStyle = ref('tile')
@@ -28,8 +29,9 @@ const searchObject = ref({
   eligibility: { title: 'Eligibility' },
   nextHigherAssembly: { title: 'Next Higher Assenbly' },
 })
+const searchResults = ref(0)
 const page = ref(1)
-const perPage = ref(10)
+const perPage = ref(2)
 const fields = 'name, slug, price'
 const keyword = ref('')
 const sort = reactive({
@@ -38,6 +40,11 @@ const sort = reactive({
 })
 
 let response = null
+const sortOptions = [
+  { key: 'sortOrder', name: 'Order' },
+  { key: 'name', name: 'Name' },
+  { key: 'createdAt', name: 'Date Created' },
+]
 
 const params = computed(() => {
   const params = {
@@ -61,6 +68,7 @@ const pages = computed(() => {
 const isFilterActive = computed(() => {
   let active = false
   for (const prop in searchObject.value) {
+    console.log(prop)
     if (searchObject.value[prop].id) {
       active = true
       break
@@ -69,19 +77,8 @@ const isFilterActive = computed(() => {
   return active
 })
 
-const fetchAllProducts = async (event = {}) => {
-  const queyParams = {}
-  if (searchObject.value.acsPartNumber && searchObject.value.acsPartNumber.id)
-    queyParams._id = searchObject.value.acsPartNumber.id
-  if (searchObject.value.oemPartNumber && searchObject.value.oemPartNumber.id)
-    queyParams.oemPartNumber = searchObject.value.oemPartNumber.id
-  if (searchObject.value.oem && searchObject.value.oem.id) queyParams.oem = searchObject.value.oem.id
-  if (searchObject.value.eligibility && searchObject.value.eligibility.id)
-    queyParams.eligibilities = searchObject.value.eligibility.id
-  if (searchObject.value.nextHigherAssembly && searchObject.value.nextHigherAssembly.id)
-    queyParams.nextHigherAssemblies = searchObject.value.nextHigherAssembly.id
-
-  response = await fetchAll('products', { ...params.value, ...queyParams })
+const fetchAllProducts = async (queryParams) => {
+  response = await fetchAll('products', queryParams)
   console.log(response)
   if (!response) return
   products.value = response.docs
@@ -103,9 +100,25 @@ const toggleQuantitySelectors = (status, i) => {
   // console.log(cart.value)
 }
 
+const handleSearch = async (searchKeyword) => {
+  keyword.value = searchKeyword
+  page.value = 1
+  await fetchAllProducts(params.value)
+}
+
+const toggleSort = async (event) => {
+  sort.field = event.field
+  sort.order = event.order
+  await fetchAllProducts(params.value)
+}
+
 const setPage = async (currentPage) => {
   page.value = currentPage
-  await fetchAllProducts()
+  await fetchAllProducts(params.value)
+}
+
+const setPerPage = async () => {
+  await fetchAllProducts(params.value)
 }
 
 const clearFilter = async (key) => {
@@ -113,7 +126,7 @@ const clearFilter = async (key) => {
   console.log(searchObject.value)
   searchObject.value[key] = { title: searchObject.value[key].title }
   console.log(searchObject.value)
-  await fetchAllProducts()
+  await showSearchResults()
 }
 
 const clearAllFilters = async () => {
@@ -121,30 +134,102 @@ const clearAllFilters = async () => {
     console.log(prop)
     searchObject.value[prop] = { title: searchObject.value[prop].title }
   }
-  await fetchAllProducts()
+  // console.log(key)
+  // console.log(searchObject.value)
+  // searchObject.value[key] = { title: searchObject.value[key].title }
+  // console.log(searchObject.value)
+  await showSearchResults()
 }
 
 const showSearchResults = async (event = {}) => {
+  console.log('EVENT', event)
   searchObject.value = { ...searchObject.value, ...event }
   showProductFiltersSlideout.value = false
-  page.value = 1
-  await fetchAllProducts()
+  // perPage.value = 10000
+  const queyParams = {}
+  if (searchObject.value.acsPartNumber && searchObject.value.acsPartNumber.id)
+    queyParams._id = searchObject.value.acsPartNumber.id
+  if (searchObject.value.oemPartNumber && searchObject.value.oemPartNumber.id)
+    queyParams.oemPartNumber = searchObject.value.oemPartNumber.id
+  if (searchObject.value.oem && searchObject.value.oem.id) queyParams.oem = searchObject.value.oem.id
+  if (searchObject.value.eligibility && searchObject.value.eligibility.id)
+    queyParams.eligibilities = searchObject.value.eligibility.id
+  if (searchObject.value.nextHigherAssembly && searchObject.value.nextHigherAssembly.id)
+    queyParams.nextHigherAssemblies = searchObject.value.nextHigherAssembly.id
+
+  console.log('queyParams', queyParams)
+  await fetchAllProducts({ ...params.value, ...queyParams })
+
+  // response = await fetchAll('products', { ...params.value, ...queyParams })
+  // console.log(response)
+  // if (!response) return
+  // products.value = response.docs
+  // searchResults.value = response.results
+  // console.log(searchResults.value)
 }
 
-await fetchAllProducts()
+await fetchAllProducts(params.value)
 
 onMounted(async () => {
   response = await fetchAll('products', { fields: 'name' })
   if (response && response.docs) searchProducts.value = response.docs
+  console.log('P', response)
   response = await fetchAll('eligibilities', { fields: 'name' })
+  console.log('E', response)
   if (response && response.docs) eligibilities.value = response.docs
   response = await fetchAll('nexthigherassemblies', { fields: 'name' })
+  console.log('N', response)
   if (response && response.docs) nextHigherAssemblies.value = response.docs
   response = await fetchAll('oems', { fields: 'name' })
+  console.log('OEM', response)
   if (response && response.docs) oems.value = response.docs
   response = await fetchAll('oempartnumbers', { fields: 'name' })
+  console.log('OEMP', response)
   if (response && response.docs) oemPartNumbers.value = response.docs
 })
+
+// const loadMore = async () => {
+//   const element = scrollRef.value
+//   console.log(element.getBoundingClientRect().bottom, window.innerHeight)
+//   if (element.getBoundingClientRect().bottom <= window.innerHeight) {
+//     page.value = page.value + 1
+//     response = await fetchAll('products', params.value)
+//     if (!response) return
+//     products.value.push(...response.docs)
+//     if (products.value.length == response.totalCount) window.removeEventListener('scroll', loadMore)
+//   }
+// }
+// onMounted(() => {
+//   window.addEventListener('scroll', loadMore)
+// })
+// onUnmounted(() => {
+//   window.removeEventListener('scroll', loadMore)
+// })
+//  {
+//   window.addEventListener(
+//     'scroll',
+//     loadMore
+//     // async () => {
+//     //   const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+//     //   // console.log({ scrollTop, scrollHeight, clientHeight })
+//     //   if (scrollTop + clientHeight >= scrollHeight) {
+//     //   }
+//     // }
+//   )
+
+// window.addEventListener(
+//   'scroll',
+//   loadMore
+//   // async () => {
+//   //   const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+//   //   // console.log({ scrollTop, scrollHeight, clientHeight })
+//   //   if (scrollTop + clientHeight >= scrollHeight) {
+//   //   }
+//   // }
+// )
+// checkScreen()
+// }
+// })
 </script>
 
 <template>
