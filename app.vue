@@ -9,7 +9,7 @@ const hideSnackbar = () => {
 onMounted(() => {
   const storageCart = JSON.parse(localStorage.getItem('cart'))
   if (!storageCart) {
-    cart.value = { items: [], total: 0 }
+    cart.value = { items: [], total: 0, customer: {}, shippingAddress: {}, billingAddress: {} }
     updateLocalStorage()
   } else {
     cart.value = storageCart

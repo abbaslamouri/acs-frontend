@@ -105,13 +105,20 @@ const setQuantity = (qty) => {
         <div class="" v-if="btnText">{{ btnText }}</div>
         <IconsPlus v-else class="w-2 h-2 fill-slate-50" />
       </button>
-      <button class="qtyBtnProduct btn btn__quantity-selector" @click.stop="setQuantitySelectorPosition" v-else>
+      <button
+        class="qty-btn-product btn btn__quantity-selector"
+        :class="{ 'btn-text': btnText }"
+        @click.stop="setQuantitySelectorPosition"
+        v-else
+      >
         <div class="flex-row items-center gap-1" v-if="btnText">
           <div class="qty">{{ btnText }}</div>
           <div>Update</div>
         </div>
-        <div class="px-1" v-else>
+        <div class="px-1 flex-row items-center justify-between gap-2" v-else>
+          <IconsCart />
           <span>Add To Bag</span>
+          <IconsPlus/>
         </div>
       </button>
     </client-only>
@@ -156,9 +163,13 @@ const setQuantity = (qty) => {
     height: v-bind(btnWidth);
   }
 
-  .qtyBtnProduct {
+  .qty-btn-product {
     padding: 1rem 2rem 1rem 1rem;
-    border-radius: 2rem;
+    border-radius: 3px;
+
+    &.btn-text {
+      border-radius: 2rem;
+    }
 
     .qty {
       background-color: $slate-50;
