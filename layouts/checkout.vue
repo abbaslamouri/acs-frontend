@@ -1,103 +1,23 @@
-<script setup>
-useMeta({ script: [{ src: 'https://js.stripe.com/v3/' }] })
-
-const route = useRoute()
-// const auth = useAuth()
-// const cart = useCart()
-
-// console.log(route.name)
-
-// console.log(useCookie('auth'))
-// import { useAuth } from '~/pinia/useAuth'
-// const authStore = useAuth()
-// const router = useRouter()
-// router.beforeEach((to, from) => {
-// 	if (to.name === 'auth-login' && authStore.token) {
-// 		return '/shop'
-// 	}
-// })
-
-// const categoryStore = useCategory()
-// categoryStore.fetchAll()
-</script>
+<script setup></script>
 
 <template>
-  <div class="app">
-    <header>
+  <div class="app flex-col justidy-between min-h-100vh">
+    <header class="sticky top-0 z-9">
       <!-- <FreeShipping /> -->
-      <div class="header">
-        <div class="branding-profile">
+      <div class="bg-white flex-row items-center justify-center py-1">
+        <div class="w-996p flex-row items-center justify-between">
           <Branding />
-          <div class="profile-cart">
-            <div class="profile">
-              <!-- <LoginDropdown v-if="!auth.authenticated" /> -->
-              <!-- <ProfileDropdown v-else /> -->
-            </div>
-            <!-- <EcommerceCheckoutNavCart v-show="route.name != 'checkout' && route.name != 'shipping'" /> -->
-            <!-- <EcommerceCartSlideout /> -->
-          </div>
         </div>
       </div>
-      <nav class="nav">
-        <!-- <MainNav /> -->
-      </nav>
     </header>
 
-    <main>
-      <!-- <div class="main"> -->
+    <main class="flex-1 flex-col">
       <slot />
-      <!-- </div> -->
     </main>
-    <footer><Footer /></footer>
+    <footer class="flex-row items-center justify-center p-2 bg-stone-800 text-slate-50"><Footer /></footer>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
-
-.app {
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 9;
-    .header {
-      background-color: $slate-900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      height: 6rem;
-      padding: 0 2rem;
-
-      .branding-profile {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 996px;
-
-        .profile-cart {
-          display: flex;
-          align-items: center;
-          gap: 2rem;
-        }
-      }
-    }
-  }
-
-  main {
-    min-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    // border: 10px solid teal;
-  }
-
-  footer {
-    height: 6rem;
-    background-color: $slate-800;
-    color: $slate-50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
 </style>

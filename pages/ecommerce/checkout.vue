@@ -11,16 +11,16 @@ const freeSamples = ref([])
 const { isAuthenticated, fetchLoggedInUser } = useAuth()
 const { fetchAll, saveDoc } = useHttp()
 
-// onMounted(() => {
-// cart.value = JSON.parse(localStorage.getItem('cart')) || {}
-// console.log(cart.value)
-// })
+onMounted(() => {
+  // cart.value = JSON.parse(localStorage.getItem('cart')) || {}
+  console.log(cart.value)
+})
 
 const updateDbOrder = async () => {
   const order = await saveDoc('orders', cart.value)
   // console.log('OOOO', order)
   if (order) {
-    cart.value.id = order._id
+    cart.value.id = order.id
     updateLocalStorage()
   }
 }
@@ -65,7 +65,7 @@ const checkout = async () => {
     <div class="w-996p">
       <div><EcommerceCheckoutSteps :step="1" /></div>
       <ClientOnly>
-        <div class="flex-row items-start gap-2 w-996p" v-if="cart.items && cart.items.length">
+        <div class="flex-row items-start gap-2" v-if="cart.items && cart.items.length">
           <div class="flex-1 bg-slate-50 flex-col gap-2">
             <EcommerceCheckoutProductList />
             <nuxt-link class="link" :to="{ name: 'index' }">
@@ -80,7 +80,7 @@ const checkout = async () => {
               <button class="btn btn__checkout px-3 py-1" @click="checkout">Continue</button>
             </div>
           </div>
-          <EcommerceCheckoutFreeItems :freeSamples="freeSamples" />
+          <EcommerceCheckoutFreeItems :freeSamples="freeSamples" class="w-32"/>
         </div>
         <EcommerceCheckoutEmptyCart v-else class="bg-slate-50 p3" />
       </ClientOnly>

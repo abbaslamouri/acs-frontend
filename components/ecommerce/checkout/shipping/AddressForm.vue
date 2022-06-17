@@ -1,5 +1,5 @@
 <script setup>
-import cloneDeep from 'lodash.clonedeep'
+// import cloneDeep from 'lodash.clonedeep'
 
 const props = defineProps({
   address: {
@@ -21,7 +21,7 @@ const states = inject('states')
 const localAddress = ref({})
 const localEmail = ref('')
 
-localAddress.value = cloneDeep(props.address)
+// localAddress.value = cloneDeep(props.address)
 localEmail.value = props.email
 
 watch(

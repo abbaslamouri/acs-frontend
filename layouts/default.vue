@@ -27,9 +27,6 @@ const { isAuthenticated } = useAuth()
       <slot />
     </main>
     <footer class="flex-row items-center justify-center p-2 bg-stone-800 text-slate-50"><Footer /></footer>
-    <!-- <transition name="slideout">
-      <EcommerceCheckoutCart v-show="showCartSlideout" />
-    </transition> -->
   </div>
 </template>
 

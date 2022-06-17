@@ -242,6 +242,44 @@ const useHttp = () => {
     }
   }
 
+  const saveOrder = async (payload) => {
+    errorMsg.value = null
+    message.value = null
+    let response = null
+    try {
+      // if (payload.id) {
+      //   response = await fetch(`${config.apiUrl}/${resource}/${payload.id}`, {
+      //     method: 'PATCH',
+      //     body: JSON.stringify(payload),
+      //     headers: new Headers({
+      //       'Content-Type': 'application/json',
+      //       Authorization: `Bearer ${token.value}`,
+      //     }),
+      //   })
+      // } else {
+      response = await fetch(`${config.apiUrl}/orders`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        }),
+      })
+      // }
+      console.log(response)
+      if (response.ok) {
+        const jsonRes = await response.json()
+        return jsonRes.doc ? jsonRes.doc : {}
+      }
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+    } catch (err) {
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
+    }
+  }
+
   // const productsSearchAll = async (params = {}) => {
   // 	errorMsg.value = null
   // 	message.value = null
@@ -268,7 +306,7 @@ const useHttp = () => {
   // 	}
   // }
 
-  return { fetchAll, fetchDoc, saveDoc, deleteDoc, deleteDocs, saveMedia, seedProducts }
+  return { fetchAll, fetchDoc, saveDoc, deleteDoc, deleteDocs, saveMedia, seedProducts, saveOrder }
 }
 
 export default useHttp

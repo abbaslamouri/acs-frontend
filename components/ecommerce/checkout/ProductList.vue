@@ -2,6 +2,7 @@
 const { cart } = useCart()
 
 const quantitySelectors = ref([])
+const config = useRuntimeConfig()
 
 const resetQuantitySelectors = () => {
   for (const prop in cart.value.items) {
@@ -33,8 +34,19 @@ const toggleQuantitySelectors = (status, index) => {
             <div class="flex-row gap-2 items-center">
               <div class="w-4 h-4" v-if="item.product && item.product.gallery && item.product.gallery[0]">
                 <img
+                  class="w-full h-full cover br-3"
+                  v-if="
+                    item.product.gallery.length &&
+                    item.product.gallery[0] &&
+                    item.product.gallery[0].mimetype.includes('image')
+                  "
+                  :src="`${config.backendUrl}/${item.product.gallery[0].path}`"
+                  :alt="` ${item.product.name} Photo`"
+                />
+                <img
                   class="w-full h-full contain"
-                  :src="item.product.gallery[0].path || '/placeholder.png'"
+                  v-else
+                  :src="`${config.backendUrl}//placeholder.png`"
                   :alt="` ${item.product.name} Photo`"
                 />
               </div>
@@ -45,6 +57,18 @@ const toggleQuantitySelectors = (status, index) => {
           <td>
             <div class="flex-row justify-center">
               <EcommerceQuantitySelector
+                parentComponent="cart"
+                btnWidth="3rem"
+                :product="item.product"
+                :minVal="0"
+                :maxVal="4"
+                :stepVal="1"
+                :btnText="item.quantity"
+                :showQuantitySelector="quantitySelectors[index]"
+                @toggleQuantitySelectors="toggleQuantitySelectors($event, index)"
+                @cancel="resetQuantitySelectors"
+              />
+              <!-- <EcommerceQuantitySelector
                 class="cart"
                 :product="item.product"
                 :minVal="0"
@@ -54,7 +78,7 @@ const toggleQuantitySelectors = (status, index) => {
                 :btnText="item.quantity"
                 @toggleQuantitySelectors="toggleQuantitySelectors($event, index)"
                 @cancel="resetQuantitySelectors"
-              />
+              /> -->
             </div>
           </td>
           <td class="text-yellow-700">${{ (item.quantity * item.product.price).toFixed(2) }}</td>
@@ -72,8 +96,8 @@ const toggleQuantitySelectors = (status, index) => {
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-th{
-  padding:1rem;
+th {
+  padding: 1rem;
 }
 
 td {

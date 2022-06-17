@@ -2,18 +2,18 @@
 const router = useRouter()
 const { cart, updateLocalStorage } = useCart()
 const { showCartSlideout } = useAppState()
-const { saveDoc } = useHttp()
+const { saveOrder } = useHttp()
 
 const checkout = async () => {
   showCartSlideout.value = false
   cart.value.status = 'cart'
   console.log(cart.value)
-  const order = await saveDoc('orders', cart.value)
+  const order = await saveOrder(cart.value)
   console.log('Order', order)
   if (order) {
-    cart.value = { ...cart.value, ...order }
+    cart.value.id = order.id
     updateLocalStorage()
-    // router.push({ name: 'ecommerce-checkout' })
+    router.push({ name: 'ecommerce-checkout' })
   }
 }
 </script>

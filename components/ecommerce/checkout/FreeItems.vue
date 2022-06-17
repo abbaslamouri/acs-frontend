@@ -21,7 +21,7 @@ const toggleQuantitySelectors = (status, index) => {
 }
 </script>
 <template>
-  <div class="w-32 bg-slate-50 flex-col gap-2 p-2">
+  <div class="bg-slate-50 flex-col gap-2 p-2">
     <div class="text-center font-bold tracking-wide">Add Free Sample Pack and Recycling Bag</div>
     <div v-for="(freeSample, index) in freeSamples" :key="freeSample._id">
       <div class="py-2 px-1 border-b-stone-300">
