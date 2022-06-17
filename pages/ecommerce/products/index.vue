@@ -1,8 +1,8 @@
 <script setup>
 const title = ref('Products | YRL')
 
+const router = useRouter()
 const route = useRoute()
-console.log('RP', route.query)
 
 const config = useRuntimeConfig()
 const { fetchAll } = useHttp()
@@ -69,7 +69,7 @@ const isFilterActive = computed(() => {
   return active
 })
 
-const fetchAllProducts = async (event = {}) => {
+const fetchAllProducts = async () => {
   const queyParams = {}
   if (searchObject.value.acsPartNumber && searchObject.value.acsPartNumber.id)
     queyParams._id = searchObject.value.acsPartNumber.id
@@ -82,7 +82,6 @@ const fetchAllProducts = async (event = {}) => {
     queyParams.nextHigherAssemblies = searchObject.value.nextHigherAssembly.id
 
   response = await fetchAll('products', { ...params.value, ...queyParams })
-  console.log(response)
   if (!response) return
   products.value = response.docs
   count.value = response.results
@@ -95,18 +94,16 @@ const setPage = async (currentPage) => {
 }
 
 const clearFilter = async (key) => {
-  console.log(key)
-  console.log(searchObject.value)
   searchObject.value[key] = { title: searchObject.value[key].title }
-  console.log(searchObject.value)
+  router.push({ name: 'ecommerce-products' })
   await fetchAllProducts()
 }
 
 const clearAllFilters = async () => {
   for (const prop in searchObject.value) {
-    console.log(prop)
     searchObject.value[prop] = { title: searchObject.value[prop].title }
   }
+  router.push({ name: 'ecommerce-products' })
   await fetchAllProducts()
 }
 
@@ -117,29 +114,47 @@ const showSearchResults = async (event = {}) => {
   await fetchAllProducts()
 }
 
-await fetchAllProducts()
+// const handleItemQuantitySelected = (event) => {
+//   resetSelectQuantities()
+//   showSelectQty = event.status
+//   cart.addItem(props.products[i], event.quantity)
+// }
 
-onMounted(async () => {
-  response = await fetchAll('products', { fields: 'name' })
-  if (response && response.docs) searchProducts.value = response.docs
-  response = await fetchAll('eligibilities', { fields: 'name' })
-  if (response && response.docs) eligibilities.value = response.docs
-  response = await fetchAll('nexthigherassemblies', { fields: 'name' })
-  if (response && response.docs) nextHigherAssemblies.value = response.docs
-  response = await fetchAll('oems', { fields: 'name' })
-  if (response && response.docs) oems.value = response.docs
-  response = await fetchAll('oempartnumbers', { fields: 'name' })
-  if (response && response.docs) oemPartNumbers.value = response.docs
-})
+// onMounted(async () => {
+response = await fetchAll('products', { fields: 'name' })
+if (response && response.docs) searchProducts.value = response.docs
+response = await fetchAll('eligibilities', { fields: 'name' })
+if (response && response.docs) eligibilities.value = response.docs
+response = await fetchAll('nexthigherassemblies', { fields: 'name' })
+if (response && response.docs) nextHigherAssemblies.value = response.docs
+response = await fetchAll('oems', { fields: 'name' })
+if (response && response.docs) oems.value = response.docs
+response = await fetchAll('oempartnumbers', { fields: 'name' })
+if (response && response.docs) oemPartNumbers.value = response.docs
+// })
+
+if (route.query.eligibility) {
+  searchObject.value.eligibility.id = route.query.eligibility
+  const eligibility = eligibilities.value.find((e) => e.id == route.query.eligibility)
+  if (eligibility) searchObject.value.eligibility.name = eligibility.name
+}
+
+if (route.query.nextHigherAssembly) {
+  searchObject.value.nextHigherAssembly.id = route.query.nextHigherAssembly
+  const nextHigherAssembly = nextHigherAssemblies.value.find((e) => e.id == route.query.nextHigherAssembly)
+  if (nextHigherAssembly) searchObject.value.nextHigherAssembly.name = nextHigherAssembly.name
+}
+
+await fetchAllProducts()
 </script>
 
 <template>
-  <div class="flex-1 flex-col p-3">
+  <div class="flex-1 flex-col bg-white p-2">
     <Title>{{ title }}</Title>
     <div class="flex-1 flex-col justify-between gap-3" v-if="products">
       <main class="flex-1 flex-row justify-center">
-        <div class="w-996p flex-col gap-1">
-          <div class="sticky top-18 bg-slate-50 z-1">
+        <div class="w-996p flex-col">
+          <div class="filters bg-slate-200 z-1 p-1">
             <EcommerceProductsFiltersAndViews
               :totalCount="totalCount"
               :isFilterActive="isFilterActive"
@@ -184,23 +199,8 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-// .product-list {
-//   &.tile {
-//     display: flex;
-//     flex-direction: column;
-//     flex-wrap: wrap;
-//   }
-// }
-
-// svg {
-//   width: 1.5rem;
-// }
-
-// .search-object-key {
-//   border-radius: 2rem 0 0 2rem;
-// }
-
-// .search-object-value {
-//   border-radius: 0 2rem 2rem 0;
-// }
+.filters {
+  position: sticky;
+  top: 16rem;
+}
 </style>

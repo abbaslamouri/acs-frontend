@@ -8,11 +8,9 @@ const eligibilityInputRef = ref('')
 
 const addEligibility = async () => {
   const savedEligibility = await saveDoc('eligibilities', newEligibility.value)
-  console.log('savedEligibility', savedEligibility)
   if (!Object.values(savedEligibility).length) return
   product.value.eligibilities.push(savedEligibility)
   const savedProduct = await saveDoc('products', product.value)
-  console.log('savedProduct', savedProduct)
   if (!Object.values(savedProduct).length) return
   eligibilityInputRef.value.focus()
   newEligibility.value.name = ''

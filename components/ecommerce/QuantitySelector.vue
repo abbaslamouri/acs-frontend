@@ -22,8 +22,13 @@ const props = defineProps({
   showQuantitySelector: {
     type: Boolean,
   },
+  btnWidth: {
+    type: String,
+    default: '0.2rem',
+  },
   parentComponent: {
     type: String,
+    default: 'products',
   },
 })
 
@@ -43,25 +48,25 @@ while (i <= props.maxVal) {
 }
 if (quantityArr.value.length <= 5) {
   quantitySelectorOffset.value = `-85px`
-  cartQuantitySelectorOffset.value = `-30px`
+  cartQuantitySelectorOffset.value = `-25px`
 } else if (quantityArr.value.length > 5 && quantityArr.value.length <= 10) {
   quantitySelectorOffset.value = `-150px`
-  cartQuantitySelectorOffset.value = `-50px`
+  cartQuantitySelectorOffset.value = `-40px`
 } else if (quantityArr.value.length > 10 && quantityArr.value.length <= 15) {
   quantitySelectorOffset.value = `-190px`
-  cartQuantitySelectorOffset.value = `-70px`
+  cartQuantitySelectorOffset.value = `-55px`
 } else if (quantityArr.value.length > 15 && quantityArr.value.length <= 20) {
   quantitySelectorOffset.value = `-230px`
-  cartQuantitySelectorOffset.value = `-90px`
+  cartQuantitySelectorOffset.value = `-70px`
 } else if (quantityArr.value.length > 20 && quantityArr.value.length <= 25) {
   quantitySelectorOffset.value = `-270px`
-  cartQuantitySelectorOffset.value = `-110px`
+  cartQuantitySelectorOffset.value = `-85px`
 } else if (quantityArr.value.length > 25 && quantityArr.value.length <= 30) {
   quantitySelectorOffset.value = `-310px`
-  cartQuantitySelectorOffset.value = `-130px`
+  cartQuantitySelectorOffset.value = `-100px`
 } else {
   quantitySelectorOffset.value = `-350px`
-  cartQuantitySelectorOffset.value = `-150px`
+  cartQuantitySelectorOffset.value = `-100px`
 }
 
 if (process.client) {
@@ -91,12 +96,25 @@ const setQuantity = (qty) => {
 
 <template>
   <div class="quantity-selector relative flex-row justify-center" :class="{ cart: parentComponent === 'cart' }">
-    <button class="btn btn__quantity-selector p-02" @click.stop="setQuantitySelectorPosition">
-      <client-only>
+    <client-only>
+      <button
+        class="qtyBtn btn btn__quantity-selector"
+        @click.stop="setQuantitySelectorPosition"
+        v-if="parentComponent !== 'product'"
+      >
         <div class="" v-if="btnText">{{ btnText }}</div>
         <IconsPlus v-else class="w-2 h-2 fill-slate-50" />
-      </client-only>
-    </button>
+      </button>
+      <button class="qtyBtnProduct btn btn__quantity-selector" @click.stop="setQuantitySelectorPosition" v-else>
+        <div class="flex-row items-center gap-1" v-if="btnText">
+          <div class="qty">{{ btnText }}</div>
+          <div>Update</div>
+        </div>
+        <div class="px-1" v-else>
+          <span>Add To Bag</span>
+        </div>
+      </button>
+    </client-only>
     <div
       class="selector absolute bg-stone-200 z-9 p-1 br-3"
       v-if="showQuantitySelector"
@@ -130,6 +148,30 @@ const setQuantity = (qty) => {
 @import '@/assets/scss/variables';
 
 .quantity-selector {
+  .qtyBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: v-bind(btnWidth);
+    height: v-bind(btnWidth);
+  }
+
+  .qtyBtnProduct {
+    padding: 1rem 2rem 1rem 1rem;
+    border-radius: 2rem;
+
+    .qty {
+      background-color: $slate-50;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 1rem;
+      color: $green-900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
   .selector {
     top: v-bind(quantitySelectorOffset);
     left: 50%;
@@ -137,11 +179,15 @@ const setQuantity = (qty) => {
     transform: translateX(-50%);
     background-color: $stone-300;
 
+    // input{
+    //   width: 12rem;
+    // }
+
     &.below {
       top: 130%;
       &::before {
         top: -20px;
-        border-color: transparent transparent $stone-200 transparent;
+        border-color: transparent transparent $stone-300 transparent;
       }
     }
 
@@ -181,17 +227,17 @@ const setQuantity = (qty) => {
   &.cart {
     .selector {
       top: v-bind(cartQuantitySelectorOffset);
-      left: -115px;
+      left: -95px;
 
       &::before {
         content: '';
         position: absolute;
         top: 50%;
-        left: 210px;
+        left: 170px;
         transform: translateY(-50%);
         border-width: 10px;
         border-style: solid;
-        border-color: transparent transparent transparent $stone-200;
+        border-color: transparent transparent transparent $stone-300;
       }
     }
   }

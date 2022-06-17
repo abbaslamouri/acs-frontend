@@ -68,7 +68,6 @@ const pages = computed(() => {
 const isFilterActive = computed(() => {
   let active = false
   for (const prop in searchObject.value) {
-    console.log(prop)
     if (searchObject.value[prop].id) {
       active = true
       break
@@ -79,7 +78,6 @@ const isFilterActive = computed(() => {
 
 const fetchAllProducts = async (queryParams) => {
   response = await fetchAll('products', queryParams)
-  console.log(response)
   if (!response) return
   products.value = response.docs
   count.value = response.results
@@ -93,11 +91,9 @@ const resetSelectQuantities = () => {
 }
 
 const toggleQuantitySelectors = (status, i) => {
-  console.log(status, i)
   resetSelectQuantities()
   quantitySelectors.value[i] = status
   // addItem(props.products[i], event.quantity)
-  // console.log(cart.value)
 }
 
 const handleSearch = async (searchKeyword) => {
@@ -122,27 +118,18 @@ const setPerPage = async () => {
 }
 
 const clearFilter = async (key) => {
-  console.log(key)
-  console.log(searchObject.value)
   searchObject.value[key] = { title: searchObject.value[key].title }
-  console.log(searchObject.value)
   await showSearchResults()
 }
 
 const clearAllFilters = async () => {
   for (const prop in searchObject.value) {
-    console.log(prop)
     searchObject.value[prop] = { title: searchObject.value[prop].title }
   }
-  // console.log(key)
-  // console.log(searchObject.value)
-  // searchObject.value[key] = { title: searchObject.value[key].title }
-  // console.log(searchObject.value)
   await showSearchResults()
 }
 
 const showSearchResults = async (event = {}) => {
-  console.log('EVENT', event)
   searchObject.value = { ...searchObject.value, ...event }
   showProductFiltersSlideout.value = false
   // perPage.value = 10000
@@ -157,15 +144,7 @@ const showSearchResults = async (event = {}) => {
   if (searchObject.value.nextHigherAssembly && searchObject.value.nextHigherAssembly.id)
     queyParams.nextHigherAssemblies = searchObject.value.nextHigherAssembly.id
 
-  console.log('queyParams', queyParams)
   await fetchAllProducts({ ...params.value, ...queyParams })
-
-  // response = await fetchAll('products', { ...params.value, ...queyParams })
-  // console.log(response)
-  // if (!response) return
-  // products.value = response.docs
-  // searchResults.value = response.results
-  // console.log(searchResults.value)
 }
 
 await fetchAllProducts(params.value)
@@ -173,18 +152,13 @@ await fetchAllProducts(params.value)
 onMounted(async () => {
   response = await fetchAll('products', { fields: 'name' })
   if (response && response.docs) searchProducts.value = response.docs
-  console.log('P', response)
   response = await fetchAll('eligibilities', { fields: 'name' })
-  console.log('E', response)
   if (response && response.docs) eligibilities.value = response.docs
   response = await fetchAll('nexthigherassemblies', { fields: 'name' })
-  console.log('N', response)
   if (response && response.docs) nextHigherAssemblies.value = response.docs
   response = await fetchAll('oems', { fields: 'name' })
-  console.log('OEM', response)
   if (response && response.docs) oems.value = response.docs
   response = await fetchAll('oempartnumbers', { fields: 'name' })
-  console.log('OEMP', response)
   if (response && response.docs) oemPartNumbers.value = response.docs
 })
 

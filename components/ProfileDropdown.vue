@@ -6,7 +6,6 @@ const showProfileDropdown = ref(false)
 const lougout = async () => {
   showProfileDropdown.value = false
   const response = await signout()
-  console.log(response)
   if (!response) return
   // token.value = null
   // isAuthenticated.value = false

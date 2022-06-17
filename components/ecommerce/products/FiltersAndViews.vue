@@ -18,7 +18,7 @@ const emit = defineEmits(['toggleProductFiltersSlideout', 'setListStyle', 'clear
 </script>
 
 <template>
-  <section class="w-996p">
+  <section class="">
     <div class="flex-row items-center justify-between">
       <button
         class="bg-white border border-slate-300 br-3 flex-row items-center gap-3 px-3 py-1 cursor-pointer"

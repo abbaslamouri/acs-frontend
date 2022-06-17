@@ -36,8 +36,12 @@ const navLinkItems = ref([
 <template>
   <div class="flex-row justify-center bg-slate-800">
     <ul class="w-996p flex-row justify-center">
-      <li class="item w-full text-slate-50 flex-row justify-center items-center uppercase py-2" v-for="item in navLinkItems" :key="item.title">
-        <NuxtLink :to="{ name: item.link }">
+      <li
+        class="item w-full text-slate-50 flex-row justify-center items-center uppercase"
+        v-for="item in navLinkItems"
+        :key="item.title"
+      >
+        <NuxtLink class="py-1 text-sm tracking-wide" :to="{ name: item.link }">
           <!-- <button class="btn btn__primary btn__pill px-2 py-05"> -->
           {{ item.name }}
           <!-- </button> -->
@@ -60,7 +64,7 @@ const navLinkItems = ref([
   cursor: pointer;
 
   &:hover {
-    background-color: white;
+    background-color: $slate-200;
     color: $slate-800;
   }
 }

@@ -1,9 +1,21 @@
 <script setup>
-const { message, errorMsg, showMediaSelector } = useAppState()
+const { cart, updateLocalStorage } = useCart()
+const { message, errorMsg, showMediaSelector, showCartSlideout } = useAppState()
 const hideSnackbar = () => {
   errorMsg.value = null
   message.value = null
 }
+
+onMounted(() => {
+  const storageCart = JSON.parse(localStorage.getItem('cart'))
+  if (!storageCart) {
+    cart.value = { items: [], total: 0 }
+    updateLocalStorage()
+  } else {
+    cart.value = storageCart
+  }
+  // console.log(storageCart)
+})
 </script>
 <template>
   <div>
@@ -19,6 +31,9 @@ const hideSnackbar = () => {
       <div class="media-selector" v-if="showMediaSelector">
         <LazyMediaUploader @mediaSelectCancel="showMediaSelector = false" />
       </div>
+      <transition name="slideout">
+        <EcommerceCheckoutCart v-if="showCartSlideout" />
+      </transition>
     </NuxtLayout>
   </div>
 </template>

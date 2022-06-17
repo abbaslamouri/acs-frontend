@@ -21,15 +21,17 @@ const emit = defineEmits([
 
 const config = useRuntimeConfig()
 
+const { cart } = useCart()
+
 const router = useRouter()
 
 const hideImage = ref(false)
 
 const getcartItemCount = () => {
-  // if (cart.value.items && cart.value.items.length) {
-  //   const found = cart.value.items.find((i) => i.product._id == props.product._id)
-  //   return found ? found.quantity : 0
-  // }
+  if (cart.value.items && cart.value.items.length) {
+    const found = cart.value.items.find((i) => i.product.id == props.product.id)
+    return found ? found.quantity : 0
+  }
   return 0
 }
 </script>
@@ -87,12 +89,13 @@ const getcartItemCount = () => {
           </NuxtLink>
         </div>
 
-        <div class="flex-row gap-1 items-center">
+        <div class="flex-row gap-2 items-center">
           <div class="price text-yellow-700">${{ product.price.toFixed(2) }}</div>
           <EcommerceQuantitySelector
             :product="product"
+            btnWidth="3rem"
             :minVal="0"
-            :maxVal="4"
+            :maxVal="9"
             :stepVal="1"
             :btnText="getcartItemCount()"
             :showQuantitySelector="showQuantitySelector"

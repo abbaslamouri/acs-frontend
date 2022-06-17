@@ -19,48 +19,13 @@ const slug = route.params.slug === '_' ? null : route.params.slug
 if (slug) {
   response = await fetchAll('products', { slug })
   if (response.docs) product.value = response.docs[0]
-  console.log(response)
   if (product.value.id) {
     response = await fetchAll('variants', { product: product.value.id })
     if (response.docs) product.value.variants = response.docs
   }
 }
 
-const saveProduct = async () => {
-  console.log(product.value)
-  if (!product.value.name) return (errorMsg.value = 'Product name is required')
-  // const id = product.value.id ? product.value.id : null
-  const newProduct = await saveDoc('products', product.value)
-  console.log('newProduct', newProduct)
-  if (!Object.values(newProduct).length) return
-  // slug = newProduct.slug
-  message.value = 'product saved succesfully'
-  // response = await deleteDocs('variants', { product: newProduct.id })
-  // if (!response) return
-  // if (product.value.variants.length) response = await $saveDoc('variants', product.value.variants)
-  router.push({ name: 'admin-ecommerce-products-slug', params: { slug: newProduct.slug } })
-  message.value = 'product saved succesfully'
-  // response = await $fetchBySlug('products', slug)
-  // if (response) product.value = response
-}
 
-// const showMediaUploader = () => {
-//   mediaReference.value = 'productMedia'
-//   showMediaSelector.value = true
-// }
-
-// Set category gallery
-// const addImagesToGallery = async (media) => {
-//   // console.log('mediap', media)
-//   // console.log(product.value)
-//   for (const prop in media) {
-//     const index = product.value.gallery.findIndex((el) => el._id == media[prop]._id)
-//     if (index === -1) {
-//       product.value.gallery.push(media[prop])
-//     }
-//   }
-//   // console.log(product.value.gallery)
-// }
 
 watch(
   () => galleryMedia.value,
