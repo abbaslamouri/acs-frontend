@@ -1,4 +1,5 @@
 <script setup>
+const title = ref('Shipping | YRL')
 // import cloneDeep from 'lodash.clonedeep'
 
 useMeta({
@@ -25,7 +26,15 @@ const states = (await fetchAll('states', { sort: 'name' })).docs
 provide('countries', countries)
 provide('states', states)
 
-const selectedAddress = computed(() => cart.value.customer.shippingAddresses.find((a) => a.selected))
+const selectedAddress = computed(() => {
+  if (!cart.value.customer.shippingAddresses || !cart.value.customer.shippingAddresses.length) {
+    displayStatus.value = 'editing'
+    return {}
+  }
+  const defaultAddress = cart.value.customer.shippingAddresses.find((a) => a.default)
+  if (defaultAddress) return defaultAddress
+  return cart.value.customer.shippingAddresses[0]
+})
 
 // onMounted(async () => {
 // cart.value = JSON.parse(localStorage.getItem('cart')) || {}
@@ -131,6 +140,7 @@ const continueToPayment = () => {
 
 <template>
   <div class="secure w-full flex-1 bg-slate-900 flex-col items-center gap-1">
+    <Title>{{ title }}</Title>
     <div class="content flex-row items-start gap-2 w-996p">
       <EcommerceCheckoutSteps :step="3" activeColor="#16a34a" />
     </div>
@@ -159,7 +169,7 @@ const continueToPayment = () => {
                   <div v-if="selectedAddress.country">{{ selectedAddress.country.countryName }}</div> -->
               <!-- </div> -->
               <!-- </div> -->
-              <EcommerceCheckoutShippingAddress :address="selectedAddress" />
+              <EcommerceCheckoutShippingAddress :customerAddress="selectedAddress" />
               <button
                 class="btn btn__secondary px-2 py-05 text-xs"
                 @click.prevent="displayStatus = 'selecting'"
@@ -197,7 +207,7 @@ const continueToPayment = () => {
           </div>
           <Modal
             :outerBoxWidth="75"
-            :outerBoxHeight="100"
+            :outerBoxHeight="90"
             @closeModal="cancelAddressUpdate"
             v-if="displayStatus === 'editing'"
           >

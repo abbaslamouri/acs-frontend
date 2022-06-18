@@ -1,5 +1,5 @@
 <script setup>
-const { cart } = useCart()
+const { cart, removeItem } = useCart()
 
 const quantitySelectors = ref([])
 const config = useRuntimeConfig()

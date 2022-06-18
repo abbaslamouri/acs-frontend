@@ -2,13 +2,16 @@
 // import cloneDeep from 'lodash.clonedeep'
 
 const props = defineProps({
-  address: {
+  customerAddress: {
     type: Object,
     required: true,
   },
-  // email: {
-  //   type: String,
-  // },
+  email: {
+    type: String,
+  },
+  phoneNumbers: {
+    type: Array,
+  },
   showDefaultToggleField: {
     type: Boolean,
     default: false,
@@ -20,17 +23,27 @@ const countries = inject('countries')
 const states = inject('states')
 const localAddress = ref({})
 const localEmail = ref('')
+const localPhoneNumbers = ref([])
 
-// localAddress.value = cloneDeep(props.address)
+localAddress.value = { ...props.customerAddress }
 localEmail.value = props.email
+localPhoneNumbers.value = [...props.phoneNumbers]
 
-watch(
-  () => localAddress.value,
-  (newVal) => {
-    emit('updateAddress', newVal)
-  },
-  { deep: true }
-)
+const addPhoneNumber = () => {
+  localPhoneNumbers.value.push({
+    phoneType: '',
+    phoneCountryCode: '',
+    phoneNumber: '',
+  })
+}
+
+// watch(
+//   () => localAddress.value,
+//   (newVal) => {
+//     emit('updateAddress', newVal)
+//   },
+//   { deep: true }
+// )
 
 // watch(
 //   () => localEmail.value,
@@ -43,7 +56,8 @@ watch(
 <template>
   <div class="flex-col">
     <div class="flex-col gap-2">
-      <p>Mandatory fields are marked with a *</p>
+      {{ localPhoneNumbers }}----
+      <p>All fields with * are mandatory</p>
       <section class="flex-col gap-1">
         <div>
           <FormsBaseRadioGroup
@@ -79,7 +93,7 @@ watch(
         </div>
       </section>
       <section class="flex-col gap-1">
-        <div class="flex-row gap-2 items-center" v-for="(phone, j) in localAddress.phones" :key="`phone-number-${j}`">
+        <div class="flex-row gap-2 items-center" v-for="(phone, j) in localPhoneNumbers" :key="`phone-number-${j}`">
           <div class="min-w-14">
             <FormsBaseSelect
               label="PhoneType"
@@ -95,16 +109,26 @@ watch(
             <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phone.phoneNumber" />
           </div>
           <div class="flex-1">
+            <FormsBaseSelect
+              label="Country Code"
+              nullOption="-"
+              :options="
+                countries.map((c) => {
+                  return { key: c.id, name: c.countryName }
+                })
+              "
+              @update:modelValue="localPhoneNumbers[j].phoneCountryCode == country.id"
+            />
             <label class="base-select">
               <div class="label text-xs px-1">Country Code</div>
               <select
-                @change="localAddress.phones[j].phoneCountryCode = countries.find((c) => c._id == $event.target.value)"
+                @change="localPhoneNumbers[j].phoneCountryCode = countries.find((c) => c._id == $event.target.value)"
               >
                 <option
                   v-for="country in countries"
                   :key="country._id"
                   :value="country._id"
-                  :selected="localAddress.phones[j].phoneCountryCode._id == country._id"
+                  :selected="localPhoneNumbers[j].phoneCountryCode._id == country._id"
                 >
                   {{ country.countryName }}
                 </option>
@@ -113,8 +137,8 @@ watch(
           </div>
           <button
             class="btn btn__secondary"
-            @click="localAddress.phones.splice(j, 1)"
-            v-if="localAddress.phones.length > 1"
+            @click="localPhoneNumbers.splice(j, 1)"
+            v-if="localPhoneNumbers.length > 1"
           >
             <IconsMinus />
           </button>
@@ -122,7 +146,7 @@ watch(
         <button
           class="btn btn__secondary items-self-end px-2 py-05"
           @click="addPhoneNumber"
-          :disabled="localAddress.phones.length >= 4"
+          :disabled="localPhoneNumbers.length >= 4"
         >
           Add Phone Number
         </button>
@@ -142,20 +166,30 @@ watch(
             <FormsBaseInput label="City" placeholder="City" v-model="localAddress.city" />
           </div>
           <div class="flex-1">
-            <label class="base-select">
+            <FormsBaseSelect
+              label="State"
+              nullOption="-"
+              :options="
+                states.map((s) => {
+                  return { key: s.id, name: s.name }
+                })
+              "
+              @update:modelValue="localAddress.state = states.find((s) => s.id == $event.target.value)"
+            />
+            <!-- <label class="base-select">
               <div class="label text-xs px-1">State</div>
-              <select @change="localAddress.state = states.find((s) => s._id == $event.target.value)">
-                <!-- <option value="">State</option> -->
+              <select @change="localAddress.state = states.find((s) => s.id == $event.target.value)">
+                <option value="">Select State</option>
                 <option
                   v-for="state in states"
-                  :key="state._id"
-                  :value="state._id"
-                  :selected="localAddress.state._id == state._id"
+                  :key="state.id"
+                  :value="state.id"
+                  :selected="localAddress.state && localAddress.state.id == state.id"
                 >
                   {{ state.abbreviation }}
                 </option>
               </select>
-            </label>
+            </label> -->
           </div>
         </div>
         <div class="flex-row items-center gap-2">
@@ -163,20 +197,29 @@ watch(
             <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localAddress.postalCode" />
           </div>
           <div class="flex-1">
-            <label class="base-select">
+            <FormsBaseSelect
+              label="Country"
+              nullOption="-"
+              :options="
+                countries.map((c) => {
+                  return { key: c.id, name: c.countryName }
+                })
+              "
+              @update:modelValue="localAddress.country = countries.find((c) => c.id == $event.target.value)"
+            />
+            <!-- <label class="base-select">
               <div class="label text-xs px-1">Country</div>
               <select @change="localAddress.country = countries.find((c) => c._id == $event.target.value)">
-                <!-- <option value="">Country Code</option> -->
                 <option
                   v-for="country in countries"
                   :key="country._id"
                   :value="country._id"
-                  :selected="localAddress.country._id == country._id"
+                  :selected="localAddress.country && localAddress.country.id == country.id"
                 >
                   {{ country.countryName }}
                 </option>
               </select>
-            </label>
+            </label> -->
           </div>
         </div>
       </section>

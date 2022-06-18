@@ -1,7 +1,7 @@
 <script setup>
-import cloneDeep from 'lodash.clonedeep'
+// import cloneDeep from 'lodash.clonedeep'
 
-const emit = defineEmits(['setDefaultAddress', 'updatesCustomer'])
+const emit = defineEmits(['addNewAddress', 'setDefaultAddress', 'updateCustomer'])
 
 const { cart } = useCart()
 const { errorMsg } = useAppState()
@@ -13,7 +13,8 @@ const addressToEdit = ref({})
 // const selectedAddressIndex = ref(null)
 const displayStatus = ref('displaying')
 const editAction = ref('')
-const localAddresses = ref(cloneDeep(cart.value.customer.shippingAddresses))
+const localAddresses = ref([])
+// const localAddresses = ref(cloneDeep(cart.value.customer.shippingAddresses))
 // const cart.customer = ref(cloneDeep(props.customer))
 // const currentCustomer = JSON.stringify(cart.value.customer)
 
@@ -23,6 +24,10 @@ const selectedAddress = computed(
     localAddresses.value.find((a) => a.isDefault === true) ||
     {}
 )
+
+onMounted(() => {
+  console.log(cart.value)
+})
 
 const getCountryName = (countryCode) => {
   console.log(countryCode)
@@ -112,7 +117,7 @@ const updateAddress = (payload) => {
     }
   }
   // selectedAddress.value = address
-  // emit('updatesCustomer', cart.value.customer)
+  // emit('updateCustomer', cart.value.customer)
   cart.value.customer.shippingAddresses = localAddresses.value
   if (email && !cart.value.customer.email) cart.value.customer.email = email
 
@@ -142,7 +147,7 @@ const updateAddress = (payload) => {
         </button>
       </div>
 
-      <button class="btn btn__secondary px-2 py-1 items-self-end" @click="addAddress">Add Address</button>
+      <button class="btn btn__secondary px-2 py-1 items-self-end" @click="$emit('addNewAddress')">Add Address</button>
     </div>
 
     <EcommerceCheckoutShippingAddressList

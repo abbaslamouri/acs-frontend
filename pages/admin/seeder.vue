@@ -7,9 +7,11 @@ const title = ref('Seeder | YRL')
 const config = useRuntimeConfig()
 const { errorMsg, message } = useAppState()
 const { fetchAll, deleteDoc, deleteDocs } = useHttp()
-const { seedProducts } = useHttp()
+const { seedProducts, seedCountries, seedStates } = useHttp()
 
 const showDropZone = ref(false)
+
+const fileToUpload = ref('')
 
 const eligibilities = ref([])
 const nextHigherAssemblies = ref([])
@@ -74,9 +76,29 @@ const fetchAllNextHigherAssemblies = async () => {
 const uploadFile = async (files) => {
   console.log(files)
   const formData = new FormData()
-  formData.append('gallery', files[0])
-  const response = await seedProducts(formData)
-  console.log('RES', response)
+
+  if (fileToUpload.value === 'products') {
+    formData.append('gallery', files[0])
+    const response = await seedProducts(formData)
+    console.log('RES', response)
+  }
+
+  if (fileToUpload.value === 'countries') {
+    formData.append('gallery', files[0])
+    const response = await seedCountries(formData)
+    console.log('RES', response)
+  }
+
+  if (fileToUpload.value === 'states') {
+    formData.append('gallery', files[0])
+    const response = await seedStates(formData)
+    console.log('RES', response)
+  }
+}
+
+const setFileToUpload = (event) => {
+  fileToUpload.value = event
+  showDropZone.value = true
 }
 
 await fetchAllEligibilities()
@@ -87,14 +109,24 @@ await fetchAllNextHigherAssemblies()
   <div class="flex-1 flex-col gap-3 p-4">
     <Title>{{ title }}</Title>
     <!-- <form class="form-inline"> -->
-    <button class="btn btn__new-media gap-1 min-w-16 items-self-start" @click="showDropZone = !showDropZone">
+    <button class="btn btn__new-media gap-1 min-w-16 items-self-start" @click="setFileToUpload('products')">
       <IconsUpload />
       <span>Select CSV File</span>
+    </button>
+
+    <button class="btn btn__new-media gap-1 min-w-16 items-self-start" @click="setFileToUpload('countries')">
+      <IconsUpload />
+      <span>Select Countries File</span>
+    </button>
+
+    <button class="btn btn__new-media gap-1 min-w-16 items-self-start" @click="setFileToUpload('states')">
+      <IconsUpload />
+      <span>Select States File</span>
     </button>
     <transition name="dropZone">
       <MediaDropZone
         v-show="showDropZone"
-        :fileTypes="['text/csv']"
+        :fileTypes="['text/csv', 'application/json']"
         @cancelFileUpload="showDropZone = false"
         @uploadItemsSelected="uploadFile"
       />

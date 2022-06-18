@@ -36,7 +36,7 @@ const useCart = () => {
       // cart.value.shippingAddress = {}
       // cart.value.customer = {}
     } else {
-      const index = cart.value.items.findIndex((p) => p.product._id == item._id)
+      const index = cart.value.items.findIndex((p) => p.product.id == item.id)
       if (index !== -1) {
         if (quantity) cart.value.items[index].quantity = quantity * 1
         else cart.value.items.splice(index, 1)
@@ -45,6 +45,13 @@ const useCart = () => {
         cart.value.items.push(cartItem)
       }
     }
+    cart.value.total = cartTotal()
+    updateLocalStorage()
+  }
+
+  const removeItem = (cartItem) => {
+    const index = cart.value.items.findIndex((item) => item.product.id == cartItem.product.id)
+    if (index !== -1) cart.value.items.splice(index, 1)
     cart.value.total = cartTotal()
     updateLocalStorage()
   }
@@ -132,6 +139,7 @@ const useCart = () => {
   return {
     cart,
     addItem,
+    removeItem,
     numberOfItems,
     // updateItemQuantity,
     // storeCartCustomer,

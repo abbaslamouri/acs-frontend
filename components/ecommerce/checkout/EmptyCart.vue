@@ -4,7 +4,7 @@ const router = useRouter()
 
 const startShopping = async () => {
   showCartSlideout.value = false
-  router.push({ name: 'ecommerce-coffee' })
+  router.push({ name: 'ecommerce-products' })
 }
 </script>
 

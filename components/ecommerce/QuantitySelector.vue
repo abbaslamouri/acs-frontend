@@ -80,7 +80,7 @@ if (process.client) {
   })
 }
 const setQuantitySelectorPosition = (event) => {
-  console.log(event.target.getBoundingClientRect())
+  // console.log(event.target.getBoundingClientRect())
   const position = event.target.getBoundingClientRect().y
   if (position < 320) quantitySelectorPosition.value = 'below'
   else quantitySelectorPosition.value = null
@@ -118,7 +118,7 @@ const setQuantity = (qty) => {
         <div class="px-1 flex-row items-center justify-between gap-2" v-else>
           <IconsCart />
           <span>Add To Bag</span>
-          <IconsPlus/>
+          <IconsPlus />
         </div>
       </button>
     </client-only>

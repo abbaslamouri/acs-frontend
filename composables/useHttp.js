@@ -242,6 +242,64 @@ const useHttp = () => {
     }
   }
 
+  const seedCountries = async (payload) => {
+    console.log('here')
+    errorMsg.value = null
+    message.value = null
+    let response = null
+    // const token =
+    //   useCookie('auth') && useCookie('auth').value && useCookie('auth').value.token
+    //     ? useCookie('auth').value.token
+    //     : null
+    try {
+      response = await fetch(`${config.apiUrl}/countries/seeder`, {
+        method: 'POST',
+        body: payload,
+        headers: new Headers({
+          // 'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        }),
+      })
+      console.log(response)
+      if (response.ok) return await response.json()
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+    } catch (err) {
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
+    }
+  }
+
+  const seedStates = async (payload) => {
+    console.log('here')
+    errorMsg.value = null
+    message.value = null
+    let response = null
+    // const token =
+    //   useCookie('auth') && useCookie('auth').value && useCookie('auth').value.token
+    //     ? useCookie('auth').value.token
+    //     : null
+    try {
+      response = await fetch(`${config.apiUrl}/states/seeder`, {
+        method: 'POST',
+        body: payload,
+        headers: new Headers({
+          // 'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        }),
+      })
+      console.log(response)
+      if (response.ok) return await response.json()
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+    } catch (err) {
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
+    }
+  }
+
   const saveOrder = async (payload) => {
     errorMsg.value = null
     message.value = null
@@ -266,7 +324,7 @@ const useHttp = () => {
         }),
       })
       // }
-      console.log(response)
+      // console.log(response)
       if (response.ok) {
         const jsonRes = await response.json()
         return jsonRes.doc ? jsonRes.doc : {}
@@ -306,7 +364,18 @@ const useHttp = () => {
   // 	}
   // }
 
-  return { fetchAll, fetchDoc, saveDoc, deleteDoc, deleteDocs, saveMedia, seedProducts, saveOrder }
+  return {
+    fetchAll,
+    fetchDoc,
+    saveDoc,
+    deleteDoc,
+    deleteDocs,
+    saveMedia,
+    seedProducts,
+    seedCountries,
+    seedStates,
+    saveOrder,
+  }
 }
 
 export default useHttp

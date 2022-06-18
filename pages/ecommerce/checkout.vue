@@ -1,24 +1,20 @@
 <script setup>
 const title = ref('Products | YRL')
 
-definePageMeta({
-  layout: 'checkout',
-})
-
 const router = useRouter()
 const { cart, cartTotal, updateLocalStorage } = useCart()
 const freeSamples = ref([])
 const { isAuthenticated, fetchLoggedInUser } = useAuth()
-const { fetchAll, saveDoc } = useHttp()
+const { fetchAll, saveOrder } = useHttp()
 
 onMounted(() => {
   // cart.value = JSON.parse(localStorage.getItem('cart')) || {}
-  console.log(cart.value)
+  // console.log(cart.value)
 })
 
 const updateDbOrder = async () => {
-  const order = await saveDoc('orders', cart.value)
-  // console.log('OOOO', order)
+  const order = await saveOrder(cart.value)
+  console.log('OOOO', order)
   if (order) {
     cart.value.id = order.id
     updateLocalStorage()
@@ -80,7 +76,7 @@ const checkout = async () => {
               <button class="btn btn__checkout px-3 py-1" @click="checkout">Continue</button>
             </div>
           </div>
-          <EcommerceCheckoutFreeItems :freeSamples="freeSamples" class="w-32"/>
+          <EcommerceCheckoutFreeItems :freeSamples="freeSamples" class="w-32" />
         </div>
         <EcommerceCheckoutEmptyCart v-else class="bg-slate-50 p3" />
       </ClientOnly>

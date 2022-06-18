@@ -7,7 +7,6 @@ const { saveOrder } = useHttp()
 const checkout = async () => {
   showCartSlideout.value = false
   cart.value.status = 'cart'
-  console.log(cart.value)
   const order = await saveOrder(cart.value)
   console.log('Order', order)
   if (order) {

@@ -1,19 +1,27 @@
 <script setup>
-// import cloneDeep from 'lodash.clonedeep'
+const title = ref('Address | YRL')
 
-useMeta({
-  title: 'Address | YRL',
-})
-definePageMeta({
-  layout: 'checkout',
-})
 const { cart, updateLocalStorage } = useCart()
 const { isAuthenticated, updateLoggedInUserData } = useAuth()
-const { fetchAll, saveDoc } = useHttp()
+const { fetchAll, saveOrder } = useHttp()
 const router = useRouter()
-const address = ref({})
-const countries = (await fetchAll('countries', { sort: 'countryName' })).docs
-const states = (await fetchAll('states', { sort: 'name' })).docs
+const newAddress = ref({})
+const newEmail = ref('')
+const newPhoneNumbers = ref([])
+const countries = ref([])
+const states = ref([])
+let response
+
+newPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
+// const showAddressModal = ref()
+response = await fetchAll('countries', { sort: 'countryName' })
+console.log(response)
+if (response) countries.value = response.docs
+
+response = await fetchAll('states', { sort: 'name' })
+console.log(response)
+if (response) states.value = response.docs
+// const states = await fetchAll('states', { sort: 'name' })
 provide('countries', countries)
 provide('states', states)
 
@@ -45,11 +53,16 @@ onMounted(() => {
   //   }
 })
 
+const addNewAddress = () => {
+  newAddress.value = {}
+  showAddressModal.value = true
+}
+
 const updateDbOrder = async () => {
-  const order = await saveDoc('orders', cart.value)
+  const order = await saveOrder(cart.value)
   console.log('OOOO', order)
   if (order) {
-    cart.value.id = order._id
+    cart.value.id = order.id
     updateLocalStorage()
   }
 }
@@ -75,7 +88,15 @@ const continueToShipping = async () => {
     </div>
     <ClientOnly>
       <div class="w-996p bg-slate-50 p-2 flex-col gap-2" v-if="cart.items && cart.items.length">
-        <!-- <EcommerceCheckoutShippingAddressForm :address="address" @updateAddress="address = $event" /> -->
+        <!-- <EcommerceCheckoutShippingAddresses @addNewAddress="addNewAddress" /> -->
+        <EcommerceCheckoutShippingAddressForm
+          :countries="countries"
+          :states="states"
+          :email="newEmail"
+          :phoneNumbers="newPhoneNumbers"
+          :customerAddress="newAddress"
+          @updateAddress="address = $event"
+        />
         <div class="flex-row items-end justify-between gap-2 px-3 py-1 text-sm">
           <NuxtLink class="link btn__link" :to="{ name: 'ecommerce-checkout' }">
             <IconsChevronLeft /><span>Back to Basket</span>
@@ -86,12 +107,6 @@ const continueToShipping = async () => {
         </div>
       </div>
       <EcommerceCheckoutEmptyCart v-else class="bg-slate-50 p3" />
-      <!-- <div v-else class="flex-1 flex-col gap-2 bg-slate-50 mt-10 p-4 br-3">
-        <p>You have no items in your bag</p>
-        <NuxtLink class="btn btn__checkout px-2 py-05" :to="{ name: 'ecommerce-coffee' }">
-          <span>Start Shopping</span>
-        </NuxtLink>
-      </div> -->
     </ClientOnly>
   </div>
 </template>

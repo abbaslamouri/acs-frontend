@@ -22,7 +22,6 @@ const resetSelectQuantities = () => {
 }
 
 const toggleQuantitySelectors = (i, status) => {
-  console.log(status, i)
   resetSelectQuantities()
   quantitySelectors.value[i] = status
   // addItem(props.products[i], event.quantity)

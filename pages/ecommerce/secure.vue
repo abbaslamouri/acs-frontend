@@ -1,10 +1,5 @@
 <script setup>
-useMeta({
-  title: 'Secure | YRL',
-})
-definePageMeta({
-  layout: 'checkout',
-})
+const title = ref('Secure | YRL')
 
 const router = useRouter()
 const route = useRoute()
@@ -13,7 +8,7 @@ const config = useRuntimeConfig()
 const { user, token, isAuthenticated, signin } = useAuth()
 const { errorMsg, message } = useAppState()
 const { cart, updateLocalStorage } = useCart()
-const { fetchAll, saveDoc } = useHttp()
+const { fetchAll, saveOrder } = useHttp()
 
 // import { useAuth } from '~/store/useAuth'
 // import { useCart } from '~/store/useCart'
@@ -36,10 +31,10 @@ const formUser = reactive({
 })
 
 const updateDbOrder = async () => {
-  const order = await saveDoc('orders', cart.value)
+  const order = await saveOrder(cart.value)
   console.log('OOOO', order)
   if (order) {
-    cart.value.id = order._id
+    cart.value.id = order.id
     updateLocalStorage()
   }
 }
@@ -60,7 +55,7 @@ const login = async () => {
     if (!cart.value.customer.shippingAddresses.length) {
       cart.value.status = 'address'
       updateDbOrder()
-      router.push({ name: 'ecommerce-address' })
+      router.push({ name: 'ecommerce-customer-address' })
     } else {
       cart.value.status = 'shipping'
       const i = cart.value.customer.shippingAddresses.findIndex((a) => a.selected)
@@ -98,6 +93,7 @@ const login = async () => {
 
 <template>
   <div class="w-full flex-1 bg-slate-900 flex-row justify-center">
+    <Title>{{ title }}</Title>
     <div class="content flex-row items-start gap-2 w-996p">
       <div class="flex-1 bg-slate-50 h-35 mt-6">
         <h3 class="bg-stone-200 px-2 py-1 uppercase tracking-wide text-sm">I am a Returning Customer</h3>
@@ -149,7 +145,10 @@ const login = async () => {
             <!-- <button class="btn btn__link items-self-end px-2 py-1" @click="guestCheckout">
               Checkout as a guest <IconsChevronRight class="fill-yellow-700" />
             </button> -->
-            <NuxtLink class="link" :to="{ name: 'ecommerce-address' }">
+            <NuxtLink
+              class="link"
+              :to="{ name: 'ecommerce-shipping-address', query: { cancelRedirect: 'ecommerce-checkout' } }"
+            >
               <span>Checkout as a guest</span>
               <IconsChevronRight class="fill-yellow-700" />
             </NuxtLink>
