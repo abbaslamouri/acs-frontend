@@ -39,7 +39,7 @@ input {
     left: 1.6rem;
     top: calc(50% + 0.5rem);
     transform: translateY(-50%);
-    color: $slate-400;
+    color: $slate-600;
     padding: 0 0.5rem;
     transition: 0.3s ease;
   }
@@ -71,7 +71,7 @@ input {
     position: absolute;
     left: 1rem;
     top: -0.2rem;
-    color: $slate-400;
+    color: $slate-600;
 
     background-color: white;
   }
@@ -157,7 +157,7 @@ input {
     position: absolute;
     left: 1.6rem;
     top: 1rem;
-    color: $slate-400;
+    color: $slate-600;
     padding: 0 0.5rem;
     transition: 0.3s ease;
     z-index: -1;

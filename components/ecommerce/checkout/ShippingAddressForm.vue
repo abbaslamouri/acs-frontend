@@ -1,15 +1,14 @@
 <script setup>
 // import cloneDeep from 'lodash.clonedeep'
 
+// const { cart, updateLocalStorage } = useCart()
+
 const props = defineProps({
-  customerAddress: {
+  customerShippingAddress: {
     type: Object,
-    required: true,
+    // required: true,
   },
-  email: {
-    type: String,
-  },
-  phoneNumbers: {
+  customerPhoneNumbers: {
     type: Array,
   },
   showDefaultToggleField: {
@@ -18,108 +17,132 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['updateAddress', 'updateEmail'])
+const emit = defineEmits(['updateCustomerShippingAddress', 'updatePhoneNumbers'])
 const countries = inject('countries')
 const states = inject('states')
-const localAddress = ref({})
-const localEmail = ref('')
+const localShippingAddress = ref({})
 const localPhoneNumbers = ref([])
 
-localAddress.value = { ...props.customerAddress }
-localEmail.value = props.email
-localPhoneNumbers.value = [...props.phoneNumbers]
+const blankPhoneNumber = { phoneType: '', phoneCountryCode: '', phoneNumber: '' }
 
-const addPhoneNumber = () => {
-  localPhoneNumbers.value.push({
-    phoneType: '',
-    phoneCountryCode: '',
-    phoneNumber: '',
-  })
+localShippingAddress.value =
+  props.customerShippingAddress && Object.values(props.customerShippingAddress).length
+    ? { ...props.customerShippingAddress }
+    : { addressType: 'Residential' }
+
+if (!props.customerPhoneNumbers.length) {
+  localPhoneNumbers.value = [blankPhoneNumber]
+} else {
+  for (const prop in props.customerPhoneNumbers) {
+    localPhoneNumbers.value[prop] = props.customerPhoneNumbers[prop]
+  }
+}
+// const localEmail = ref(props.customerEmail)
+
+// localShippingAddress.value = { ...props.customerShippingAddress }
+// localEmail.value = props.email
+
+// const addPhoneNumber = () => {
+//   localPhoneNumbers.value.push({
+//     phoneType: '',
+//     phoneCountryCode: '',
+//     phoneNumber: '',
+//   })
+// }
+
+const insertNewPhoneNumber = () => {
+  localPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
 }
 
-// watch(
-//   () => localAddress.value,
-//   (newVal) => {
-//     emit('updateAddress', newVal)
-//   },
-//   { deep: true }
-// )
+watch(
+  () => localPhoneNumbers.value,
+  (newVal) => {
+    emit('updatePhoneNumbers', newVal)
+  },
+  { deep: true }
+)
 
-// watch(
-//   () => localEmail.value,
-//   (newVal) => {
-//     emit('updateEmail', newVal)
-//   }
-// )
+watch(
+  () => localShippingAddress.value,
+  (newVal) => {
+    emit('updateCustomerShippingAddress', newVal)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
-  <div class="flex-col">
-    <div class="flex-col gap-2">
-      {{ localPhoneNumbers }}----
-      <p>All fields with * are mandatory</p>
-      <section class="flex-col gap-1">
-        <div>
-          <FormsBaseRadioGroup
-            label="My delivery address is"
-            v-model="localAddress.addressType"
+  <div class="flex-col gap-2">
+    <h3>Shipping Address</h3>
+    <p>All fields with * are mandatory</p>
+    <section class="flex-col gap-1">
+      <div>
+        <FormsBaseRadioGroup
+          label="My delivery address is"
+          v-model="localShippingAddress.addressType"
+          :options="[
+            { key: 'Residential', name: 'Residential' },
+            { key: 'Commercial', name: 'Commercial' },
+          ]"
+        />
+      </div>
+      <div class="flex-row items-center gap-2">
+        <div class="min-w-20">
+          <FormsBaseSelect
+            label="Title"
+            v-model="localShippingAddress.title"
             :options="[
-              { key: 'Residential', name: 'Residential' },
-              { key: 'Commercial', name: 'Commercial' },
+              { key: 'Mr/Ms', name: 'Mr/Ms' },
+              { key: 'Ms', name: 'Ms' },
+              { key: 'Mr', name: 'Mr' },
+              { key: 'Dr', name: 'Dr' },
+              { key: 'Mrs', name: 'Mrs' },
+              { key: '', name: '-' },
             ]"
           />
         </div>
-        <div class="flex-row items-center gap-2">
-          <div class="min-w-20">
-            <FormsBaseSelect
-              label="Title"
-              v-model="localAddress.title"
-              :options="[
-                { key: 'Mr/Ms', name: 'Mr/Ms' },
-                { key: 'Ms', name: 'Ms' },
-                { key: 'Mr', name: 'Mr' },
-                { key: 'Dr', name: 'Dr' },
-                { key: 'Mrs', name: 'Mrs' },
-                { key: '', name: '-' },
-              ]"
-            />
-          </div>
-          <div class="flex-1">
-            <FormsBaseInput class="flex-1" label="Name" placeholder="Name" v-model="localAddress.name" />
-          </div>
+        <div class="flex-1">
+          <FormsBaseInput
+            class="flex-1"
+            label="Name"
+            placeholder="Name"
+            v-model="localShippingAddress.name"
+            :required="true"
+          />
+        </div>
+      </div>
+      <div class="flex-1">
+        <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="localShippingAddress.email" />
+      </div>
+    </section>
+    <section class="flex-col gap-1">
+      <div class="flex-row gap-2 items-center" v-for="(phone, j) in localPhoneNumbers" :key="`phone-number-${j}`">
+        <div class="min-w-14">
+          <FormsBaseSelect
+            label="PhoneType"
+            v-model="phone.phoneType"
+            :options="[
+              { key: 'Cell', name: 'Cell' },
+              { key: 'Home', name: 'Home' },
+              { key: 'Work', name: 'Work' },
+            ]"
+          />
+        </div>
+        <div class="min-w-20">
+          <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phone.phoneNumber" />
         </div>
         <div class="flex-1">
-          <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="localAddress.email" />
-        </div>
-      </section>
-      <section class="flex-col gap-1">
-        <div class="flex-row gap-2 items-center" v-for="(phone, j) in localPhoneNumbers" :key="`phone-number-${j}`">
-          <div class="min-w-14">
-            <FormsBaseSelect
-              label="PhoneType"
-              v-model="phone.phoneType"
-              :options="[
-                { key: 'Cell', name: 'Cell' },
-                { key: 'Home', name: 'Home' },
-                { key: 'Work', name: 'Work' },
-              ]"
-            />
-          </div>
-          <div class="min-w-20">
-            <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phone.phoneNumber" />
-          </div>
-          <div class="flex-1">
-            <FormsBaseSelect
-              label="Country Code"
-              nullOption="-"
-              :options="
-                countries.map((c) => {
-                  return { key: c.id, name: c.countryName }
-                })
-              "
-              @update:modelValue="localPhoneNumbers[j].phoneCountryCode == country.id"
-            />
-            <label class="base-select">
+          <FormsBaseSelect
+            v-model="localPhoneNumbers[j].phoneCountryCode"
+            label="Country Code"
+            nullOption="-"
+            :options="
+              countries.map((c) => {
+                return { key: c.id, name: c.countryName }
+              })
+            "
+          />
+          <!-- <label class="base-select">
               <div class="label text-xs px-1">Country Code</div>
               <select
                 @change="localPhoneNumbers[j].phoneCountryCode = countries.find((c) => c._id == $event.target.value)"
@@ -133,105 +156,108 @@ const addPhoneNumber = () => {
                   {{ country.countryName }}
                 </option>
               </select>
-            </label>
-          </div>
-          <button
-            class="btn btn__secondary"
-            @click="localPhoneNumbers.splice(j, 1)"
-            v-if="localPhoneNumbers.length > 1"
-          >
-            <IconsMinus />
-          </button>
+            </label> -->
         </div>
-        <button
-          class="btn btn__secondary items-self-end px-2 py-05"
-          @click="addPhoneNumber"
-          :disabled="localPhoneNumbers.length >= 4"
-        >
-          Add Phone Number
+        <button class="btn btn__secondary" @click="localPhoneNumbers.splice(j, 1)" v-if="localPhoneNumbers.length > 1">
+          <IconsMinus />
         </button>
-      </section>
-      <section>
-        <FormsBaseInput label="Company" placeholder="Company" v-model="localAddress.company" />
-        <div class="flex-row gap-2">
-          <div class="flex-1">
-            <FormsBaseInput label="Address Line 1" placeholder="Address Line 1" v-model="localAddress.addressLine1" />
-          </div>
-          <div class="flex-1">
-            <FormsBaseInput label="Address Line 2" placeholder="Address Line 2" v-model="localAddress.addressLine2" />
-          </div>
+      </div>
+      <button
+        class="btn btn__secondary items-self-end px-2 py-05"
+        @click="insertNewPhoneNumber"
+        :disabled="localPhoneNumbers.length >= 4"
+      >
+        Add Phone Number
+      </button>
+    </section>
+    <section>
+      <FormsBaseInput label="Company" placeholder="Company" v-model="localShippingAddress.company" />
+      <div class="flex-row gap-2">
+        <div class="flex-1">
+          <FormsBaseInput
+            label="Address Line 1"
+            placeholder="Address Line 1"
+            v-model="localShippingAddress.addressLine1"
+          />
         </div>
-        <div class="flex-row gap-2 items-center">
-          <div class="flex-1">
-            <FormsBaseInput label="City" placeholder="City" v-model="localAddress.city" />
-          </div>
-          <div class="flex-1">
-            <FormsBaseSelect
-              label="State"
-              nullOption="-"
-              :options="
-                states.map((s) => {
-                  return { key: s.id, name: s.name }
-                })
-              "
-              @update:modelValue="localAddress.state = states.find((s) => s.id == $event.target.value)"
-            />
-            <!-- <label class="base-select">
+        <div class="flex-1">
+          <FormsBaseInput
+            label="Address Line 2"
+            placeholder="Address Line 2"
+            v-model="localShippingAddress.addressLine2"
+          />
+        </div>
+      </div>
+      <div class="flex-row gap-2 items-center">
+        <div class="flex-1">
+          <FormsBaseInput label="City" placeholder="City" v-model="localShippingAddress.city" />
+        </div>
+        <div class="flex-1">
+          <FormsBaseSelect
+            v-model="localShippingAddress.state"
+            label="State"
+            nullOption="-"
+            :options="
+              states.map((s) => {
+                return { key: s.id, name: s.name }
+              })
+            "
+          />
+          <!-- <label class="base-select">
               <div class="label text-xs px-1">State</div>
-              <select @change="localAddress.state = states.find((s) => s.id == $event.target.value)">
+              <select @change="localShippingAddress.state = states.find((s) => s.id == $event.target.value)">
                 <option value="">Select State</option>
                 <option
                   v-for="state in states"
                   :key="state.id"
                   :value="state.id"
-                  :selected="localAddress.state && localAddress.state.id == state.id"
+                  :selected="localShippingAddress.state && localShippingAddress.state.id == state.id"
                 >
                   {{ state.abbreviation }}
                 </option>
               </select>
             </label> -->
-          </div>
         </div>
-        <div class="flex-row items-center gap-2">
-          <div class="min-w-20">
-            <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localAddress.postalCode" />
-          </div>
-          <div class="flex-1">
-            <FormsBaseSelect
-              label="Country"
-              nullOption="-"
-              :options="
-                countries.map((c) => {
-                  return { key: c.id, name: c.countryName }
-                })
-              "
-              @update:modelValue="localAddress.country = countries.find((c) => c.id == $event.target.value)"
-            />
-            <!-- <label class="base-select">
+      </div>
+      <div class="flex-row items-center gap-2">
+        <div class="min-w-20">
+          <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localShippingAddress.postalCode" />
+        </div>
+        <div class="flex-1">
+          <FormsBaseSelect
+            v-model="localShippingAddress.country"
+            label="Country"
+            nullOption="-"
+            :options="
+              countries.map((c) => {
+                return { key: c.id, name: c.countryName }
+              })
+            "
+          />
+          <!-- <label class="base-select">
               <div class="label text-xs px-1">Country</div>
-              <select @change="localAddress.country = countries.find((c) => c._id == $event.target.value)">
+              <select @change="localShippingAddress.country = countries.find((c) => c._id == $event.target.value)">
                 <option
                   v-for="country in countries"
                   :key="country._id"
                   :value="country._id"
-                  :selected="localAddress.country && localAddress.country.id == country.id"
+                  :selected="localShippingAddress.country && localShippingAddress.country.id == country.id"
                 >
                   {{ country.countryName }}
                 </option>
               </select>
             </label> -->
-          </div>
         </div>
-      </section>
-      <section class="delivery-instructions">
-        <div class="field-group">
-          <FormsBaseTextarea label="Delivery Instructions" rows="5" v-model="localAddress.deliveryInstructions" />
-        </div>
-      </section>
-      <section class="items-self-start" v-if="showDefaultToggleField">
-        <FormsBaseToggle label="Set as the default delivery address" v-model="localAddress.isDefault" />
-      </section>
-    </div>
+      </div>
+    </section>
+    <section class="delivery-instructions">
+      <div class="field-group">
+        <FormsBaseTextarea label="Delivery Instructions" rows="5" v-model="localShippingAddress.deliveryInstructions" />
+      </div>
+    </section>
+    <section class="items-self-start" v-if="showDefaultToggleField">
+      <FormsBaseToggle label="Set as the default delivery address" v-model="localShippingAddress.isDefault" />
+    </section>
   </div>
 </template>
 

@@ -145,10 +145,7 @@ const login = async () => {
             <!-- <button class="btn btn__link items-self-end px-2 py-1" @click="guestCheckout">
               Checkout as a guest <IconsChevronRight class="fill-yellow-700" />
             </button> -->
-            <NuxtLink
-              class="link"
-              :to="{ name: 'ecommerce-shipping-address', query: { cancelRedirect: 'ecommerce-checkout' } }"
-            >
+            <NuxtLink class="link" :to="{ name: 'ecommerce-shipping-address' }">
               <span>Checkout as a guest</span>
               <IconsChevronRight class="fill-yellow-700" />
             </NuxtLink>

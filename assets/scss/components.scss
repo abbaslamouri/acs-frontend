@@ -39,7 +39,7 @@
 .btn {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  // gap: 1rem;
   // background-color: transparent;
   border: 1px solid transparent;
   color: inherit;
@@ -138,6 +138,8 @@
   &__link {
     background-color: transparent;
     color: $yellow-800;
+    text-transform: lowercase;
+
     // border: 1px solid $slate-500;
     &:hover {
       // border-bottom: 1px solid $yellow-700;

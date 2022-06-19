@@ -58,7 +58,7 @@ export default {
       :aria-required="$attrs.required ? true : null"
       :readonly="$attrs.readonly ? true : null"
     />
-    <span class="placeholder" @click="inputRef.focus()">{{ label }}</span>
+    <span class="placeholder" @click="inputRef.focus()">{{ label }}<span v-if="$attrs.required">*</span></span>
     <div v-if="type === 'password'">
       <span class="icon" v-if="fieldType === 'password'" @click="fieldType = 'text'">
         <IconsVisibilityOff class="w-2 h-2" />
