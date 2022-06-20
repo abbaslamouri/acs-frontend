@@ -7,13 +7,15 @@ const { saveOrder } = useHttp()
 const checkout = async () => {
   showCartSlideout.value = false
   cart.value.status = 'cart'
-  const order = await saveOrder(cart.value)
-  console.log('Order', order)
-  if (order) {
-    cart.value.id = order.id
-    updateLocalStorage()
-    router.push({ name: 'ecommerce-checkout' })
-  }
+  router.push({ name: 'ecommerce-checkout' })
+
+  // const order = await saveOrder(cart.value)
+  // console.log('Order', order)
+  // if (order) {
+  //   cart.value.id = order.id
+  //   updateLocalStorage()
+  //   router.push({ name: 'ecommerce-checkout' })
+  // }
 }
 </script>
 

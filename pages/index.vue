@@ -14,7 +14,7 @@ const counters = [
 ]
 
 const response = await fetchAll('galleries', { name: 'Carousel' })
-console.log(response)
+// console.log(response)
 if (response) carouselGallery.value = response.docs[0]
 </script>
 

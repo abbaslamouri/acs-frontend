@@ -305,16 +305,6 @@ const useHttp = () => {
     message.value = null
     let response = null
     try {
-      // if (payload.id) {
-      //   response = await fetch(`${config.apiUrl}/${resource}/${payload.id}`, {
-      //     method: 'PATCH',
-      //     body: JSON.stringify(payload),
-      //     headers: new Headers({
-      //       'Content-Type': 'application/json',
-      //       Authorization: `Bearer ${token.value}`,
-      //     }),
-      //   })
-      // } else {
       response = await fetch(`${config.apiUrl}/orders`, {
         method: 'POST',
         body: JSON.stringify(payload),

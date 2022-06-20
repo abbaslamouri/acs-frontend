@@ -27,7 +27,7 @@ if (response) freeSamples.value = response.docs
 const checkout = async () => {
   cart.value.status = 'checkout'
   if (!isAuthenticated.value) {
-    updateDbOrder()
+    // updateDbOrder()
     router.push({ name: 'ecommerce-secure' })
   } else {
     const user = await fetchLoggedInUser()

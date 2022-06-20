@@ -28,7 +28,7 @@ const useAuth = () => {
   const signup = async (payload) => {
     errorMsg.value = ''
     try {
-      const { data, pending, error } = await useFetch(`http://localhost:5000/v1/auth/signup`, {
+      const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/signup`, {
         method: 'POST',
         body: { ...payload },
       })

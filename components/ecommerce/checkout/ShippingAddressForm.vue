@@ -10,6 +10,7 @@ const props = defineProps({
   },
   customerPhoneNumbers: {
     type: Array,
+    default: [],
   },
   showDefaultToggleField: {
     type: Boolean,

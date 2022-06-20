@@ -2,8 +2,9 @@
 const title = ref('Address | YRL')
 
 const { cart, updateLocalStorage } = useCart()
+const { errorMsg } = useAppState()
 const { isAuthenticated, updateLoggedInUserData } = useAuth()
-const { fetchAll, saveOrder } = useHttp()
+const { fetchAll, saveOrder, saveDoc } = useHttp()
 const router = useRouter()
 // const newAddress = ref({})
 // const newEmail = ref('')
@@ -32,6 +33,10 @@ provide('states', states)
 
 const currentCart = JSON.stringify(cart.value)
 
+if (!cart.value.shippingAddress) cart.value.shippingAddress = {}
+if (!cart.value.billingAddress) cart.value.billingAddress = { sameAsShipping: true }
+// if (!cart.value.phoneNumber) cart.value.phoneNumbers = []
+
 const updateDbOrder = async () => {
   const order = await saveOrder(cart.value)
   console.log('OOOO', order)
@@ -43,19 +48,19 @@ const updateDbOrder = async () => {
 
 const updatePhoneNumbers = (event) => {
   console.log('EE', event)
-  cart.value.customer.phoneNumbers = event
+  cart.value.customerPhoneNumber = event[0]
   console.log(cart.value)
 }
 
 const updateCustomerShippingAddress = (event) => {
   console.log('EE', event)
-  cart.value.customer.shippingAddresses[0] = event
+  cart.value.shippingAddress = event
   console.log(cart.value)
 }
 
 const updateCustomerBillingAddress = (event) => {
   console.log('EE', event)
-  cart.value.customer.billingAddress = event
+  cart.value.billingAddress = event
   console.log(cart.value)
 }
 
@@ -66,26 +71,53 @@ const goBack = () => {
 }
 
 const continueToShipping = async () => {
-  cart.value.customer.shippingAddresses[0].isDefault = true
-  if (cart.value.customer.billingAddress.sameAsShipping) {
-    cart.value.customer.billingAddress = {
-      ...cart.value.customer.billingAddress,
-      addressLine1: cart.value.customer.shippingAddresses[0].addressLine1,
-      addressLine2: cart.value.customer.shippingAddresses[0].addressLine2,
-      city: cart.value.customer.shippingAddresses[0].city,
-      state: cart.value.customer.shippingAddresses[0].state,
-      postalCode: cart.value.customer.shippingAddresses[0].postalCode,
-      country: cart.value.customer.shippingAddresses[0].country,
+  console.log(cart.value)
+  if (!cart.value.customerPhoneNumber || !cart.value.customerPhoneNumber.phoneNumber)
+    return (errorMsg.value = 'Phone number is required')
+
+  const customePhNbr = await saveDoc('phonenumbers', cart.value.customerPhoneNumber)
+  // console.log(customePhNbr)
+  if (customePhNbr) {
+    cart.value.shippingAddress.phoneNumber = customePhNbr
+    cart.value.customerPhoneNumber = customePhNbr
+  }
+
+  const shippingAdrs = await saveDoc('shippingaddresses', cart.value.shippingAddress)
+  // console.log(shippingAdrs)
+  if (shippingAdrs) cart.value.shippingAddress = shippingAdrs
+
+  if (cart.value.billingAddress && cart.value.billingAddress.sameAsShipping) {
+    cart.value.billingAddress = {
+      ...cart.value.billingAddress,
+      addressLine1: cart.value.shippingAddress.addressLine1,
+      addressLine2: cart.value.shippingAddress.addressLine2,
+      city: cart.value.shippingAddress.city,
+      state: cart.value.shippingAddress.state,
+      postalCode: cart.value.shippingAddress.postalCode,
+      country: cart.value.shippingAddress.country,
     }
   }
-  cart.value.customer.phoneNumbers[0].isDefault = true
-  cart.value.customer.email = cart.value.customer.shippingAddresses[0].email
-  cart.value.customer.name = cart.value.customer.shippingAddresses[0].name
+  const billingAdrs = await saveDoc('billingaddresses', cart.value.billingAddress)
+  // console.log(billingAdrs)
+  if (billingAdrs) cart.value.shippingAddress = billingAdrs
+  // cart.value.customer.shippingAddresses[0].isDefault = true
+  // if (cart.value.customer.billingAddress.sameAsShipping) {
+  //   cart.value.customer.billingAddress = {
+  //     ...cart.value.customer.billingAddress,
+  //     addressLine1: cart.value.customer.shippingAddresses[0].addressLine1,
+  //     addressLine2: cart.value.customer.shippingAddresses[0].addressLine2,
+  //     city: cart.value.customer.shippingAddresses[0].city,
+  //     state: cart.value.customer.shippingAddresses[0].state,
+  //     postalCode: cart.value.customer.shippingAddresses[0].postalCode,
+  //     country: cart.value.customer.shippingAddresses[0].country,
+  //   }
+  // }
+  // cart.value.customer.phoneNumbers[0].isDefault = true
+  // cart.value.customer.email = cart.value.customer.shippingAddresses[0].email
+  // cart.value.customer.name = cart.value.customer.shippingAddresses[0].name
   cart.value.status = 'address'
-
   console.log(cart.value)
   updateDbOrder()
-
   // if (isAuthenticated.value) {
   //   const response = await updateLoggedInUserData({
   //     shippingAddresses: cart.value.customer.shippingAddresses,
@@ -141,8 +173,7 @@ onMounted(() => {
               class="flex-row gap-2 bg-slate-50 p-2"
               :countries="countries"
               :states="states"
-              :customerShippingAddress="cart.customer.shippingAddresses[0]"
-              :customerPhoneNumbers="cart.customer.phoneNumbers"
+              :customerShippingAddress="cart.shippingAddress"
               @updateCustomerShippingAddress="updateCustomerShippingAddress"
               @updatePhoneNumbers="updatePhoneNumbers"
             />
@@ -160,7 +191,7 @@ onMounted(() => {
             class="flex-row gap-2 bg-slate-50 p-2 min-w-30"
             :countries="countries"
             :states="states"
-            :billingAddress="cart.customer.billingAddress"
+            :billingAddress="cart.billingAddress"
             @updateCustomerBillingAddress="updateCustomerBillingAddress"
           />
         </div>
