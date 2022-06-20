@@ -33,7 +33,7 @@ const toggleQuantitySelectors = (status, index) => {
               :src="freeSample.gallery[0].path"
               :alt="`${freeSample.gallery[0].name} Image`"
             />
-            <img v-else src="placeholder.png" :alt="`Placeholder Image`" />
+            <!-- <img v-else src="placeholder.png" :alt="`Placeholder Image`" /> -->
           </div>
           <div class="font-bold text-">
             {{ freeSample.name }}
