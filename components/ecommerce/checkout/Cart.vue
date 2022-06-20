@@ -7,15 +7,43 @@ const { saveOrder } = useHttp()
 const checkout = async () => {
   showCartSlideout.value = false
   cart.value.status = 'cart'
-  router.push({ name: 'ecommerce-checkout' })
+  console.log(cart.value)
+  // const newItems = []
+  // let newTotal = 0
 
-  // const order = await saveOrder(cart.value)
-  // console.log('Order', order)
-  // if (order) {
-  //   cart.value.id = order.id
-  //   updateLocalStorage()
-  //   router.push({ name: 'ecommerce-checkout' })
-  // }
+  // await Promise.all(
+  //   cart.value.items.map(async (item) => {
+  //     const response = await fetchDoc('products', item.product.id)
+  //     console.log(response)
+  //     if (response) {
+  //       const product = response.doc
+  //       const orderItem = await saveDoc('orderitems', {
+  //         product: product,
+  //         name: product.name,
+  //         price: product.price,
+  //         salePrice: product.salePrice,
+  //         quantity: item.quantity,
+  //       })
+
+  //       if (orderItem) {
+  //         newItems.push(orderItem)
+  //         newTotal += product.price * item.quantity * 1
+  //       }
+  //     }
+  //   })
+  // )
+
+  // console.log('PPPPP', newItems)
+  // console.log(newTotal)
+
+  // router.push({ name: 'ecommerce-checkout' })
+
+  const order = await saveOrder(cart.value)
+  if (order) {
+    cart.value = order
+    updateLocalStorage()
+    router.push({ name: 'ecommerce-checkout' })
+  }
 }
 </script>
 

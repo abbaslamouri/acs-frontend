@@ -41,8 +41,9 @@ const useHttp = () => {
   const fetchDoc = async (resource, id) => {
     errorMsg.value = null
     message.value = null
+    console.log('KKKKKKKK')
     try {
-      const response = await fetch(`${config.apiUrl}/${resource}?${id}`, {
+      const response = await fetch(`${config.apiUrl}/${resource}/${id}`, {
         method: 'GET',
         headers: new Headers({
           'Content-Type': 'application/json',
