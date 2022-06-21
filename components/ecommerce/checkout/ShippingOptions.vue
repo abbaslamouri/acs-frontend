@@ -1,5 +1,6 @@
 <script setup>
-const shippingOption = ref(null)
+const { cart } = useCart()
+
 </script>
 
 <template lang="">
@@ -10,7 +11,7 @@ const shippingOption = ref(null)
         <div class="bg-stone-300 px-1 py-05">Home and Office Deliveries</div>
         <div class="p-2 flex-row gap-1 items-center">
           <div class="radio-button">
-            <FormsBaseRadio v-model="shippingOption" value="free" />
+            <FormsBaseRadio v-model="cart.shippingOption" value="free" />
           </div>
           <IconsFree />
           <div class="content">
@@ -21,7 +22,7 @@ const shippingOption = ref(null)
         </div>
         <div class="p-2 flex-row gap-1 items-center">
           <div class="radio-button">
-            <FormsBaseRadio v-model="shippingOption" value="paid" />
+            <FormsBaseRadio v-model="cart.shippingOption" value="paid" />
           </div>
           <IconsFree />
           <div class="content">
@@ -31,7 +32,7 @@ const shippingOption = ref(null)
           <div class="cost">$6.95</div>
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <div class="bg-stone-300 px-1 py-05">Pickup</div>
         <div class="p-2 flex-row gap-1 items-center">
           <div class="radio-button">
@@ -60,7 +61,7 @@ const shippingOption = ref(null)
           </div>
           <div class="cost">$6.95</div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

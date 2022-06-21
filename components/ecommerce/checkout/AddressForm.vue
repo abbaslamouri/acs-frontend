@@ -100,7 +100,7 @@ const states = inject('states')
           <div class="min-w-20">
             <FormsBaseSelect
               label="Title"
-              v-model="cart.shippingAddress.title"
+              v-model="cart.title"
               :options="[
                 { key: 'Mr/Ms', name: 'Mr/Ms' },
                 { key: 'Ms', name: 'Ms' },
@@ -112,13 +112,7 @@ const states = inject('states')
             />
           </div>
           <div class="flex-1">
-            <FormsBaseInput
-              class="flex-1"
-              label="Name"
-              placeholder="Name"
-              v-model="cart.shippingAddress.name"
-              :required="true"
-            />
+            <FormsBaseInput class="flex-1" label="Name" placeholder="Name" v-model="cart.name" :required="true" />
           </div>
         </div>
         <div class="flex-1">

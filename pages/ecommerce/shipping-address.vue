@@ -45,7 +45,7 @@ cart.value.shippingAddress = cart.value.shippingAddress
     }
 cart.value.email = cart.value.email ? cart.value.email : 'lamouri@genvac.com'
 cart.value.name = cart.value.name ? cart.value.name : 'Abbas Lamouri'
-cart.value.title = cart.value.title ? cart.value.title : 'Mr.'
+cart.value.title = cart.value.title ? cart.value.title : 'Mr'
 cart.value.billingAddress = cart.value.billingAddress ? cart.value.billingAddress : { sameAsShipping: true }
 cart.value.phoneNumber = cart.value.phoneNumber ? cart.value.phoneNumber : { ...blankPhoneNumber, isDefault: true }
 
@@ -182,7 +182,6 @@ const continueToShipping = async () => {
     cart.value.items.map(async (item) => {
       // let newItem
       const product = await fetchDoc('products', item.product.id)
-      console.log('PPPPP', product)
       if (!product) return
       const newItemParts = {
         product,
@@ -195,7 +194,7 @@ const continueToShipping = async () => {
       const newItem = await saveDoc('orderitems', { ...item, newItemParts })
       if (!newItem) return
 
-      const response = await fetchAll('orderitems', { _id: newItem.id, populate: "product" })
+      const response = await fetchAll('orderitems', { _id: newItem.id, populate: 'product' })
       if (!response) return
 
       verifiedItems.push(response.docs[0])
@@ -212,9 +211,20 @@ const continueToShipping = async () => {
 
   const billingAddress = await saveDoc('billingaddresses', cart.value.billingAddress)
   if (billingAddress) cart.value.billingAddress = billingAddress
-  updateLocalStorage()
 
+  const order = await saveDoc('orders', cart.value)
+  if (order) {
+    const response = await fetchAll('orders', {
+      _id: order.id,
+      populate: 'billingAddress items phoneNumber shippingAddress customer',
+    })
+    if (response) cart.value = response.docs[0]
+  }
+
+  updateLocalStorage()
   console.log(cart.value)
+
+  router.push({ name: 'ecommerce-shipping' })
 
   // console.log(response)
   // updateDbOrder()
@@ -261,6 +271,8 @@ onMounted(() => {
 
 <template>
   <div class="secure w-full flex-1 bg-slate-900 flex-col items-center gap-1">
+        <Title>{{ title }}</Title>
+
     <div class="content flex-row items-start w-996p">
       <EcommerceCheckoutSteps :step="2" activeColor="#16a34a" />
     </div>

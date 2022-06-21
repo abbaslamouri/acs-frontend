@@ -2,13 +2,6 @@
 const title = ref('Shipping | YRL')
 // import cloneDeep from 'lodash.clonedeep'
 
-useMeta({
-  title: 'Shipping | YRL',
-})
-definePageMeta({
-  layout: 'checkout',
-})
-
 const { user, isAuthenticated, updateLoggedInUserData } = useAuth()
 const { cart, updateLocalStorage } = useCart()
 const { fetchAll, saveDoc } = useHttp()
@@ -26,19 +19,21 @@ const states = (await fetchAll('states', { sort: 'name' })).docs
 provide('countries', countries)
 provide('states', states)
 
+cart.value.shippingOption = cart.value.shippingOption ? cart.value.shippingOption : 'free'
+
 const selectedAddress = computed(() => {
-  if (!cart.value.customer.shippingAddresses || !cart.value.customer.shippingAddresses.length) {
-    displayStatus.value = 'editing'
-    return {}
-  }
-  const defaultAddress = cart.value.customer.shippingAddresses.find((a) => a.default)
-  if (defaultAddress) return defaultAddress
-  return cart.value.customer.shippingAddresses[0]
+  // if (!cart.value.customer.shippingAddresses || !cart.value.customer.shippingAddresses.length) {
+  //   displayStatus.value = 'editing'
+  //   return {}
+  // }
+  // const defaultAddress = cart.value.customer.shippingAddresses.find((a) => a.default)
+  // if (defaultAddress) return defaultAddress
+  return cart.value.shippingAddress
 })
 
 // onMounted(async () => {
 // cart.value = JSON.parse(localStorage.getItem('cart')) || {}
-// localAddress.value = cloneDeep(selectedAddress.value)
+// localAddress.value = cloneDeep(cart.value.shippingAddress.value)
 // console.log(cart.value)
 // })
 
@@ -103,7 +98,7 @@ const addAddress = () => {
 }
 
 const editAddress = () => {
-  // localAddress.value = cloneDeep(selectedAddress.value)
+  // localAddress.value = cloneDeep(cart.value.shippingAddress.value)
   displayStatus.value = 'editing'
   editAction.value = 'edit'
 }
@@ -113,7 +108,7 @@ const cancelAddressUpdate = () => {
   displayStatus.value = 'displaying'
 }
 
-const setSelectedAddress = (index) => {
+const setSelectedAddresxxxx = (index) => {
   for (const prop in cart.value.customer.shippingAddresses) {
     cart.value.customer.shippingAddresses[prop].selected = false
   }
@@ -153,23 +148,23 @@ const continueToPayment = () => {
               <!-- <div class="flex-col gap-05 text-xs"> -->
               <!-- <div class="flex-col items-start"> -->
               <!-- <div class="flex-row gap-05">
-                    <div v-if="selectedAddress && selectedAddress.title">{{ selectedAddress.title }}.</div>
-                    <div>{{ selectedAddress.name }}</div>
+                    <div v-if="cart.value.shippingAddresss && cart.value.shippingAddress.title">{{ cart.value.shippingAddress.title }}.</div>
+                    <div>{{ cart.value.shippingAddress.name }}</div>
                   </div>
-                  <div>{{ selectedAddress.company }}</div>
-                  <div>{{ selectedAddress.addressLine1 }}</div>
-                  <div>{{ selectedAddress.addressLine2 }}</div>
+                  <div>{{ cart.value.shippingAddress.company }}</div>
+                  <div>{{ cart.value.shippingAddress.addressLine1 }}</div>
+                  <div>{{ cart.value.shippingAddress.addressLine2 }}</div>
                   <div class="flex-row gap-03">
-                    <div>{{ selectedAddress.city }},</div>
-                    <div v-if="selectedAddress.state">
-                      {{ selectedAddress.state.name }}
+                    <div>{{ cart.value.shippingAddress.city }},</div>
+                    <div v-if="cart.value.shippingAddress.state">
+                      {{ cart.value.shippingAddress.state.name }}
                     </div>
-                    <div>{{ selectedAddress.postalCode }}</div>
+                    <div>{{ cart.value.shippingAddress.postalCode }}</div>
                   </div>
-                  <div v-if="selectedAddress.country">{{ selectedAddress.country.countryName }}</div> -->
+                  <div v-if="cart.value.shippingAddress.country">{{ cart.value.shippingAddress.country.countryName }}</div> -->
               <!-- </div> -->
               <!-- </div> -->
-              <EcommerceCheckoutShippingAddress :customerAddress="selectedAddress" />
+              <EcommerceCheckoutShippingAddress :customerAddress="cart.shippingAddress" />
               <button
                 class="btn btn__secondary px-2 py-05 text-xs"
                 @click.prevent="displayStatus = 'selecting'"
@@ -191,19 +186,19 @@ const continueToPayment = () => {
             </button>
           </div>
           <div class="p-2 flex-col gap-2" v-if="isAuthenticated && displayStatus == 'selecting'">
-            <div
+            <!-- <div
               class="flex-row gap-2 items-center justify-between"
               v-for="(address, index) in cart.customer.shippingAddresses"
             >
-              <EcommerceCheckoutShippingAddress :class="{ selected: address === selectedAddress }" :address="address" />
+              <EcommerceCheckoutShippingAddress :class="{ selected: address === cart.value.shippingAddress }" :address="address" />
               <button
                 class="btn btn__secondary px-2 py-1 text-xs"
-                v-if="address !== selectedAddress"
-                @click="setSelectedAddress(index)"
+                v-if="address !== cart.value.shippingAddress"
+                @click="setcart.value.shippingAddress(index)"
               >
                 Select this Address
               </button>
-            </div>
+            </div> -->
           </div>
           <Modal
             :outerBoxWidth="75"
@@ -234,9 +229,6 @@ const continueToPayment = () => {
               <IconsChevronLeft /><span>Back to Basket</span>
             </NuxtLink>
             <button class="btn btn__checkout px-2 py-1 items-self-end" @click="continueToPayment">Continue</button>
-            <!-- <NuxtLink class="btn btn__checkout px-1 py-05" :to="{ name: 'ecommerce-payment' }">
-              <span> continue</span><IconsChevronRight />
-            </NuxtLink> -->
           </div>
         </div>
         <div class="aside bg-slate-50 w-32">
