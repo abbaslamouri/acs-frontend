@@ -1,8 +1,8 @@
 <script setup>
 const props = defineProps({
-  index: {
-    type: Number,
-  },
+  // index: {
+  //   type: Number,
+  // },
   // orderCustomer: {
   //   type: Object,
   // },
@@ -28,13 +28,13 @@ const { cart } = useCart()
 const countries = inject('countries')
 const states = inject('states')
 // const localOrderCustomer = ref({})
-// const cart.customer.billingAddress = ref({})
-// const cart.customer.shippingAddresses[index] = ref({})
+// const cart.billingAddress = ref({})
+// const cart.shippingAddress = ref({})
 // const cart.customer.phoneNumbers = ref([...props.orderPhoneNumbers])
 
 // const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
 
-// cart.customer.shippingAddresses[index].value =
+// cart.shippingAddress.value =
 //   props.orderShippingAddress && Object.values(props.orderShippingAddress).length
 //     ? { ...props.orderShippingAddress }
 //     : { addressType: 'Residential' }
@@ -48,7 +48,7 @@ const states = inject('states')
 // }
 // const localEmail = ref(props.customerEmail)
 
-// cart.customer.shippingAddresses[index].value = { ...props.orderShippingAddress }
+// cart.shippingAddress.value = { ...props.orderShippingAddress }
 // localEmail.value = props.email
 
 // const addPhoneNumber = () => {
@@ -72,7 +72,7 @@ const states = inject('states')
 // )
 
 // watch(
-//   () => cart.customer.shippingAddresses[index].value,
+//   () => cart.shippingAddress.value,
 //   (newVal) => {
 //     emit('updateOrderShippingAddress', newVal)
 //   },
@@ -89,7 +89,7 @@ const states = inject('states')
         <div>
           <FormsBaseRadioGroup
             label="My delivery address is"
-            v-model="cart.customer.shippingAddresses[index].addressType"
+            v-model="cart.shippingAddress.addressType"
             :options="[
               { key: 'Residential', name: 'Residential' },
               { key: 'Commercial', name: 'Commercial' },
@@ -100,7 +100,7 @@ const states = inject('states')
           <div class="min-w-20">
             <FormsBaseSelect
               label="Title"
-              v-model="cart.customer.shippingAddresses[index].title"
+              v-model="cart.shippingAddress.title"
               :options="[
                 { key: 'Mr/Ms', name: 'Mr/Ms' },
                 { key: 'Ms', name: 'Ms' },
@@ -116,30 +116,21 @@ const states = inject('states')
               class="flex-1"
               label="Name"
               placeholder="Name"
-              v-model="cart.customer.shippingAddresses[index].name"
+              v-model="cart.shippingAddress.name"
               :required="true"
             />
           </div>
         </div>
         <div class="flex-1">
-          <FormsBaseInput
-            class="flex-1"
-            label="Email"
-            placeholder="Email"
-            v-model="cart.customer.shippingAddresses[index].email"
-          />
+          <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="cart.email" />
         </div>
       </section>
       <section class="flex-col gap-1">
-        <div
-          class="flex-row gap-2 items-center"
-          v-for="(phone, j) in cart.customer.phoneNumbers"
-          :key="`phone-number-${j}`"
-        >
+        <div class="flex-row gap-2 items-center">
           <div class="min-w-14">
             <FormsBaseSelect
               label="PhoneType"
-              v-model="phone.phoneType"
+              v-model="cart.phoneNumber.phoneType"
               :options="[
                 { key: 'Cell', name: 'Cell' },
                 { key: 'Home', name: 'Home' },
@@ -148,11 +139,11 @@ const states = inject('states')
             />
           </div>
           <div class="min-w-20">
-            <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phone.phoneNumber" />
+            <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="cart.phoneNumber.phoneNumber" />
           </div>
           <div class="flex-1">
             <FormsBaseSelect
-              v-model="cart.customer.phoneNumbers[j].phoneCountryCode"
+              v-model="cart.phoneNumber.phoneCountryCode"
               label="Country Code"
               nullOption="-"
               :options="
@@ -162,51 +153,47 @@ const states = inject('states')
               "
             />
           </div>
-          <button
+          <!-- <button
             class="btn btn__secondary"
             @click="cart.customer.phoneNumbers.splice(j, 1)"
             v-if="cart.customer.phoneNumbers.length > 1"
           >
             <IconsMinus />
-          </button>
+          </button> -->
         </div>
-        <button
+        <!-- <button
           class="btn btn__secondary items-self-end px-2 py-05"
           @click="$emit('insertNewPhoneNumber')"
           :disabled="cart.customer.phoneNumbers.length >= 4"
         >
           Add Phone Number
-        </button>
+        </button> -->
       </section>
       <section>
-        <FormsBaseInput
-          label="Company"
-          placeholder="Company"
-          v-model="cart.customer.shippingAddresses[index].company"
-        />
+        <FormsBaseInput label="Company" placeholder="Company" v-model="cart.shippingAddress.company" />
         <div class="flex-row gap-2">
           <div class="flex-1">
             <FormsBaseInput
               label="Address Line 1"
               placeholder="Address Line 1"
-              v-model="cart.customer.shippingAddresses[index].addressLine1"
+              v-model="cart.shippingAddress.addressLine1"
             />
           </div>
           <div class="flex-1">
             <FormsBaseInput
               label="Address Line 2"
               placeholder="Address Line 2"
-              v-model="cart.customer.shippingAddresses[index].addressLine2"
+              v-model="cart.shippingAddress.addressLine2"
             />
           </div>
         </div>
         <div class="flex-row gap-2 items-center">
           <div class="flex-1">
-            <FormsBaseInput label="City" placeholder="City" v-model="cart.customer.shippingAddresses[index].city" />
+            <FormsBaseInput label="City" placeholder="City" v-model="cart.shippingAddress.city" />
           </div>
           <div class="flex-1">
             <FormsBaseSelect
-              v-model="cart.customer.shippingAddresses[index].state"
+              v-model="cart.shippingAddress.state"
               label="State"
               nullOption="-"
               :options="
@@ -219,15 +206,11 @@ const states = inject('states')
         </div>
         <div class="flex-row items-center gap-2">
           <div class="min-w-20">
-            <FormsBaseInput
-              label="Postal Code"
-              placeholder="Postal Code"
-              v-model="cart.customer.shippingAddresses[index].postalCode"
-            />
+            <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="cart.shippingAddress.postalCode" />
           </div>
           <div class="flex-1">
             <FormsBaseSelect
-              v-model="cart.customer.shippingAddresses[index].country"
+              v-model="cart.shippingAddress.country"
               label="Country"
               nullOption="-"
               :options="
@@ -244,36 +227,33 @@ const states = inject('states')
           <FormsBaseTextarea
             label="Delivery Instructions"
             rows="5"
-            v-model="cart.customer.shippingAddresses[index].deliveryInstructions"
+            v-model="cart.shippingAddress.deliveryInstructions"
           />
         </div>
       </section>
       <section class="items-self-start" v-if="showDefaultToggleField">
-        <FormsBaseToggle
-          label="Set as the default delivery address"
-          v-model="cart.customer.shippingAddresses[index].isDefault"
-        />
+        <FormsBaseToggle label="Set as the default delivery address" v-model="cart.shippingAddress.isDefault" />
       </section>
     </div>
     <div class="bg-slate-50 p-2 min-w-30">
       <div class="flex-col gap-1">
         <h3>Shipping Address</h3>
-        <FormsBaseCheckbox label="Same as Shipping" v-model="cart.customer.billingAddress.sameAsShipping" />
+        <FormsBaseCheckbox label="Same as Shipping" v-model="cart.billingAddress.sameAsShipping" />
       </div>
-      <div v-if="!cart.customer.billingAddress.sameAsShipping">
+      <div v-if="!cart.billingAddress.sameAsShipping">
         <FormsBaseInput
           label="Address Line 1"
           placeholder="Address Line 1"
-          v-model="cart.customer.billingAddress.addressLine1"
+          v-model="cart.billingAddress.addressLine1"
         />
         <FormsBaseInput
           label="Address Line 2"
           placeholder="Address Line 2"
-          v-model="cart.customer.billingAddress.addressLine2"
+          v-model="cart.billingAddress.addressLine2"
         />
-        <FormsBaseInput label="City" placeholder="City" v-model="cart.customer.billingAddress.city" />
+        <FormsBaseInput label="City" placeholder="City" v-model="cart.billingAddress.city" />
         <FormsBaseSelect
-          v-model="cart.customer.billingAddress.state"
+          v-model="cart.billingAddress.state"
           label="State"
           nullOption="-"
           :options="
@@ -282,13 +262,9 @@ const states = inject('states')
             })
           "
         />
-        <FormsBaseInput
-          label="Postal Code"
-          placeholder="Postal Code"
-          v-model="cart.customer.billingAddress.postalCode"
-        />
+        <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="cart.billingAddress.postalCode" />
         <FormsBaseSelect
-          v-model="cart.customer.billingAddress.country"
+          v-model="cart.billingAddress.country"
           label="Country"
           nullOption="-"
           :options="

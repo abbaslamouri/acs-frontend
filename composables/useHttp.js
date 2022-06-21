@@ -113,7 +113,7 @@ const useHttp = () => {
           }),
         })
       }
-      console.log(response)
+      // console.log(response)
       if (response.ok) {
         const jsonRes = await response.json()
         return jsonRes.doc ? jsonRes.doc : {}

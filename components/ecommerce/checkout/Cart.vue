@@ -38,12 +38,12 @@ const checkout = async () => {
 
   // router.push({ name: 'ecommerce-checkout' })
 
-  const order = await saveOrder(cart.value)
-  if (order) {
-    cart.value = order
-    updateLocalStorage()
-    router.push({ name: 'ecommerce-checkout' })
-  }
+  // const order = await saveOrder(cart.value)
+  // if (order) {
+  // cart.value = order
+  // updateLocalStorage()
+  router.push({ name: 'ecommerce-checkout' })
+  // }
 }
 </script>
 
