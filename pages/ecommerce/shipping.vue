@@ -145,25 +145,6 @@ const continueToPayment = () => {
           <div class="bg-stone-400 p-1 text-slate-50">Shipping Address</div>
           <div class="p-2 flex-col gap-1" v-if="displayStatus == 'displaying'">
             <div class="flex-row gap-4 items-center">
-              <!-- <div class="flex-col gap-05 text-xs"> -->
-              <!-- <div class="flex-col items-start"> -->
-              <!-- <div class="flex-row gap-05">
-                    <div v-if="cart.value.shippingAddresss && cart.value.shippingAddress.title">{{ cart.value.shippingAddress.title }}.</div>
-                    <div>{{ cart.value.shippingAddress.name }}</div>
-                  </div>
-                  <div>{{ cart.value.shippingAddress.company }}</div>
-                  <div>{{ cart.value.shippingAddress.addressLine1 }}</div>
-                  <div>{{ cart.value.shippingAddress.addressLine2 }}</div>
-                  <div class="flex-row gap-03">
-                    <div>{{ cart.value.shippingAddress.city }},</div>
-                    <div v-if="cart.value.shippingAddress.state">
-                      {{ cart.value.shippingAddress.state.name }}
-                    </div>
-                    <div>{{ cart.value.shippingAddress.postalCode }}</div>
-                  </div>
-                  <div v-if="cart.value.shippingAddress.country">{{ cart.value.shippingAddress.country.countryName }}</div> -->
-              <!-- </div> -->
-              <!-- </div> -->
               <EcommerceCheckoutShippingAddress :customerAddress="cart.shippingAddress" />
               <button
                 class="btn btn__secondary px-2 py-05 text-xs"
@@ -175,13 +156,17 @@ const continueToPayment = () => {
             </div>
             <div class="link text-xs" v-if="isAuthenticated">Currently set as your default delivery address</div>
             <button
-              class="btn btn__link px-2 py-05 text-xs items-self-start"
+              class="btn btn__link py-05 items-self-start text-base"
               @click.prevent="editAddress"
               v-if="isAuthenticated"
             >
               Edit Address
             </button>
-            <button class="btn btn__secondary px-2 py-1 items-self-end" v-if="isAuthenticated" @click="addAddress">
+            <button
+              class="btn btn__secondary px-2 py-05 items-self-end text-xs"
+              v-if="isAuthenticated"
+              @click="addAddress"
+            >
               Add Address
             </button>
           </div>
@@ -202,7 +187,7 @@ const continueToPayment = () => {
           </div>
           <Modal
             :outerBoxWidth="75"
-            :outerBoxHeight="90"
+            :outerBoxHeight="70"
             @closeModal="cancelAddressUpdate"
             v-if="displayStatus === 'editing'"
           >
@@ -210,7 +195,7 @@ const continueToPayment = () => {
               <h3>Selected Shipping Address</h3>
             </template>
             <template v-slot:default>
-              <EcommerceCheckoutShippingAddressForm
+              <EcommerceCheckoutAddressForm
                 :address="localAddress"
                 :showDefaultToggleField="true"
                 @updateAddress="localAddress = $event"

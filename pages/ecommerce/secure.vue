@@ -40,34 +40,59 @@ const updateDbOrder = async () => {
 }
 
 const login = async () => {
-  const data = await signin(formUser)
-  console.log(data)
-  if (data) {
-    const auth = useCookie('auth', {
-      expires: new Date(Date.now() + config.COOKIE_EXPIRES_IN * 24 * 3600 * 1000),
-      path: '/',
-    })
-    auth.value = data.auth
-    user.value = data.auth.user
-    token.value = data.auth.token
-    isAuthenticated.value = true
-    cart.value.customer = data.auth.user
-    if (!cart.value.customer.shippingAddresses.length) {
-      cart.value.status = 'address'
-      updateDbOrder()
-      router.push({ name: 'ecommerce-customer-address' })
-    } else {
-      cart.value.status = 'shipping'
-      const i = cart.value.customer.shippingAddresses.findIndex((a) => a.selected)
-      if (i === -1) {
-        const j = cart.value.customer.shippingAddresses.findIndex((a) => a.isDefault)
-        if (j !== -1) cart.value.customer.shippingAddresses[j].selected = true
-        else cart.value.customer.shippingAddresses[0].selected = true
-        updateDbOrder()
-      }
-      router.push({ name: 'ecommerce-shipping' })
-    }
-  }
+  const response = await signin(formUser)
+  if (!response) return
+  const customer = user.value
+  cart.value.customer = customer
+  cart.value.name = customer.name
+  cart.value.email = customer.email
+  cart.value.billingAddress = customer.billingAddress
+  const cartShippingAddress = customer.shippingAddresses.find((a) => a.isDefault)
+  if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
+  else cart.value.shippingAddress = customer.shippingAddresses[0]
+  const cartPhoneNumber = customer.phoneNumbers.find((p) => p.isDefault)
+  if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
+  else cart.value.phoneNumber = customer.phoneNumbers[0]
+
+  updateLocalStorage()
+
+  console.log(cart.value)
+
+  if (
+    !cart.value.billingAddress ||
+    cart.value.shippingAddresses ||
+    !cart.value.shippingAddresses.length ||
+    !cart.value.phoneNumbers ||
+    !cart.value.phoneNumbers.length
+  )
+    return router.push({ name: 'ecommerce-shipping-address' })
+
+  router.push({ name: 'ecommerce-shipping' })
+
+  // const auth = useCookie('auth', {
+  //   expires: new Date(Date.now() + config.COOKIE_EXPIRES_IN * 24 * 3600 * 1000),
+  //   path: '/',
+  // })
+  // auth.value = data.auth
+  // user.value = data.auth.user
+  // token.value = data.auth.token
+  // isAuthenticated.value = true
+  // cart.value.customer = data.auth.user
+  // if (!cart.value.customer.shippingAddresses.length) {
+  //   cart.value.status = 'address'
+  //   updateDbOrder()
+  //   router.push({ name: 'ecommerce-customer-address' })
+  // } else {
+  //   cart.value.status = 'shipping'
+  //   const i = cart.value.customer.shippingAddresses.findIndex((a) => a.selected)
+  //   if (i === -1) {
+  //     const j = cart.value.customer.shippingAddresses.findIndex((a) => a.isDefault)
+  //     if (j !== -1) cart.value.customer.shippingAddresses[j].selected = true
+  //     else cart.value.customer.shippingAddresses[0].selected = true
+  //     updateDbOrder()
+  //   }
+  // }
+  // }
   // appMessage.errorMsg = null
   // appMessage.successMsg = null
   // try {
@@ -87,7 +112,7 @@ const login = async () => {
   // } catch (error) {
   // 	appMessage.errorMsg = error.data
   // }
-  // // router.push({ name: 'checkout' })
+  // router.push({ name: 'checkout' })
 }
 </script>
 
@@ -97,7 +122,7 @@ const login = async () => {
     <div class="content flex-row items-start gap-2 w-996p">
       <div class="flex-1 bg-slate-50 h-35 mt-6">
         <h3 class="bg-stone-200 px-2 py-1 uppercase tracking-wide text-sm">I am a Returning Customer</h3>
-        <form @submit.prevent="handleLogin" class="main p-2 flex-col items-center gap-2">
+        <form @submit.prevent="login" class="main p-2 flex-col items-center gap-2">
           <div class="w-full">
             <FormsBaseInput type="email" label="Email" v-model="formUser.email" :required="true" />
           </div>
@@ -105,9 +130,7 @@ const login = async () => {
             <FormsBaseInput type="password" label="Password" v-model="formUser.password" :required="true" />
           </div>
 
-          <button class="btn btn__primary items-self-end px-2 py-1" @click="login">
-            Sign In <IconsChevronRight />
-          </button>
+          <button class="btn btn__primary items-self-end px-2 py-1">Sign In <IconsChevronRight /></button>
           <NuxtLink class="link items-self-start" :to="{ name: `index` }">Forgot Password?</NuxtLink>
         </form>
       </div>

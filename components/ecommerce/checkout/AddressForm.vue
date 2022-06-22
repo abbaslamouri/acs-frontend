@@ -16,15 +16,16 @@ const props = defineProps({
   //   type: Array,
   //   // default: [],
   // },
-  showDefaultToggleField: {
-    type: Boolean,
-    default: false,
-  },
+  // showDefaultToggleField: {
+  //   type: Boolean,
+  //   default: false,
+  // },
 })
 
 const emit = defineEmits(['updateOrderShippingAddress', 'insertNewPhoneNumber', 'updatePhoneNumbers'])
 
 const { cart } = useCart()
+
 const countries = inject('countries')
 const states = inject('states')
 // const localOrderCustomer = ref({})

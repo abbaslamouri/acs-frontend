@@ -1,11 +1,10 @@
 <script setup>
-definePageMeta({
-  layout: 'admin',
-})
-const title = ref('Signup | YRL')
+const title = ref('Products | YRL')
+
 const config = useRuntimeConfig()
 const router = useRouter()
 const { signup } = useAuth()
+const { cart, updateLocalStorage } = useCart()
 const { errorMsg, message } = useAppState()
 const user = reactive({
   name: 'Abbas Lamouri',
@@ -19,38 +18,24 @@ const loading = ref(false)
 const register = async () => {
   if (user.password !== user.passwordConfirm)
     return (errorMsg.value = "Your password and confirmation password don't match")
-  // try {
-  const {
-    data,
-    pending: loading,
-    error,
-  } = await useFetch(`${config.apiUrl}/auth/signup`, {
-    method: 'POST',
-    body: { ...user },
-  })
-  if (error.value && error.value.data) {
-    console.log('MYERROR', error.value.data)
-    errorMsg.value = ''
-    for (const prop in error.value.data.errors) {
-      errorMsg.value = `${errorMsg.value}<li>${error.value.data.errors[prop].message}</li>`
-    }
-    if (errorMsg.value.includes('already exists'))
-      errorMsg.value = `${errorMsg.value}<li>or click the link below to reset your password</li>`
-    errorMsg.value = `<ul>${errorMsg.value}</ul>`
-  }
-  console.log(data.value)
-  // return data.value
-  // } catch (err) {
+  const response = await signup(user)
+  console.log(response)
+  if (!response) return
+  const customer = response.user
+  cart.value.customer = customer
+  cart.value.name = customer.name
+  cart.value.email = customer.email
+  cart.value.billingAddress = customer.billingAddress
+  const cartShippingAddress = customer.shippingAddresses.find((a) => a.isDefault)
+  if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
+  else cart.value.shippingAddress = customer.shippingAddresses[0]
+  const cartPhoneNumber = customer.phoneNumbers.find((p) => p.isDefault)
+  if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
+  else cart.value.phoneNumber = customer.phoneNumbers[0]
 
-  // }
-  // const response = await signup(user)
-  // console.log(response)
-  // if (!response)
-  //   if (errorMsg.value.includes('Email must be unique.'))
-  //     return (errorMsg.value += ' Please login or click the link below to reset your password.')
+  console.log(cart.value)
 
-  // message.value = `Email sent to ${user.email}.  Please follow the link in your email to complete your registration.  Submit a PATCH request with email and password to  ${url} to complete the registration`,
-  // // url,
+  router.push({ name: 'ecommerce-shipping' })
 }
 </script>
 

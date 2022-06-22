@@ -2,6 +2,7 @@
 const title = ref('Address | YRL')
 
 const { cart, updateLocalStorage } = useCart()
+
 const { errorMsg } = useAppState()
 const { signup, isAuthenticated, updateLoggedInUserData } = useAuth()
 const { fetchAll, fetchDoc, saveOrder, saveDoc } = useHttp()
@@ -14,6 +15,7 @@ const countries = ref([])
 const states = ref([])
 let response
 const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
+// const blankPhoneNumber = { phoneType: '', phoneCountryCode: '', phoneNumber: '' }
 
 // newPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
 // const showAddressModal = ref()
@@ -43,8 +45,8 @@ cart.value.shippingAddress = cart.value.shippingAddress
       country: '62ae373e2347015d44d3fb2d',
       deliveryInstructions: 'Take good care of goods',
     }
-cart.value.email = cart.value.email ? cart.value.email : 'lamouri@genvac.com'
-cart.value.name = cart.value.name ? cart.value.name : 'Abbas Lamouri'
+// cart.value.email = cart.value.email ? cart.value.email : 'lamouri@genvac.com'
+// cart.value.name = cart.value.name ? cart.value.name : 'Abbas Lamouri'
 cart.value.title = cart.value.title ? cart.value.title : 'Mr'
 cart.value.billingAddress = cart.value.billingAddress ? cart.value.billingAddress : { sameAsShipping: true }
 cart.value.phoneNumber = cart.value.phoneNumber ? cart.value.phoneNumber : { ...blankPhoneNumber, isDefault: true }
@@ -271,7 +273,7 @@ onMounted(() => {
 
 <template>
   <div class="secure w-full flex-1 bg-slate-900 flex-col items-center gap-1">
-        <Title>{{ title }}</Title>
+    <Title>{{ title }}</Title>
 
     <div class="content flex-row items-start w-996p">
       <EcommerceCheckoutSteps :step="2" activeColor="#16a34a" />

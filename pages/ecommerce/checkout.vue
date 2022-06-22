@@ -26,32 +26,38 @@ if (response) freeSamples.value = response.docs
 
 const checkout = async () => {
   cart.value.status = 'checkout'
-  if (!isAuthenticated.value) {
-    // updateDbOrder()
-    router.push({ name: 'ecommerce-secure' })
-  } else {
-    const user = await fetchLoggedInUser()
-    console.log(user)
-    if (!user) {
-      updateDbOrder()
-      router.push({ name: 'ecommerce-secure' })
-    } else {
-      cart.value.customer = user
-      if (!cart.value.customer.shippingAddresses.length) {
-        updateDbOrder()
-        router.push({ name: 'ecommerce-address' })
-      } else {
-        const i = cart.value.customer.shippingAddresses.findIndex((a) => a.selected)
-        if (i === -1) {
-          const j = cart.value.customer.shippingAddresses.findIndex((a) => a.isDefault)
-          if (j !== -1) cart.value.customer.shippingAddresses[j].selected = true
-          else cart.value.customer.shippingAddresses[0].selected = true
-          updateDbOrder()
-        }
-        router.push({ name: 'ecommerce-shipping' })
-      }
-    }
-  }
+  if (!isAuthenticated.value) router.push({ name: 'ecommerce-secure' })
+
+  const response = await fetchLoggedInUser()
+  console.log(response)
+
+  if (!response) return
+  const customer = response.user
+  cart.value.customer = customer
+  cart.value.name = customer.name
+  cart.value.email = customer.email
+  cart.value.billingAddress = customer.billingAddress
+  const cartShippingAddress = customer.shippingAddresses.find((a) => a.isDefault)
+  if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
+  else cart.value.shippingAddress = customer.shippingAddresses[0]
+  const cartPhoneNumber = customer.phoneNumbers.find((p) => p.isDefault)
+  if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
+  else cart.value.phoneNumber = customer.phoneNumbers[0]
+
+  updateLocalStorage()
+
+  console.log(cart.value)
+
+  if (
+    !cart.value.billingAddress ||
+    cart.value.shippingAddresses ||
+    !cart.value.shippingAddresses.length ||
+    !cart.value.phoneNumbers ||
+    !cart.value.phoneNumbers.length
+  )
+    return router.push({ name: 'ecommerce-shipping-address' })
+
+  router.push({ name: 'ecommerce-shipping' })
 }
 </script>
 
