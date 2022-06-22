@@ -7,14 +7,14 @@ const { errorMsg } = useAppState()
 const { signup, isAuthenticated, updateLoggedInUserData } = useAuth()
 const { fetchAll, fetchDoc, saveOrder, saveDoc } = useHttp()
 const router = useRouter()
-// const orderShippingAddress = ref({})
+const billingSameAsShipping = ref(true)
 // const orderBillingAddress = ref({})
 // const orderPhoneNumber = ref({})
-const orderCustomer = ref({})
+// const orderCustomer = ref({})
 const countries = ref([])
 const states = ref([])
 let response
-const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
+// const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
 // const blankPhoneNumber = { phoneType: '', phoneCountryCode: '', phoneNumber: '' }
 
 // newPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
@@ -27,29 +27,57 @@ response = await fetchAll('states', { sort: 'name' })
 // console.log(response)
 if (response) states.value = response.docs
 // const states = await fetchAll('states', { sort: 'name' })
-provide('countries', countries)
-provide('states', states)
+// provide('countries', countries)
+// provide('states', states)
 
 const currentCart = JSON.stringify(cart.value)
 
-cart.value.shippingAddress = cart.value.shippingAddress
-  ? cart.value.shippingAddress
-  : {
-      addressType: 'Residential',
-      company: 'YRL Consulting, LLC',
-      addressLine1: '11 Alpha Park',
-      addressLine2: 'Room 6',
-      city: 'Highland Heights',
-      state: '62ae38b407479c2cdf9b4ff8',
-      postalCode: '44143',
-      country: '62ae373e2347015d44d3fb2d',
-      deliveryInstructions: 'Take good care of goods',
+onMounted(() => {
+  if (!cart.value.shippingAddress || !Object.values(cart.value.shippingAddress).length) {
+    if (!cart.value.customer.shippingAddresses.length) {
+      cart.value.shippingAddress = {}
+    } else {
+      const cartShippingAddress = cart.value.customer.shippingAddresses.find((a) => a.isDefault)
+      if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
+      else cart.value.shippingAddress = cart.value.customer.shippingAddresses[0]
     }
+  }
+
+  if (!cart.value.billingAddress || !Object.values(cart.value.billingAddress).length) {
+    cart.value.billingAddress = cart.value.shippingAddress
+  }
+
+  if (!cart.value.phoneNumber || !Object.values(cart.value.phoneNumber).length) {
+    if (!cart.value.customer.phoneNumbers.length) {
+      cart.value.phoneNumber = {}
+    } else {
+      const cartPhoneNumber = cart.value.customer.phoneNumbers.find((p) => p.isDefault)
+      if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
+      else cart.value.phoneNumber = cart.value.customer.phoneNumbers[0]
+    }
+  }
+
+  console.log(cart.value)
+})
+
+// cart.value.shippingAddress = cart.value.shippingAddress
+//   ? cart.value.shippingAddress
+//   : {
+// addressType: 'Residential',
+// company: 'YRL Consulting, LLC',
+// addressLine1: '11 Alpha Park',
+// addressLine2: 'Room 6',
+// city: 'Highland Heights',
+// state: '62ae38b407479c2cdf9b4ff8',
+// postalCode: '44143',
+// country: '62ae373e2347015d44d3fb2d',
+// deliveryInstructions: 'Take good care of goods',
+// }
 // cart.value.email = cart.value.email ? cart.value.email : 'lamouri@genvac.com'
 // cart.value.name = cart.value.name ? cart.value.name : 'Abbas Lamouri'
-cart.value.title = cart.value.title ? cart.value.title : 'Mr'
-cart.value.billingAddress = cart.value.billingAddress ? cart.value.billingAddress : { sameAsShipping: true }
-cart.value.phoneNumber = cart.value.phoneNumber ? cart.value.phoneNumber : { ...blankPhoneNumber, isDefault: true }
+// cart.value.title = cart.value.title ? cart.value.title : 'Mr'
+// cart.value.billingAddress = cart.value.billingAddress ? cart.value.billingAddress : { sameAsShipping: true }
+// cart.value.phoneNumber = cart.value.phoneNumber ? cart.value.phoneNumber : { ...blankPhoneNumber, isDefault: true }
 
 //   (cart.value.customer = cart.value.customer
 //     ? cart.value.customer
@@ -75,10 +103,26 @@ cart.value.phoneNumber = cart.value.phoneNumber ? cart.value.phoneNumber : { ...
 //       })
 // )
 
-// const insertNewPhoneNumber = () => {
-//   console.log('HHHHHH')
-//   cart.value.customer.phoneNumbers.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
-// }
+const insertNewPhoneNumber = () => {
+  console.log('HHHHHH')
+  cart.value.customer.phoneNumbers.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '', isDefault: false })
+}
+
+const removePhoneNumber = (event) => {
+  console.log('HHHHHH', event)
+  cart.value.customer.phoneNumbers.splice(event, 1)
+  if (cart.value.customer.phoneNumbers.length === 1) cart.value.customer.phoneNumbers[0].isDefault = true
+  // phoneNumbers.splice(j, 1)
+}
+
+const setDefaultPhoneNumber = (event) => {
+  console.log('HHHHHH', event)
+  for (const prop in cart.value.customer.phoneNumbers) {
+    cart.value.customer.phoneNumbers[prop].isDefault = false
+  }
+  cart.value.customer.phoneNumbers[event].isDefault = true
+  // phoneNumbers.splice(j, 1)
+}
 
 const updateDbOrder = async () => {
   const order = await saveOrder(cart.value)
@@ -91,13 +135,25 @@ const updateDbOrder = async () => {
 
 const updatePhoneNumbers = (event) => {
   console.log('EE', event)
-  cart.value.customerPhoneNumber = event[0]
+  cart.value.customer.phoneNumber = event
   console.log(cart.value)
 }
 
-const updateorderShippingAddress = (event) => {
-  console.log('EE', event)
-  orderShippingAddress = event
+const updateCustomer = (event) => {
+  console.log('SA', event)
+  cart.value.customer = event
+  console.log(cart.value)
+}
+
+const updateShippingAddress = (event) => {
+  console.log('SA', event)
+  cart.value.shippingAddress = event
+  console.log(cart.value)
+}
+
+const toggleBillingSameAsShipping = () => {
+  billingSameAsShipping.value = !billingSameAsShipping.value
+  if (billingSameAsShipping.value) cart.value.billingAddress = cart.value.shippingAddress
   console.log(cart.value)
 }
 
@@ -269,6 +325,12 @@ onMounted(() => {
   //     deliveryInstructions: 'Some delivery instructions',
   //   }
 })
+
+const updateBillingAddress = (event) => {
+  console.log('EE', event)
+  cart.value.billingAddress = event
+  console.log(cart.value)
+}
 </script>
 
 <template>
@@ -279,10 +341,32 @@ onMounted(() => {
       <EcommerceCheckoutSteps :step="2" activeColor="#16a34a" />
     </div>
     <ClientOnly>
-      <div class="w-996p flex-col gap-2" v-if="cart.items && cart.items.length">
+      <div class="w-996p flex-col gap-2 bg-slate-50 p-2 br-3" v-if="cart.items && cart.items.length">
         <!-- <div class="flex-row gap-2"> -->
-        <!-- <div class="flex-1"> -->
-        <EcommerceCheckoutAddressForm :countries="countries" :states="states" />
+        <div class="flex-1 flex-row gap-4">
+          <EcommerceCheckoutShippingAddressForm
+            :countries="countries"
+            :states="states"
+            :shippingAddress="cart.shippingAddress"
+            :customer="cart.customer"
+            :cartPhoneNumber="cart.phoneNumber"
+            @updateCustomer="updateCustomer"
+            @updateShippingAddress="updateShippingAddress"
+            @insertNewPhoneNumber="insertNewPhoneNumber"
+            @removePhoneNumber="removePhoneNumber"
+            @setDefaultPhoneNumber="setDefaultPhoneNumber"
+            @updatePhoneNumbers="updatePhoneNumbers"
+          />
+          <!-- <EcommerceCheckoutBillingAddressForm
+            :countries="countries"
+            :states="states"
+            :billingAddress="cart.billingAddress"
+            :billingSameAsShipping="billingSameAsShipping"
+            @updateBillingAddress=""
+            @toggleBillingSameAsShipping="toggleBillingSameAsShipping"
+          /> -->
+        </div>
+
         <div class="flex-row items-end justify-between gap-2 px-3 py-1 text-sm bg-slate-50">
           <button class="btn btn__link px-2 py-05 gap-05 text-sm tracking-wide items-center" @click="goBack">
             <IconsArrowWest class="fill-yellow-800 w-2 h-2" />Back to Basket

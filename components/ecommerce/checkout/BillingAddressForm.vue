@@ -1,15 +1,30 @@
 <script setup>
-// import cloneDeep from 'lodash.clonedeep'
-
-// const { cart, updateLocalStorage } = useCart()
-
 const props = defineProps({
-  customerBillingAddress: {
-    type: Object,
-    // required: true,
+  countries: {
+    type: Array,
   },
-  // customerPhoneNumbers: {
+  states: {
+    type: Array,
+  },
+
+  billingSameAsShipping: {
+    type: Boolean,
+  },
+  // index: {
+  //   type: Number,
+  // },
+  // orderCustomer: {
+  //   type: Object,
+  // },
+  // orderShippingAddress: {
+  //   type: Object,
+  // },
+  billingAddress: {
+    type: Object,
+  },
+  // orderPhoneNumbers: {
   //   type: Array,
+  //   // default: [],
   // },
   // showDefaultToggleField: {
   //   type: Boolean,
@@ -17,32 +32,38 @@ const props = defineProps({
   // },
 })
 
-const emit = defineEmits(['updateCustomerBillingAddress', 'updatePhoneNumbers'])
-const countries = inject('countries')
-const states = inject('states')
-const localBillingAddress = ref({})
-// const sameAsShipping = ref(true)
-// const localPhoneNumbers = ref([])
+const emit = defineEmits(['updateBillingAddress', 'toggleBillingSameAsShipping'])
 
-localBillingAddress.value =
-  props.customerBillingAddress && Object.values(props.customerBillingAddress).length
-    ? { ...props.customerBillingAddress }
-    : { sameAsShipping: true }
+const { cart } = useCart()
 
-// if (!props.customerPhoneNumbers.length) {
-//   localPhoneNumbers.value = [blankPhoneNumber]
+// const countries = inject('countries')
+// const states = inject('states')
+// const localOrderCustomer = ref({})
+const localBillingAddress = ref({ ...props.billingAddress })
+// const cart.shippingAddress = ref({})
+// const cart.customer.phoneNumbers = ref([...props.orderPhoneNumbers])
+
+// const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
+
+// cart.shippingAddress.value =
+//   props.orderShippingAddress && Object.values(props.orderShippingAddress).length
+//     ? { ...props.orderShippingAddress }
+//     : { addressType: 'Residential' }
+
+// if (!props.orderPhoneNumbers.length) {
+//   cart.customer.phoneNumbers.value = [blankPhoneNumber]
 // } else {
-//   for (const prop in props.customerPhoneNumbers) {
-//     localPhoneNumbers.value[prop] = props.customerPhoneNumbers[prop]
+//   for (const prop in props.orderPhoneNumbers) {
+//     cart.customer.phoneNumbers.value[prop] = props.orderPhoneNumbers[prop]
 //   }
 // }
 // const localEmail = ref(props.customerEmail)
 
-// localBillingAddress.value = { ...props.customerBillingAddress }
+// cart.shippingAddress.value = { ...props.orderShippingAddress }
 // localEmail.value = props.email
 
 // const addPhoneNumber = () => {
-//   localPhoneNumbers.value.push({
+//   cart.customer.phoneNumbers.value.push({
 //     phoneType: '',
 //     phoneCountryCode: '',
 //     phoneNumber: '',
@@ -50,13 +71,13 @@ localBillingAddress.value =
 // }
 
 // const insertNewPhoneNumber = () => {
-//   localPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
+//   cart.customer.phoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
 // }
 
 // watch(
-//   () => localPhoneNumbers.value,
+//   () => cart.customer.phoneNumbers.value,
 //   (newVal) => {
-//     emit('updatePhoneNumbers', newVal)
+//     emi, newVal)
 //   },
 //   { deep: true }
 // )
@@ -64,27 +85,23 @@ localBillingAddress.value =
 watch(
   () => localBillingAddress.value,
   (newVal) => {
-    emit('updateCustomerBillingAddress', newVal)
+    emit('updateBillingAddress', newVal)
   },
   { deep: true }
 )
-
-// watch(
-//   () => localBillingAddress.sameAsShipping,
-//   (newVal) => {
-//     if (newVal) localBillingAddress = { sameAsShipping: true }
-//   },
-//   { deep: true }
-// )
 </script>
 
 <template>
-  <div class="flex-col gap-1">
+  <div class="flex-col gap-2 min-w-30">
     <div class="flex-col gap-1">
       <h3>Shipping Address</h3>
-      <FormsBaseCheckbox label="Same as Shipping" v-model="localBillingAddress.sameAsShipping" />
+      <FormsBaseCheckbox
+        label="Same as Shipping"
+        v-model="billingSameAsShipping"
+        @update:modelValue="$emit('toggleBillingSameAsShipping')"
+      />
     </div>
-    <div v-if="!localBillingAddress.sameAsShipping">
+    <div class="flex-col gap-1" v-if="!billingSameAsShipping">
       <FormsBaseInput label="Address Line 1" placeholder="Address Line 1" v-model="localBillingAddress.addressLine1" />
       <FormsBaseInput label="Address Line 2" placeholder="Address Line 2" v-model="localBillingAddress.addressLine2" />
       <FormsBaseInput label="City" placeholder="City" v-model="localBillingAddress.city" />

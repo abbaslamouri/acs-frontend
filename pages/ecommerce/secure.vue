@@ -114,6 +114,35 @@ const login = async () => {
   // }
   // router.push({ name: 'checkout' })
 }
+
+const checkoutAsGuest = () => {
+  cart.value.customer = {
+    title: 'Mr',
+    name: 'Abbas Lamouri',
+    email: 'abbaslamouri@yrlus.com',
+    shippingAddresses: [
+      {
+        addressType: 'Residential',
+        company: 'YRL Consulting, LLC',
+        addressLine1: '11 Alpha Park',
+        addressLine2: 'Room 6',
+        city: 'Highland Heights',
+        state: '62ae38b407479c2cdf9b4ff8',
+        postalCode: '44143',
+        country: '62ae373e2347015d44d3fb2d',
+        deliveryInstructions: 'Take good care of goods',
+        isDefault: true,
+      },
+    ],
+    billingAddress: {},
+    phoneNumbers: [
+      { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378', isDefault: true },
+    ],
+  }
+  updateLocalStorage()
+
+  router.push({ name: 'ecommerce-shipping-address' })
+}
 </script>
 
 <template>
@@ -168,10 +197,10 @@ const login = async () => {
             <!-- <button class="btn btn__link items-self-end px-2 py-1" @click="guestCheckout">
               Checkout as a guest <IconsChevronRight class="fill-yellow-700" />
             </button> -->
-            <NuxtLink class="link" :to="{ name: 'ecommerce-shipping-address' }">
+            <button class="btn btn__link" @click="checkoutAsGuest">
               <span>Checkout as a guest</span>
               <IconsChevronRight class="fill-yellow-700" />
-            </NuxtLink>
+            </button>
           </div>
         </div>
       </div>

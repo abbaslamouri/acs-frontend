@@ -226,7 +226,7 @@ const states = inject('states')
           />
         </div>
       </section>
-      <section class="items-self-start" v-if="showDefaultToggleField">
+      <section class="items-self-start">
         <FormsBaseToggle label="Set as the default delivery address" v-model="cart.shippingAddress.isDefault" />
       </section>
     </div>
