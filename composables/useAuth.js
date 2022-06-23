@@ -56,6 +56,37 @@ const useAuth = () => {
     }
   }
 
+  const signupEmail = async (payload) => {
+    errorMsg.value = ''
+    try {
+      const response = await fetch(`${config.apiUrl}/auth/signup-email`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${token.value}`,
+        }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        // const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        // tokenCookie.value = data.token
+        // userCookie.value = data.user
+        // user.value = userCookie.value
+        // token.value = tokenCookie.value
+        // isAuthenticated.value = true
+        return data
+      }
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+    } catch (err) {
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
+    }
+  }
+
   const signin = async (payload) => {
     errorMsg.value = ''
     message.value = ''
@@ -135,7 +166,7 @@ const useAuth = () => {
     //   useCookie('auth') && useCookie('auth').value && useCookie('auth').value.token
     //     ? useCookie('auth').value.token
     //     : null
-    console.log('KKKKKKKK')
+    // console.log('KKKKKKKK')
     try {
       const response = await fetch(`${config.apiUrl}/users/fetch-loggedin-user`, {
         method: 'GET',
@@ -348,6 +379,7 @@ const useAuth = () => {
     isAuthenticated,
     isAdmin,
     signup,
+    signupEmail,
     finishSignup,
     signin,
     signout,
