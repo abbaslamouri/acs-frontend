@@ -16,6 +16,7 @@ const navLinks = ref([
     ],
     open: false,
   },
+  { name: 'admin-users', title: 'Users', icon: 'IconsFolderFill', subMenu: [], open: false },
 ])
 </script>
 

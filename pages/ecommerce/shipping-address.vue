@@ -8,6 +8,8 @@ const { signup, isAuthenticated, updateLoggedInUserData } = useAuth()
 const { fetchAll, fetchDoc, saveOrder, saveDoc } = useHttp()
 const router = useRouter()
 const billingSameAsShipping = ref(true)
+const shippingAddressToEdit = ref({})
+const phoneNumberToEdit = ref({})
 // const orderBillingAddress = ref({})
 // const orderPhoneNumber = ref({})
 // const orderCustomer = ref({})
@@ -20,11 +22,9 @@ let response
 // newPhoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
 // const showAddressModal = ref()
 response = await fetchAll('countries', { sort: 'countryName' })
-// console.log(response)
 if (response) countries.value = response.docs
 
 response = await fetchAll('states', { sort: 'name' })
-// console.log(response)
 if (response) states.value = response.docs
 // const states = await fetchAll('states', { sort: 'name' })
 // provide('countries', countries)
@@ -33,29 +33,38 @@ if (response) states.value = response.docs
 const currentCart = JSON.stringify(cart.value)
 
 onMounted(() => {
-  if (!cart.value.shippingAddress || !Object.values(cart.value.shippingAddress).length) {
-    if (!cart.value.customer.shippingAddresses.length) {
-      cart.value.shippingAddress = {}
-    } else {
-      const cartShippingAddress = cart.value.customer.shippingAddresses.find((a) => a.isDefault)
-      if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
-      else cart.value.shippingAddress = cart.value.customer.shippingAddresses[0]
-    }
-  }
+  console.log(cart.value)
+  const defaultShippingAddress = cart.value.customer.shippingAddresses.find((a) => a.isDefault)
+  if (defaultShippingAddress) shippingAddressToEdit.value = defaultShippingAddress
+  else shippingAddressToEdit.value = cart.value.customer.shippingAddresses[0]
 
-  if (!cart.value.billingAddress || !Object.values(cart.value.billingAddress).length) {
-    cart.value.billingAddress = cart.value.shippingAddress
-  }
+  const defaultPhoneNumber = cart.value.customer.phoneNumbers.find((a) => a.isDefault)
+  if (defaultPhoneNumber) phoneNumberToEdit.value = defaultPhoneNumber
+  else phoneNumberToEdit.value = cart.value.customer.phoneNumbers[0]
+  // return
+  // if (!cart.value.shippingAddress || !Object.values(cart.value.shippingAddress).length) {
+  //   if (!cart.value.customer.shippingAddresses.length) {
+  //     cart.value.shippingAddress = {}
+  //   } else {
+  //     const cartShippingAddress = cart.value.customer.shippingAddresses.find((a) => a.isDefault)
+  //     if (cartShippingAddress) cart.value.shippingAddress = cartShippingAddress
+  //     else cart.value.shippingAddress = cart.value.customer.shippingAddresses[0]
+  //   }
+  // }
 
-  if (!cart.value.phoneNumber || !Object.values(cart.value.phoneNumber).length) {
-    if (!cart.value.customer.phoneNumbers.length) {
-      cart.value.phoneNumber = {}
-    } else {
-      const cartPhoneNumber = cart.value.customer.phoneNumbers.find((p) => p.isDefault)
-      if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
-      else cart.value.phoneNumber = cart.value.customer.phoneNumbers[0]
-    }
-  }
+  // if (!cart.value.billingAddress || !Object.values(cart.value.billingAddress).length) {
+  //   cart.value.billingAddress = cart.value.shippingAddress
+  // }
+
+  // if (!cart.value.phoneNumber || !Object.values(cart.value.phoneNumber).length) {
+  //   if (!cart.value.customer.phoneNumbers.length) {
+  //     cart.value.phoneNumber = {}
+  //   } else {
+  //     const cartPhoneNumber = cart.value.customer.phoneNumbers.find((p) => p.isDefault)
+  //     if (cartPhoneNumber) cart.value.phoneNumber = cartPhoneNumber
+  //     else cart.value.phoneNumber = cart.value.customer.phoneNumbers[0]
+  //   }
+  // }
 
   console.log(cart.value)
 })
@@ -111,8 +120,11 @@ const insertNewPhoneNumber = () => {
 const removePhoneNumber = (event) => {
   console.log('HHHHHH', event)
   cart.value.customer.phoneNumbers.splice(event, 1)
-  if (cart.value.customer.phoneNumbers.length === 1) cart.value.customer.phoneNumbers[0].isDefault = true
-  // phoneNumbers.splice(j, 1)
+  if (cart.value.customer.phoneNumbers.length === 1) {
+    cart.value.customer.phoneNumbers[0].isDefault = true
+  } else {
+    if (!cart.value.customer.phoneNumbers.find((p) => p.isDefault)) cart.value.customer.phoneNumbers[0].isDefault = true
+  }
 }
 
 const setDefaultPhoneNumber = (event) => {
@@ -121,23 +133,13 @@ const setDefaultPhoneNumber = (event) => {
     cart.value.customer.phoneNumbers[prop].isDefault = false
   }
   cart.value.customer.phoneNumbers[event].isDefault = true
-  // phoneNumbers.splice(j, 1)
 }
 
-const updateDbOrder = async () => {
-  const order = await saveOrder(cart.value)
-  console.log('OOOO', order)
-  if (order) {
-    // cart.value = order
-    // updateLocalStorage()
-  }
-}
-
-const updatePhoneNumbers = (event) => {
-  console.log('EE', event)
-  cart.value.customer.phoneNumber = event
-  console.log(cart.value)
-}
+// const updatePhoneNumbers = (event) => {
+//   console.log('EETTTTT', event)
+//   cart.value.customer.phoneNumber = event
+//   console.log(cart.value)
+// }
 
 const updateCustomer = (event) => {
   console.log('SA', event)
@@ -151,17 +153,17 @@ const updateShippingAddress = (event) => {
   console.log(cart.value)
 }
 
-const toggleBillingSameAsShipping = () => {
-  billingSameAsShipping.value = !billingSameAsShipping.value
-  if (billingSameAsShipping.value) cart.value.billingAddress = cart.value.shippingAddress
-  console.log(cart.value)
-}
+// const toggleBillingSameAsShipping = () => {
+//   billingSameAsShipping.value = !billingSameAsShipping.value
+//   if (billingSameAsShipping.value) cart.value.billingAddress = cart.value.shippingAddress
+//   console.log(cart.value)
+// }
 
-const updateorderBillingAddress = (event) => {
-  console.log('EE', event)
-  orderBillingAddress = event
-  console.log(cart.value)
-}
+// const updateorderBillingAddress = (event) => {
+//   console.log('EE', event)
+//   orderBillingAddress = event
+//   console.log(cart.value)
+// }
 
 const goBack = () => {
   cart.value = JSON.parse(currentCart)
@@ -170,7 +172,8 @@ const goBack = () => {
 }
 
 const continueToShipping = async () => {
-  // console.log(cart.value)
+  console.log(cart.value)
+  // return
   // if (!cart.value.customerPhoneNumber || !cart.value.customerPhoneNumber.phoneNumber)
   //   return (errorMsg.value = 'Phone number is required')
 
@@ -233,12 +236,11 @@ const continueToShipping = async () => {
   // cart.value.customer.email = cart.value.customer.shippingAddresses[0].email
   // cart.value.customer.name = cart.value.customer.shippingAddresses[0].name
   cart.value.status = 'address'
-  if (cart.value.billingAddress.sameAsShipping) cart.value.billingAddress = { ...cart.value.shippingAddress }
+  // if (cart.value.billingAddress.sameAsShipping) cart.value.billingAddress = { ...cart.value.shippingAddress }
 
   const verifiedItems = []
   await Promise.all(
     cart.value.items.map(async (item) => {
-      // let newItem
       const product = await fetchDoc('products', item.product.id)
       if (!product) return
       const newItemParts = {
@@ -248,13 +250,10 @@ const continueToShipping = async () => {
         salePrice: product.salePrice,
         quantity: item.quantity,
       }
-
       const newItem = await saveDoc('orderitems', { ...item, newItemParts })
       if (!newItem) return
-
       const response = await fetchAll('orderitems', { _id: newItem.id, populate: 'product' })
       if (!response) return
-
       verifiedItems.push(response.docs[0])
       cart.value.total += response.docs[0].product.price * response.docs[0].quantity * 1
     })
@@ -267,8 +266,8 @@ const continueToShipping = async () => {
   const shippingAddress = await saveDoc('shippingaddresses', cart.value.shippingAddress)
   if (shippingAddress) cart.value.shippingAddress = shippingAddress
 
-  const billingAddress = await saveDoc('billingaddresses', cart.value.billingAddress)
-  if (billingAddress) cart.value.billingAddress = billingAddress
+  // const billingAddress = await saveDoc('billingaddresses', cart.value.billingAddress)
+  // if (billingAddress) cart.value.billingAddress = billingAddress
 
   const order = await saveDoc('orders', cart.value)
   if (order) {
@@ -282,7 +281,7 @@ const continueToShipping = async () => {
   updateLocalStorage()
   console.log(cart.value)
 
-  router.push({ name: 'ecommerce-shipping' })
+  // router.push({ name: 'ecommerce-shipping' })
 
   // console.log(response)
   // updateDbOrder()
@@ -347,15 +346,14 @@ const updateBillingAddress = (event) => {
           <EcommerceCheckoutShippingAddressForm
             :countries="countries"
             :states="states"
-            :shippingAddress="cart.shippingAddress"
+            :shippingAddress="shippingAddressToEdit"
             :customer="cart.customer"
-            :cartPhoneNumber="cart.phoneNumber"
+            :cartPhoneNumber="phoneNumberToEdit"
             @updateCustomer="updateCustomer"
             @updateShippingAddress="updateShippingAddress"
             @insertNewPhoneNumber="insertNewPhoneNumber"
             @removePhoneNumber="removePhoneNumber"
             @setDefaultPhoneNumber="setDefaultPhoneNumber"
-            @updatePhoneNumbers="updatePhoneNumbers"
           />
           <!-- <EcommerceCheckoutBillingAddressForm
             :countries="countries"
