@@ -1,5 +1,22 @@
 <script setup>
-const user = useState('user')
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true,
+  },
+})
+
+const emit = defineEmits(['updateUser'])
+
+const localUser = ref({ ...props.user })
+
+watch(
+  () => localUser.value,
+  (newVal) => {
+    emit('updateUser', newVal)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -8,8 +25,7 @@ const user = useState('user')
       <div class="uppercase inline-block border-b-stone-300 font-bold pb05">User Information</div>
       <div></div>
     </div>
-    <div class="flex-row gap-2">
-    </div>
+    <div class="flex-row gap-2"></div>
     <div class="flex-1 flex-row gap-2">
       <div class="flex-1">
         <FormsBaseInput label="Name" placeholder="Name" :required="true" v-model="user.name" />

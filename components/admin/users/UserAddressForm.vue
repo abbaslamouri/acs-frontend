@@ -36,7 +36,7 @@ const props = defineProps({
   // },
 })
 
-const emit = defineEmits(['updateOrderShippingAddress', 'insertNewPhoneNumber', 'updatePhoneNumbers'])
+const emit = defineEmits(['updateUserAddress', 'insertNewPhoneNumber', 'removePhoneNumber', 'updatePhoneNumbers'])
 
 // const { cart } = useCart()
 
@@ -66,13 +66,17 @@ const localUserAddress = ref({ ...props.userAddress })
 // localUserAddress.value = { ...props.orderShippingAddress }
 // localEmail.value = props.email
 
-// const addPhoneNumber = () => {
-//   localUserAddress.customer.phoneNumbers.value.push({
-//     phoneType: '',
-//     phoneCountryCode: '',
-//     phoneNumber: '',
-//   })
-// }
+const setLocalUserAddressState = (event) => {
+  console.log(event.target.value)
+  const selectedState = props.states.find((s) => s.id == event.target.value)
+  if (selectedState) localUserAddress.value.state = selectedState
+}
+
+const setLocalUserAddressCountry = (event) => {
+  console.log(event.target.value)
+  const selectedCountry = props.countries.find((c) => c.id == event.target.value)
+  if (selectedCountry) localUserAddress.value.country = selectedCountry
+}
 
 // const insertNewPhoneNumber = () => {
 //   localUserAddress.customer.phoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
@@ -98,6 +102,7 @@ watch(
 <template>
   <!-- <div class="flex-row gap-2 bg-slate-900"> -->
   <div class="flex-1 flex-col gap-1 bg-slate-50 p-2">
+    {{ localUserAddress }}
     <!-- <h3>Shipping Address</h3> -->
     <p>All fields with * are mandatory</p>
     <section class="flex-col gap-1">
@@ -141,16 +146,15 @@ watch(
       </div>
     </section>
     <section class="flex-col gap-1">
-        <EcommerceCheckoutPhoneNumbersForm
-          :countries="countries"
-          :states="states"
-          :cartPhoneNumber="cartPhoneNumber"
-          :phoneNumbers="customer.phoneNumbers"
-          @insertNewPhoneNumber="$emit('insertNewPhoneNumber')"
-          @removePhoneNumber="$emit('removePhoneNumber', $event)"
-          @setDefaultPhoneNumber="$emit('setDefaultPhoneNumber', $event)"
-          @updatePhoneNumbers="$emit('updatePhoneNumbers')"
-        />
+      <AdminUsersPhoneNumbersForm
+        :countries="countries"
+        :states="states"
+        :phoneNumbers="userAddress.phoneNumbers"
+        @insertNewPhoneNumber="$emit('insertNewPhoneNumber')"
+        @removePhoneNumber="$emit('removePhoneNumber', $event)"
+        @setDefaultPhoneNumber="$emit('setDefaultPhoneNumber', $event)"
+        @updatePhoneNumbers="$emit('updatePhoneNumbers')"
+      />
       <!-- <div
         class="flex-row gap-2 items-center"
         v-for="(phone, j) in localUserAddress.phoneNumbers"
@@ -213,7 +217,7 @@ watch(
           <FormsBaseInput label="City" placeholder="City" v-model="localUserAddress.city" />
         </div>
         <div class="flex-1">
-          <FormsBaseSelect
+          <!-- <FormsBaseSelect
             v-model="localUserAddress.state"
             label="State"
             nullOption="-"
@@ -222,7 +226,23 @@ watch(
                 return { key: s.id, name: s.name }
               })
             "
-          />
+          /> -->
+          <label class="base-select">
+            <div class="label text-xs px-1">State</div>
+            <select @change="setLocalUserAddressState" class="text-xs">
+              <option value=""></option>
+              <option
+                v-for="option in states.map((c) => {
+                  return { key: c.id, name: c.name }
+                })"
+                :key="option.key"
+                :value="option.key"
+                :selected="localUserAddress.state.id == option.key"
+              >
+                {{ option.name }}
+              </option>
+            </select>
+          </label>
         </div>
       </div>
       <div class="flex-row items-center gap-2">
@@ -230,7 +250,7 @@ watch(
           <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localUserAddress.postalCode" />
         </div>
         <div class="flex-1">
-          <FormsBaseSelect
+          <!-- <FormsBaseSelect
             v-model="localUserAddress.country"
             label="Country"
             nullOption="-"
@@ -239,7 +259,23 @@ watch(
                 return { key: c.id, name: c.countryName }
               })
             "
-          />
+          /> -->
+          <label class="base-select">
+            <div class="label text-xs px-1">Country</div>
+            <select @change="setLocalUserAddressCountry" class="text-xs">
+              <option value=""></option>
+              <option
+                v-for="option in countries.map((c) => {
+                  return { key: c.id, name: c.countryName }
+                })"
+                :key="option.key"
+                :value="option.key"
+                :selected="localUserAddress.country.id == option.key"
+              >
+                {{ option.name }}
+              </option>
+            </select>
+          </label>
         </div>
       </div>
     </section>

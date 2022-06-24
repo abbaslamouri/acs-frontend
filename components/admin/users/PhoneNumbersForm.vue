@@ -18,10 +18,10 @@ const props = defineProps({
   // orderBillingAddress: {
   //   type: Object,
   // },
-  cartPhoneNumber: {
-    type: Object,
-    // default: [],
-  },
+  // cartPhoneNumber: {
+  //   type: Object,
+  //   // default: [],
+  // },
 
   phoneNumbers: {
     type: Array,
@@ -40,7 +40,7 @@ const { cart } = useCart()
 // const countries = inject('countries')
 // const states = inject('states')
 const localPhoneNumbers = ref([])
-const localCartPhoneNumber = ref({ ...props.cartPhoneNumber })
+// const localCartPhoneNumber = ref({ ...props.cartPhoneNumber })
 
 for (const prop in props.phoneNumbers) {
   localPhoneNumbers.value[prop] = props.phoneNumbers[prop]
@@ -116,7 +116,7 @@ watch(
           <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phoneNbr.phoneNumber" />
         </div>
         <div class="flex-1">
-          <FormsBaseSelect
+          <!-- <FormsBaseSelect
             v-model="phoneNbr.phoneCountryCode"
             label="Country Code"
             nullOption="-"
@@ -125,7 +125,23 @@ watch(
                 return { key: c.id, name: c.countryName }
               })
             "
-          />
+          /> -->
+          <label class="base-select">
+            <div class="label text-xs px-1">Country</div>
+            <select @change="setPhoneCountry" class="text-xs">
+              <option value=""></option>
+              <option
+                v-for="option in countries.map((c) => {
+                  return { key: c.id, name: c.countryName }
+                })"
+                :key="option.key"
+                :value="option.key"
+                :selected="phoneNbr.phoneCountryCode.id == option.key"
+              >
+                {{ option.name }}
+              </option>
+            </select>
+          </label>
         </div>
         <div class="">
           <FormsBaseRadio

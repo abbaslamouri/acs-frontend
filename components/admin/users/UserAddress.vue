@@ -4,6 +4,12 @@ defineProps({
     type: Object,
     required: true,
   },
+  states: {
+    type: Array,
+  },
+  countries: {
+    type: Array,
+  },
 })
 </script>
 
@@ -16,7 +22,7 @@ defineProps({
     <div>{{ userAddress.company }}</div>
     <div>{{ userAddress.addressLine1 }}</div>
     <div>{{ userAddress.addressLine2 }}</div>
-    <div class="flex-row gap-03">
+    <div class="flex-row gap-03" v-if="userAddress.city && userAddress.state">
       <div>{{ userAddress.city }},</div>
       <div v-if="userAddress.state">
         {{ userAddress.state.name }}

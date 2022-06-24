@@ -11,20 +11,28 @@ const route = useRoute()
 const router = useRouter()
 const addressToEditIndex = ref('')
 const showAddressFormModal = ref(false)
+const countries = ref([])
+const states = ref([])
 let response = null
-const user = ref({ userAddresses: [{ phoneNumbers: [] }] })
+const user = ref({ userAddresses: [] })
 const id = route.params.id === '_' ? null : route.params.id
 
 if (id) {
   response = await fetchDoc('users', id)
   if (response) user.value = response.doc
 }
-const countries = (await fetchAll('countries', { sort: 'countryName' })).docs
-const states = (await fetchAll('states', { sort: 'name' })).docs
+response = await fetchAll('countries', { sort: 'countryName' })
+if (response) countries.value = response.docs
+// console.log(countries.value)
+response = await fetchAll('states', { sort: 'name' })
+if (response) states.value = response.docs
+// console.log(states.value)
+
+const currentUserAddress = JSON.stringify(user.value.userAddresses)
 
 console.log(user.value)
 
-const addAddress = () => {
+const insertNewAddress = () => {
   user.value.userAddresses.unshift({
     addressType: 'Residential',
     // email: 'abbaslamnouri1@yrlus.com',
@@ -33,31 +41,83 @@ const addAddress = () => {
     company: 'YRL Consulting LLC',
     addressLine1: '599 Deep Woods Dr.',
     addressLine2: 'Room 101',
-    city: 'Aurora1',
+    city: 'Aurora',
     postalCode: '442021',
-    state: states.find((s) => s._id == '624ef322b9e91e20c3e32390'),
-    country: countries.find((c) => c._id == '624ef31fb9e91e20c3e3215e'),
-    isDefault: true,
+    state: states.value.find((c) => c.name === 'Alaska'),
+    country: countries.value.find((c) => c.countryName === 'Algeria'),
 
     phoneNumbers: [
       {
         phoneType: 'Cell',
         phoneNumber: '21650263781',
-        phoneCountryCode: countries.find((c) => c._id == '624ef31fb9e91e20c3e3215e'),
+        phoneCountryCode: countries.value.find((c) => c.countryName === 'Algeria'),
         isDefault: true,
       },
     ],
     deliveryInstructions: 'Some delivery instructions1',
   })
+  if (user.value.userAddresses.length == 1) user.value.userAddresses[0].isDefault = true
   addressToEditIndex.value = user.value.userAddresses.length - 1
   showAddressFormModal.value = true
   // displayStatus.value = 'editing'
   // editAction.value = 'add'
 }
 
+const editAddress = (i) => {
+  addressToEditIndex.value = i
+  showAddressFormModal.value = true
+  // displayStatus.value = 'editing'
+  // editAction.value = 'add'
+}
+
+const insertNewPhoneNumber = () => {
+  console.log('HHHHHH')
+  user.value.userAddresses[addressToEditIndex.value].phoneNumbers.push({
+    phoneType: '',
+    phoneCountryCode: '',
+    phoneNumber: '',
+    isDefault: false,
+  })
+}
+
+const removePhoneNumber = (event) => {
+  console.log('HHHHHH', event)
+  user.value.userAddresses[addressToEditIndex.value].phoneNumbers.splice(event, 1)
+  if (user.value.userAddresses[addressToEditIndex.value].phoneNumbers.length === 1) {
+    user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
+  } else {
+    if (!user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find((p) => p.isDefault))
+      user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
+  }
+}
+
+const setDefaultPhoneNumber = (event) => {
+  console.log('HHHHHH', event)
+  for (const prop in user.value.userAddresses[addressToEditIndex.value].phoneNumbers) {
+    user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].isDefault = false
+  }
+  user.value.userAddresses[addressToEditIndex.value].phoneNumbers[event].isDefault = true
+}
+
+const closeModal = () => {
+  if (currentUserAddress !== JSON.stringify(user.value.userAddresses))
+    return alert('You have unsaved changes, please save your chnages or click cancel to discard your changes')
+  showAddressFormModal.value = false
+}
+
 const cancelAddressUpdate = () => {
-  localAddress.value = {}
-  displayStatus.value = 'displaying'
+  user.value.userAddresses = JSON.parse(currentUserAddress)
+  showAddressFormModal.value = false
+}
+
+// const updateUserAddress = (event) => {
+// console.log(event)
+// user.userAddresses[addressToEditIndex] = $event
+// }
+
+const saveAddress = () => {
+  console.log(user.value)
+  showAddressFormModal.value = false
 }
 
 // watch(
@@ -73,6 +133,7 @@ const cancelAddressUpdate = () => {
   <div class="hfull flex-col items-center gap-2 p-3">
     <Title>{{ pageTitle }}</Title>
     <header class="flex-col gap-2 w-full max-width-130">
+      {{ user }}
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-ecommerce-products' }">
           <IconsArrowWest /><span>Users</span>
@@ -85,24 +146,28 @@ const cancelAddressUpdate = () => {
         <EcommerceAdminProductLeftSidebar :product="product" />
       </div> -->
       <div class="flex-col gap-2">
-        <AdminUsersUserInfo />
+        <AdminUsersUserInfo :user="user" @updateUser="user = $event" />
 
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
             <div class="uppercase inline-block border-b-stone-300 font-bold pb05">User Addresses</div>
             <div></div>
           </div>
-          <div class="flex-row gap-2">
-            <AdminUsersUserAddress
-              v-for="userAddress in user.userAddresses"
+          <div class="flex-col gap-4">
+            <div
+              class="flex-row items-center gap-4 text-xs"
+              v-for="(userAddress, i) in user.userAddresses"
               :key="userAddress.id"
-              :userAddress="userAddress"
-            />
-            <button class="btn btn__secondary px-2 py-05 items-self-end text-xs" @click="addAddress">
+            >
+              <AdminUsersUserAddress :userAddress="userAddress" :countries="countries" :states="states" />
+              <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">Edit Address</button>
+            </div>
+
+            <button class="btn btn__secondary px-2 py-05 items-self-end text-xs" @click="insertNewAddress">
               Add Address
             </button>
           </div>
-          <Modal :outerBoxWidth="75" :outerBoxHeight="70" @closeModal="cancelAddressUpdate" v-if="showAddressFormModal">
+          <Modal :outerBoxWidth="75" :outerBoxHeight="70" @closeModal="closeModal" v-if="showAddressFormModal">
             <template v-slot:header>
               <h3>Edit User Address</h3>
             </template>
@@ -112,7 +177,10 @@ const cancelAddressUpdate = () => {
                 :countries="countries"
                 :states="states"
                 :showDefaultToggleField="true"
-                @updateAddress="localAddress = $event"
+                @updateUserAddress="user.userAddresses[addressToEditIndex] = $event"
+                @insertNewPhoneNumber="insertNewPhoneNumber"
+                @removePhoneNumber="removePhoneNumber"
+                @setDefaultPhoneNumber="setDefaultPhoneNumber"
               />
             </template>
             <template v-slot:footer>
