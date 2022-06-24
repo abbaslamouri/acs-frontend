@@ -16,8 +16,8 @@ const localAddress = ref({})
 
 const countries = (await fetchAll('countries', { sort: 'countryName' })).docs
 const states = (await fetchAll('states', { sort: 'name' })).docs
-provide('countries', countries)
-provide('states', states)
+// provide('countries', countries)
+// provide('states', states)
 
 cart.value.shippingOption = cart.value.shippingOption ? cart.value.shippingOption : 'free'
 

@@ -262,60 +262,129 @@ const useAuth = () => {
     }
   }
 
-  const forgotPassword = async (email) => {
+  const forgotPassword = async (payload) => {
     errorMsg.value = ''
     message.value = ''
     try {
-      const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/forgotpassword`, {
+      const response = await fetch(`${config.apiUrl}/auth/forgot-password`, {
         method: 'POST',
-        body: {
-          email,
-          passwordResetUrl: `${config.BASE_Url}/auth/resetpassword`,
-          emailSubject: 'Your password reset token (valid for 1 hour)',
-        },
+        body: JSON.stringify(payload),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${token.value}`,
+        }),
       })
-      console.log('DATA', data.value)
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
+      if (response.ok) {
+        const data = await response.json()
+        return data
+        // const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        // tokenCookie.value = data.token
+        // userCookie.value = data.user
+        // user.value = userCookie.value
+        // token.value = tokenCookie.value
+        // isAuthenticated.value = true
+        // return true
       }
-      return data.value
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+
+      // const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/forgotpassword`, {
+      //   method: 'POST',
+      //   body: {
+      //     email,
+      //     passwordResetUrl: `${config.BASE_Url}/auth/resetpassword`,
+      //     emailSubject: 'Your password reset token (valid for 1 hour)',
+      //   },
+      // })
+      // console.log('DATA', data.value)
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // return data.value
     } catch (err) {
-      if (process.client) {
-        console.log('MYERROR', err)
-        errorMsg.value = err.data && err.data.message ? err.data.message : err.message ? err.message : ''
-        return false
-      }
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
     }
   }
 
   const resetPassword = async (payload) => {
     errorMsg.value = ''
     message.value = ''
-    console.log(payload)
     try {
-      const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/resetpassword/${payload.token}`, {
+      const response = await fetch(`${config.apiUrl}/auth/reset-password`, {
         method: 'PATCH',
-        body: {
-          password: payload.password,
-        },
+        body: JSON.stringify(payload),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${token.value}`,
+        }),
       })
-      console.log('DATA', data.value)
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
+      if (response.ok) {
+        const data = await response.json()
+        const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        tokenCookie.value = data.token
+        userCookie.value = data.user
+        user.value = userCookie.value
+        token.value = tokenCookie.value
+        isAuthenticated.value = true
+        return true
       }
-      return data.value
+      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      throw getErrorStr((await response.json()).errors)
+
+      // const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/forgotpassword`, {
+      //   method: 'POST',
+      //   body: {
+      //     email,
+      //     passwordResetUrl: `${config.BASE_Url}/auth/resetpassword`,
+      //     emailSubject: 'Your password reset token (valid for 1 hour)',
+      //   },
+      // })
+      // console.log('DATA', data.value)
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // return data.value
     } catch (err) {
-      if (process.client) {
-        console.log('MYERROR', err)
-        errorMsg.value = err.data && err.data.message ? err.data.message : err.message ? err.message : ''
-        return false
-      }
+      console.log('MYERROR', err)
+      errorMsg.value = err
+      return false
     }
   }
+
+  // const resetPasswordxxxx = async (payload) => {
+  //   errorMsg.value = ''
+  //   message.value = ''
+  //   console.log(payload)
+  //   try {
+  //     const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/resetpassword/${payload.token}`, {
+  //       method: 'PATCH',
+  //       body: {
+  //         password: payload.password,
+  //       },
+  //     })
+  //     console.log('DATA', data.value)
+  //     if (error.value) throw error.value
+  //     if (data.value && data.value.status === 'fail') {
+  //       if (process.client) errorMsg.value = data.value.message
+  //       return false
+  //     }
+  //     return data.value
+  //   } catch (err) {
+  //     if (process.client) {
+  //       console.log('MYERROR', err)
+  //       errorMsg.value = err.data && err.data.message ? err.data.message : err.message ? err.message : ''
+  //       return false
+  //     }
+  //   }
+  // }
 
   const signout = async () => {
     errorMsg.value = ''

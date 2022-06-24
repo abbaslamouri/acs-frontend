@@ -7,9 +7,12 @@ const email = ref('abbaslamouri@yrlus.com')
 const handleForgotPassword = async () => {
   errorMsg.value = null
   message.value = null
-  const response = await forgotPassword(email.value)
+  const response = await forgotPassword({
+    email: email.value,
+    url: `${window.location.protocol}//${window.location.host}/auth/reset-password`,
+    emailSubject: 'Your password reset token (valid for 1 hour)',
+  })
   if (response) return (message.value = 'Please check your email for instructions to reset your password.')
-  
 }
 </script>
 
