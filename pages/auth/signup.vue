@@ -3,7 +3,9 @@ const title = ref('Products | YRL')
 
 const config = useRuntimeConfig()
 const router = useRouter()
-const { signup, signupEmail } = useAuth()
+const nuxtApp = useNuxtApp()
+
+const { signup } = useAuth()
 const { cart, updateLocalStorage } = useCart()
 const { errorMsg, message } = useAppState()
 const user = reactive({
@@ -13,25 +15,33 @@ const user = reactive({
   passwordConfirm: 'adrar0714',
 })
 const loading = ref(false)
-let response
+onMounted(() => {
+  console.log(window.location.protocol)
+})
+// let response
 // const errorMsg = ref('')
 
 const register = async () => {
   if (user.password !== user.passwordConfirm)
     return (errorMsg.value = "Your password and confirmation password don't match")
-  response = await signup(user)
+  const response = await signup({
+    user,
+    url: `${window.location.protocol}//${window.location.host}/auth/verify-email`,
+    emailSubject: 'Please verify your email',
+  })
   console.log('U', response)
   if (!response) return
 
-  response = await signupEmail({
-    user: response.user,
-    token: response.token,
-    url: `http://localhost:3000/auth/verify-email`,
-    emailSubject: 'Please verify your email',
-  })
-  console.log(response)
-  if (!response) return
-  router.push({ name: 'ecommerce-products' })
+  // response = await signupEmail({
+  //   user: response.user,
+  //   token: response.token,
+  //   url: `http://localhost:3000/auth/verify-email`,
+  //   emailSubject: 'Please verify your email',
+  // })
+  // console.log(response)
+  // if (!response) return
+  // router.push({ name: 'ecommerce-products' })
+  message.value = 'Thank you for signing up.  Pleaase check your email to verify your account'
 
   // const customer = response.user
   // cart.value.customer = customer

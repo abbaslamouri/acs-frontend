@@ -56,36 +56,36 @@ const useAuth = () => {
     }
   }
 
-  const signupEmail = async (payload) => {
-    errorMsg.value = ''
-    try {
-      const response = await fetch(`${config.apiUrl}/auth/signup-email`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          // Authorization: `Bearer ${token.value}`,
-        }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        // const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        // tokenCookie.value = data.token
-        // userCookie.value = data.user
-        // user.value = userCookie.value
-        // token.value = tokenCookie.value
-        // isAuthenticated.value = true
-        return data
-      }
-      if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
-      throw getErrorStr((await response.json()).errors)
-    } catch (err) {
-      console.log('MYERROR', err)
-      errorMsg.value = err
-      return false
-    }
-  }
+  // const signupEmail = async (payload) => {
+  //   errorMsg.value = ''
+  //   try {
+  //     const response = await fetch(`${config.apiUrl}/auth/signup-email`, {
+  //       method: 'POST',
+  //       body: JSON.stringify(payload),
+  //       headers: new Headers({
+  //         'Content-Type': 'application/json',
+  //         // Authorization: `Bearer ${token.value}`,
+  //       }),
+  //     })
+  //     if (response.ok) {
+  //       const data = await response.json()
+  //       // const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+  //       // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+  //       // tokenCookie.value = data.token
+  //       // userCookie.value = data.user
+  //       // user.value = userCookie.value
+  //       // token.value = tokenCookie.value
+  //       // isAuthenticated.value = true
+  //       return data
+  //     }
+  //     if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+  //     throw getErrorStr((await response.json()).errors)
+  //   } catch (err) {
+  //     console.log('MYERROR', err)
+  //     errorMsg.value = err
+  //     return false
+  //   }
+  // }
 
   const signin = async (payload) => {
     errorMsg.value = ''
@@ -119,23 +119,46 @@ const useAuth = () => {
     }
   }
 
-  const finishSignup = async (user, token) => {
+  const confirmEmail = async (payload) => {
     errorMsg.value = ''
     message.value = ''
+    console.log(payload)
     try {
-      const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/completeSignup/${token}`, {
+      const response = await fetch(`${config.apiUrl}/auth/confirm-email`, {
         method: 'PATCH',
-        body: { ...user },
+        body: JSON.stringify(payload),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${token.value}`,
+        }),
       })
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
+      if (response.ok) {
+        const data = await response.json()
+        const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        tokenCookie.value = data.token
+        userCookie.value = data.user
+        user.value = userCookie.value
+        token.value = tokenCookie.value
+        isAuthenticated.value = true
+        return true
       }
-      return data.value
+      // if (!response.headers.get('content-type')?.includes('application/json')) throw 'Something went terribly wrong'
+      // throw getErrorStr((await response.json()).errors)
+
+      // const { data, pending, error } = await useFetch(`${config.apiUrl}/auth/completeSignup/${token}`, {
+      //   method: 'PATCH',
+      //   body: { ...user },
+      // })
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // return data.value
     } catch (err) {
       console.log('MYERROR', err)
-      errorMsg.value = err.data && err.data.message ? err.data.message : err.message ? err.message : ''
+      errorMsg.value = err
       return false
     }
   }
@@ -379,8 +402,8 @@ const useAuth = () => {
     isAuthenticated,
     isAdmin,
     signup,
-    signupEmail,
-    finishSignup,
+    // signupEmail,
+    confirmEmail,
     signin,
     signout,
     fetchLoggedInUser,
