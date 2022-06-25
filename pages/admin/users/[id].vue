@@ -30,10 +30,14 @@ if (response) states.value = response.docs
 
 const currentUserAddress = JSON.stringify(user.value.userAddresses)
 
+user.value.name = 'Abbas Lamouri'
+user.value.email = 'abbaslamouri@yrlus.com'
+user.value.password = 'adrar0714'
+
 console.log(user.value)
 
 const insertNewAddress = () => {
-  user.value.userAddresses.unshift({
+  user.value.userAddresses.push({
     addressType: 'Residential',
     // email: 'abbaslamnouri1@yrlus.com',
     title: 'Ms',
@@ -42,21 +46,24 @@ const insertNewAddress = () => {
     addressLine1: '599 Deep Woods Dr.',
     addressLine2: 'Room 101',
     city: 'Aurora',
-    postalCode: '442021',
+    postalCode: '44202',
     state: states.value.find((c) => c.name === 'Alaska'),
-    country: countries.value.find((c) => c.countryName === 'Algeria'),
+    country: countries.value.find((c) => c.threeLetterCountryCode === 'USA'),
 
     phoneNumbers: [
       {
         phoneType: 'Cell',
-        phoneNumber: '21650263781',
-        phoneCountryCode: countries.value.find((c) => c.countryName === 'Algeria'),
+        phoneNumber: '2165026378',
+        phoneCountryCode: countries.value.find((c) => c.threeLetterCountryCode == 'USA'),
         isDefault: true,
       },
     ],
     deliveryInstructions: 'Some delivery instructions1',
   })
-  if (user.value.userAddresses.length == 1) user.value.userAddresses[0].isDefault = true
+  if (user.value.userAddresses.length == 1) {
+    user.value.userAddresses[0].isDefault = true
+    user.value.userAddresses[0].billingAddress = true
+  }
   addressToEditIndex.value = user.value.userAddresses.length - 1
   showAddressFormModal.value = true
   // displayStatus.value = 'editing'
@@ -115,9 +122,35 @@ const cancelAddressUpdate = () => {
 // user.userAddresses[addressToEditIndex] = $event
 // }
 
-const saveAddress = () => {
-  console.log(user.value)
+const saveAddress = async () => {
+  console.log(user.value.userAddresses[addressToEditIndex.value].phoneNumbers)
   showAddressFormModal.value = false
+  const newPhoneNumbers = []
+  await Promise.all(
+    user.value.userAddresses[addressToEditIndex.value].phoneNumbers.map(async (item) => {
+      const newPhoneNumber = await saveDoc('phonenumbers', item)
+      if (newPhoneNumber) newPhoneNumbers.push(newPhoneNumber)
+    })
+  )
+  user.value.userAddresses[addressToEditIndex.value].phoneNumbers = newPhoneNumbers
+  console.log(newPhoneNumbers)
+
+  const newUserAddresses = []
+  await Promise.all(
+    user.value.userAddresses.map(async (item) => {
+      const newUserAddress = await saveDoc('useraddresses', item)
+      if (newUserAddress) newUserAddresses.push(newUserAddress)
+    })
+  )
+  user.value.userAddresses = newUserAddresses
+
+  const newUser = await saveDoc('users', user.value)
+  if (newUser) {
+    user.value = newUser
+    router.push({ name: 'admin-users-id', params: { id: user.value.id } })
+  }
+
+  console.log(user.value)
 }
 
 // watch(
@@ -133,11 +166,9 @@ const saveAddress = () => {
   <div class="hfull flex-col items-center gap-2 p-3">
     <Title>{{ pageTitle }}</Title>
     <header class="flex-col gap-2 w-full max-width-130">
-      {{ user }}
+      {{ user }}===={{ addressToEditIndex }}
       <div class="go-back" id="product-go-back">
-        <NuxtLink class="admin-link" :to="{ name: 'admin-ecommerce-products' }">
-          <IconsArrowWest /><span>Users</span>
-        </NuxtLink>
+        <NuxtLink class="admin-link" :to="{ name: 'admin-users' }"> <IconsArrowWest /><span>Users</span> </NuxtLink>
       </div>
       <h3 class="header">Edit User</h3>
     </header>
@@ -150,17 +181,19 @@ const saveAddress = () => {
 
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
-            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">User Addresses</div>
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">User Addresses</div>
             <div></div>
           </div>
-          <div class="flex-col gap-4">
-            <div
-              class="flex-row items-center gap-4 text-xs"
-              v-for="(userAddress, i) in user.userAddresses"
-              :key="userAddress.id"
-            >
-              <AdminUsersUserAddress :userAddress="userAddress" :countries="countries" :states="states" />
-              <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">Edit Address</button>
+          <div class="flex-col gap-2">
+            <div>
+              <div
+                class="customer-address flex-row items-center text-xs p-2 border border-slate-200 br-3"
+                v-for="(userAddress, i) in user.userAddresses"
+                :key="userAddress.id"
+              >
+                <AdminUsersUserAddress :userAddress="userAddress" :countries="countries" :states="states" />
+                <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">Edit Address</button>
+              </div>
             </div>
 
             <button class="btn btn__secondary px-2 py-05 items-self-end text-xs" @click="insertNewAddress">
@@ -242,6 +275,15 @@ const saveAddress = () => {
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
+
+.customer-address {
+  &:nth-of-type(even) {
+    background-color: $slate-200;
+  }
+  // &:nth-of-type(odd) {
+  //   background-color: $slate-400;
+  // }
+}
 
 .main {
   display: grid;

@@ -26,7 +26,7 @@ const setMediaReference = () => {
 <template>
   <div>
     <div class="flex-row items-center justify-between text-sm mb-1">
-      <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
+      <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Image Gallery</div>
       <div></div>
     </div>
     <div class="flex-col flex-col items-center gap-2">

@@ -5,7 +5,7 @@ const router = useRouter()
 const route = useRoute()
 const config = useRuntimeConfig()
 
-const { user, token, isAuthenticated, signin } = useAuth()
+const { loggedInUser, token, isAuthenticated, signin } = useAuth()
 const { errorMsg, message } = useAppState()
 const { cart, updateLocalStorage } = useCart()
 const { fetchAll, saveOrder } = useHttp()
@@ -42,7 +42,7 @@ const updateDbOrder = async () => {
 const login = async () => {
   const response = await signin(formUser)
   if (!response) return
-  const customer = user.value
+  const customer = loggedInUser.value
   cart.value.customer = customer
   cart.value.name = customer.name
   cart.value.email = customer.email
@@ -74,7 +74,7 @@ const login = async () => {
   //   path: '/',
   // })
   // auth.value = data.auth
-  // user.value = data.auth.user
+  // loggedInUser.value = data.auth.user
   // token.value = data.auth.token
   // isAuthenticated.value = true
   // cart.value.customer = data.auth.user

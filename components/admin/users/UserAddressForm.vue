@@ -102,7 +102,7 @@ watch(
 <template>
   <!-- <div class="flex-row gap-2 bg-slate-900"> -->
   <div class="flex-1 flex-col gap-1 bg-slate-50 p-2">
-    {{ localUserAddress }}
+    {{ localUserAddress.phoneNumbers }}
     <!-- <h3>Shipping Address</h3> -->
     <p>All fields with * are mandatory</p>
     <section class="flex-col gap-1">

@@ -2,7 +2,7 @@
 const router = useRouter()
 const route = useRoute()
 // const config = useRuntimeConfig()
-const { user, token, isAuthenticated, confirmEmail } = useAuth()
+const { loggedInUser, token, isAuthenticated, confirmEmail } = useAuth()
 const { errorMsg, message } = useAppState()
 const userEmail = ref('abbaslamouri@yrlus.com')
 

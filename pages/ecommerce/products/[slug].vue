@@ -66,7 +66,7 @@ const getcartItemCount = () => {
       <main class="flex-1 flex-col gap-2">
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
-            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Product Details</div>
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Product Details</div>
           </div>
           <div class="flex-row gap-4">
             <div class="image w-40 h-40 flex-row justify-center items-center">
@@ -99,7 +99,7 @@ const getcartItemCount = () => {
         </section>
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
-            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Eligibility</div>
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Eligibility</div>
             <div></div>
           </div>
           <div class="flex-row wrap gap-1">
@@ -116,7 +116,7 @@ const getcartItemCount = () => {
         </section>
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
-            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Next Higher Assembly</div>
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Next Higher Assembly</div>
             <div></div>
           </div>
           <div class="flex-row wrap gap-1">
@@ -136,7 +136,7 @@ const getcartItemCount = () => {
         </section>
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
-            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">
               Additional Parts in this assembly
             </div>
           </div>

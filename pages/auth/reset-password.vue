@@ -2,7 +2,7 @@
 const router = useRouter()
 const route = useRoute()
 const config = useRuntimeConfig()
-const { user, token, isAuthenticated, resetPassword } = useAuth()
+const { loggedInUser, token, isAuthenticated, resetPassword } = useAuth()
 const { message, errorMsg } = useAppState()
 const password = ref('adrar0714')
 const passwordConfirm = ref('adrar0714')

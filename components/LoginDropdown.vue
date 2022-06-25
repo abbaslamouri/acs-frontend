@@ -2,7 +2,7 @@
 const config = useRuntimeConfig()
 const router = useRouter()
 const route = useRoute()
-const { user, token, isAuthenticated, signin } = useAuth()
+const { loggedInUser, token, isAuthenticated, signin } = useAuth()
 const { errorMsg, message } = useAppState()
 const showAuthDropdown = ref(false)
 const formUser = reactive({

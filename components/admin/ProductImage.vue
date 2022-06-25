@@ -20,7 +20,7 @@ const showMediaUploader = () => {
 <template>
   <div>
     <div class="flex-row items-center justify-between text-sm mb-2">
-      <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Product Image</div>
+      <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Product Image</div>
       <div></div>
     </div>
     <div class="flex-col items-center gap-3">

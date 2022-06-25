@@ -1,5 +1,5 @@
 <script setup>
-const { user, token, isAuthenticated, signout } = useAuth()
+const { loggedInUser, token, isAuthenticated, signout } = useAuth()
 const { errorMsg, message } = useAppState()
 const showProfileDropdown = ref(false)
 
@@ -21,7 +21,7 @@ const lougout = async () => {
       v-bind:class="{ selected: showProfileDropdown }"
     >
       <IconsPersonFill class="fill-slate-900" />
-      <h3 class="font-light uppercase" @click="showProfileDropdown = !showProfileDropdown">Welcome {{ user.name }}</h3>
+      <h3 class="font-light uppercase" @click="showProfileDropdown = !showProfileDropdown">Welcome {{ loggedInUser.name }}</h3>
     </div>
     <div
       v-if="showProfileDropdown"
@@ -29,7 +29,7 @@ const lougout = async () => {
     >
       <h3 class="">My Accoun</h3>
       <ul>
-        <li v-if="user.role !== 'admin'">
+        <li v-if="loggedInUser.role !== 'admin'">
           <NuxtLink :to="{ name: `admin` }">Admin Dashboard</NuxtLink>
         </li>
         <li>

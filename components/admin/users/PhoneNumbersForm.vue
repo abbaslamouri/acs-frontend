@@ -40,6 +40,11 @@ const { cart } = useCart()
 // const countries = inject('countries')
 // const states = inject('states')
 const localPhoneNumbers = ref([])
+const phoneTypeOptions = [
+  { key: 'Cell', name: 'Cell' },
+  { key: 'Home', name: 'Home' },
+  { key: 'Work', name: 'Work' },
+]
 // const localCartPhoneNumber = ref({ ...props.cartPhoneNumber })
 
 for (const prop in props.phoneNumbers) {
@@ -68,13 +73,14 @@ for (const prop in props.phoneNumbers) {
 // cart.shippingAddress.value = { ...props.orderShippingAddress }
 // localEmail.value = props.email
 
-// const addPhoneNumber = () => {
-//   cart.customer.phoneNumbers.value.push({
-//     phoneType: '',
-//     phoneCountryCode: '',
-//     phoneNumber: '',
-//   })
-// }
+const updatePhoneCountryCode = (event, j) => {
+  console.log(event, j)
+
+  const country = props.countries.find((c) => c.id == event)
+  if (country) localPhoneNumbers.value[j].phoneCountryCode = country
+
+  // localPhoneNumbers[j].phoneCountryCode = $event.target.value
+}
 
 // const insertNewPhoneNumber = () => {
 //   cart.customer.phoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
@@ -100,20 +106,36 @@ watch(
 <template>
   <div class="flex-col gap-1 bg-slate-50 border border-slate-400 p-2 br-3">
     <div class="flex-col gap-1">
-      <div class="flex-row gap-2 items-center" v-for="(phoneNbr, j) in phoneNumbers" :key="`phone-number-${j}`">
+      {{ localPhoneNumbers }}
+      <div class="flex-row gap-2 items-center" v-for="(phoneNbr, j) in localPhoneNumbers" :key="`phone-number-${j}`">
         <div class="min-w-14">
-          <FormsBaseSelect
+          <label class="base-select">
+            <div class="label text-xs px-1">PhoneType</div>
+            <select @change="localPhoneNumbers[j].phoneType = $event.target.value" class="text-xs">
+              <option value=""></option>
+              <option
+                v-for="option in phoneTypeOptions"
+                :key="option.key"
+                :value="option.key"
+                :selected="phoneNbr.phoneType == option.key"
+              >
+                {{ option.name }}
+              </option>
+            </select>
+          </label>
+          <!-- <FormsBaseSelect
             label="PhoneType"
-            v-model="phoneNbr.phoneType"
+            :selected="localPhoneNumbers[j].phoneType == phoneNbr.phoneType"
+            @update:modelValue="localPhoneNumbers[j].phoneType = $event"
             :options="[
               { key: 'Cell', name: 'Cell' },
               { key: 'Home', name: 'Home' },
               { key: 'Work', name: 'Work' },
             ]"
-          />
+          /> -->
         </div>
         <div class="min-w-20">
-          <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="phoneNbr.phoneNumber" />
+          <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="localPhoneNumbers[j].phoneNumber" />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
@@ -128,7 +150,7 @@ watch(
           /> -->
           <label class="base-select">
             <div class="label text-xs px-1">Country</div>
-            <select @change="setPhoneCountry" class="text-xs">
+            <select @change="updatePhoneCountryCode($event.target.value, j)" class="text-xs">
               <option value=""></option>
               <option
                 v-for="option in countries.map((c) => {
@@ -151,7 +173,7 @@ watch(
             @update:modelValue="$emit('setDefaultPhoneNumber', j)"
           />
         </div>
-        <button class="btn btn__secondary" @click="$emit('removePhoneNumber', j)" v-if="phoneNumbers.length > 1">
+        <button class="btn btn__secondary" @click="$emit('removePhoneNumber', j)" v-if="localPhoneNumbers.length > 1">
           <IconsMinus />
         </button>
       </div>
@@ -159,7 +181,7 @@ watch(
     <button
       class="btn btn__secondary items-self-end px-2 py-05"
       @click="$emit('insertNewPhoneNumber')"
-      :disabled="phoneNumbers.length >= 4"
+      :disabled="localPhoneNumbers.length >= 4"
     >
       Add Phone Number
     </button>

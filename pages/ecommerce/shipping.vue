@@ -2,7 +2,7 @@
 const title = ref('Shipping | YRL')
 // import cloneDeep from 'lodash.clonedeep'
 
-const { user, isAuthenticated, updateLoggedInUserData } = useAuth()
+const { loggedInUser, isAuthenticated, updateLoggedInUserData } = useAuth()
 const { cart, updateLocalStorage } = useCart()
 const { fetchAll, saveDoc } = useHttp()
 const { errorMsg } = useAppState()

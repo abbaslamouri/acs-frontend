@@ -96,13 +96,13 @@ const useCart = () => {
     errorMsg.value = ''
     message.value = ''
     try {
-      const { data, pending, error } = await useFetch(`${config.API_URL}/orders/publishableKey`)
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
-      }
-      return data.value.publishableKey
+      // const { data, pending, error } = await useFetch(`${config.API_URL}/orders/publishableKey`)
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // return data.value.publishableKey
     } catch (err) {
       if (process.client) {
         console.log('MYERROR', err)
@@ -116,17 +116,17 @@ const useCart = () => {
     errorMsg.value = ''
     message.value = ''
     try {
-      const { data, pending, error } = await useFetch(`${config.API_URL}/orders/secret`, {
-        method: 'POST',
-        body: { orderId },
-      })
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
-      }
-      console.log('PI', data.value)
-      return data.value.clientSecret
+      // const { data, pending, error } = await useFetch(`${config.API_URL}/orders/secret`, {
+      //   method: 'POST',
+      //   body: { orderId },
+      // })
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // console.log('PI', data.value)
+      // return data.value.clientSecret
     } catch (err) {
       if (process.client) {
         console.log('MYERROR', err)

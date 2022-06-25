@@ -38,7 +38,7 @@ const updateProductCategories = (event) => {
     </section>
     <!-- <section class="shadow-md w-full bg-white p-2 br-5">
       <div class="flex-row items-center justify-between text-sm mb-1">
-        <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Categories</div>
+        <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">Categories</div>
         <div></div>
       </div>
       <div class="flex-col gap-2">

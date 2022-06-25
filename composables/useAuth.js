@@ -2,7 +2,9 @@ const useAuth = () => {
   const config = useRuntimeConfig()
   const { errorMsg, message } = useAppState()
 
-  const user = useState('user', () => (useCookie('user') && useCookie('user').value ? useCookie('user').value : {}))
+  const loggedInUser = useState('loggedInUser', () =>
+    useCookie('loggedInUser') && useCookie('loggedInUser').value ? useCookie('loggedInUser').value : {}
+  )
 
   const token = useState('token', () =>
     useCookie('token') && useCookie('token').value ? useCookie('token').value : ''
@@ -13,7 +15,7 @@ const useAuth = () => {
   )
 
   const isAdmin = useState('isAdmin', () =>
-    useCookie('user').value && useCookie('user').value.role === 'admin' ? true : false
+    useCookie('loggedInUser').value && useCookie('loggedInUser').value.role === 'admin' ? true : false
   )
 
   const getErrorStr = (errors) => {
@@ -39,7 +41,7 @@ const useAuth = () => {
       if (response.ok) {
         const data = await response.json()
         // const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        // const userCookie = useCookie('loggedInUser', { maxAge: data.cookieExpires * 24 * 60 * 60 })
         // tokenCookie.value = data.token
         // userCookie.value = data.user
         // user.value = userCookie.value
@@ -102,10 +104,10 @@ const useAuth = () => {
       if (response.ok) {
         const data = await response.json()
         const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        const userCookie = useCookie('loggedInUser', { maxAge: data.cookieExpires * 24 * 60 * 60 })
         tokenCookie.value = data.token
         userCookie.value = data.user
-        user.value = userCookie.value
+        loggedInUser.value = userCookie.value
         token.value = tokenCookie.value
         isAuthenticated.value = true
         return true
@@ -135,10 +137,10 @@ const useAuth = () => {
       if (response.ok) {
         const data = await response.json()
         const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        const userCookie = useCookie('loggedInUser', { maxAge: data.cookieExpires * 24 * 60 * 60 })
         tokenCookie.value = data.token
         userCookie.value = data.user
-        user.value = userCookie.value
+        loggedInUser.value = userCookie.value
         token.value = tokenCookie.value
         isAuthenticated.value = true
         return true
@@ -205,7 +207,7 @@ const useAuth = () => {
         // const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
         // tokenCookie.value = data.token
         // userCookie.value = data.user
-        // user.value = userCookie.value
+        // loggedInUser.value = userCookie.value
         // token.value = tokenCookie.value
         // isAuthenticated.value = true
         return data
@@ -244,17 +246,17 @@ const useAuth = () => {
         ? useCookie('auth').value.token
         : null
     try {
-      const { data, pending, error } = await useFetch(`${config.apiUrl}/users/updateLoggedInData`, {
-        method: 'PATCH',
-        body: payload,
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (error.value) throw error.value
-      if (data.value && data.value.status === 'fail') {
-        if (process.client) errorMsg.value = data.value.message
-        return false
-      }
-      return data.value.doc
+      // const { data, pending, error } = await useFetch(`${config.apiUrl}/users/updateLoggedInData`, {
+      //   method: 'PATCH',
+      //   body: payload,
+      //   headers: { Authorization: `Bearer ${token}` },
+      // })
+      // if (error.value) throw error.value
+      // if (data.value && data.value.status === 'fail') {
+      //   if (process.client) errorMsg.value = data.value.message
+      //   return false
+      // }
+      // return data.value.doc
     } catch (err) {
       console.log('MYERROR', err)
       errorMsg.value = err.data && err.data.message ? err.data.message : err.message ? err.message : ''
@@ -326,10 +328,10 @@ const useAuth = () => {
       if (response.ok) {
         const data = await response.json()
         const tokenCookie = useCookie('token', { maxAge: data.cookieExpires * 24 * 60 * 60 })
-        const userCookie = useCookie('user', { maxAge: data.cookieExpires * 24 * 60 * 60 })
+        const userCookie = useCookie('loggedInUser', { maxAge: data.cookieExpires * 24 * 60 * 60 })
         tokenCookie.value = data.token
         userCookie.value = data.user
-        user.value = userCookie.value
+        loggedInUser.value = userCookie.value
         token.value = tokenCookie.value
         isAuthenticated.value = true
         return true
@@ -401,10 +403,10 @@ const useAuth = () => {
       })
       if (response.ok) {
         const tokenCookie = useCookie('token', { maxAge: 0 })
-        const userCookie = useCookie('user', { maxAge: 0 })
+        const userCookie = useCookie('loggedInUser', { maxAge: 0 })
         tokenCookie.value = ''
         userCookie.value = ''
-        user.value = ''
+        loggedInUser.value = ''
         token.value = ''
         isAuthenticated.value = false
         return true
@@ -466,7 +468,7 @@ const useAuth = () => {
   // }
 
   return {
-    user,
+    loggedInUser,
     token,
     isAuthenticated,
     isAdmin,
