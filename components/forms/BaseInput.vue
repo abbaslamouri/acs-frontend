@@ -54,7 +54,7 @@ export default {
       @blur="handleBlur"
       :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
       :aria-invalid="errorMsg ? true : null"
-      :aria-readonly="$attrs.readonly ? true : null"
+      :aria-readonly="$attrs.readonly ? true : ''"
       :aria-required="$attrs.required ? true : null"
       :readonly="$attrs.readonly ? true : null"
     />

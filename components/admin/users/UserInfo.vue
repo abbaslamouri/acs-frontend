@@ -6,7 +6,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['updateUser'])
+const emit = defineEmits(['updateUser', 'saveUserInfo'])
 
 const localUser = ref({ ...props.user })
 
@@ -25,19 +25,35 @@ watch(
       <div class="uppercase inline-block border-b-stone-300 font-bold pb-05">User Information</div>
       <div></div>
     </div>
-    <div class="flex-row gap-2"></div>
-    <div class="flex-1 flex-row gap-2">
-      <div class="flex-1">
-        <FormsBaseInput label="Name" placeholder="Name" :required="true" v-model="localUser.name" />
+    <div class="flex-col gap-1">
+      <div class="flex-1 flex-row gap-2">
+        <div class="flex-1">
+          <FormsBaseInput label="Name" placeholder="Name" :required="true" v-model="localUser.name" />
+        </div>
+        <div class="flex-1">
+          <FormsBaseInput label="Email" placeholder="Email" :required="true" v-model="localUser.email" />
+        </div>
       </div>
-      <div class="flex-1">
-        <FormsBaseInput label="Email" placeholder="Email" :required="true" v-model="localUser.email" />
+      <div>
+        <div class="flex-1">
+          <FormsBaseInput
+            label="Password"
+            placeholder="Password"
+            :required="true"
+            v-model="localUser.password"
+            :readonly="!!localUser.id"
+          />
+        </div>
       </div>
-    </div>
-    <div>
-      <div class="flex-1">
-        <FormsBaseInput label="Password" placeholder="Password" :required="true" v-model="localUser.password" />
+      <div>
+        <div class="flex-1 flex-row gap-4">
+          <FormsBaseToggle label="Verified" v-model="localUser.verified" />
+          <FormsBaseToggle label="Active" v-model="localUser.active" />
+        </div>
       </div>
+      <button class="btn btn__secondary px-2 py-05 items-self-end text-xs" @click="$emit('saveUserInfo')">
+        Save User Infoormation
+      </button>
     </div>
   </section>
 </template>

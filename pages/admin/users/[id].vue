@@ -14,32 +14,43 @@ const showAddressFormModal = ref(false)
 const countries = ref([])
 const states = ref([])
 let response = null
-const user = ref({ userAddresses: [] })
-const id = route.params.id === '_' ? null : route.params.id
+const user = useState('user', () => {
+  return { userAddresses: [] }
+})
 
-if (id) {
-  response = await fetchDoc('users', id)
-  if (response) user.value = response.doc
-}
+const id = route.params.id === '_' ? undefined : route.params.id
+
 response = await fetchAll('countries', { sort: 'countryName' })
 if (response) countries.value = response.docs
-// console.log(countries.value)
+provide('countries', countries)
+
 response = await fetchAll('states', { sort: 'name' })
 if (response) states.value = response.docs
-// console.log(states.value)
+provide('states', states)
+
+if (id) {
+  response = await fetchAll('users', { id, populate: 'userAddresses gallery' })
+  if (response && response.docs && response.docs[0]) user.value = response.docs[0]
+  else router.push({ name: 'admin-users' })
+}
+console.log(user.value)
+
+const blankPhoneNumber = {
+  phoneType: 'Cell',
+  phoneNumber: '2165026378',
+  phoneCountryCode: countries.value.find((c) => c.threeLetterCountryCode == 'USA'),
+}
 
 const currentUserAddress = JSON.stringify(user.value.userAddresses)
 
-user.value.name = 'Abbas Lamouri'
-user.value.email = 'abbaslamouri@yrlus.com'
-user.value.password = 'adrar0714'
-
-console.log(user.value)
+// user.value.name = 'Abbas Lamouri'
+// user.value.email = 'abbaslamouri@yrlus.com'
+// user.value.password = 'adrar0714'
 
 const insertNewAddress = () => {
   user.value.userAddresses.push({
     addressType: 'Residential',
-    // email: 'abbaslamnouri1@yrlus.com',
+    // // email: 'abbaslamnouri1@yrlus.com',
     title: 'Ms',
     name: 'Nelly Vileikis',
     company: 'YRL Consulting LLC',
@@ -49,26 +60,31 @@ const insertNewAddress = () => {
     postalCode: '44202',
     state: states.value.find((c) => c.name === 'Alaska'),
     country: countries.value.find((c) => c.threeLetterCountryCode === 'USA'),
-
-    phoneNumbers: [
-      {
-        phoneType: 'Cell',
-        phoneNumber: '2165026378',
-        phoneCountryCode: countries.value.find((c) => c.threeLetterCountryCode == 'USA'),
-        isDefault: true,
-      },
-    ],
-    deliveryInstructions: 'Some delivery instructions1',
+    phoneNumbers: [{ ...blankPhoneNumber, default: true }],
+    // deliveryInstructions: 'Some delivery instructions1',
   })
   if (user.value.userAddresses.length == 1) {
-    user.value.userAddresses[0].isDefault = true
-    user.value.userAddresses[0].billingAddress = true
+    user.value.userAddresses[0].defaultBillAddress = true
+    user.value.userAddresses[0].defaultBillingAddress = true
   }
   addressToEditIndex.value = user.value.userAddresses.length - 1
   showAddressFormModal.value = true
+  console.log(user.value)
   // displayStatus.value = 'editing'
   // editAction.value = 'add'
 }
+
+// const updatePhoneNumber = (payload) => {
+//   console.log('HHHHHH', payload)
+//   console.log(user.value.userAddresses[addressToEditIndex.value])
+//   user.value.userAddresses[addressToEditIndex.value].phoneNumbers[payload.index] = payload.phoneNumber
+//   if (user.value.userAddresses[addressToEditIndex.value].phoneNumbers[payload.index].isDefault) {
+//     for (const prop in user.value.userAddresses[addressToEditIndex.value].phoneNumbers) {
+//       user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].isDefault = false
+//     }
+//     user.value.userAddresses[addressToEditIndex.value].phoneNumbers[payload.index].isDefault = true
+//   }
+// }
 
 const editAddress = (i) => {
   addressToEditIndex.value = i
@@ -80,31 +96,29 @@ const editAddress = (i) => {
 const insertNewPhoneNumber = () => {
   console.log('HHHHHH')
   user.value.userAddresses[addressToEditIndex.value].phoneNumbers.push({
-    phoneType: '',
-    phoneCountryCode: '',
-    phoneNumber: '',
-    isDefault: false,
+    ...blankPhoneNumber,
+    default: false,
   })
 }
 
-const removePhoneNumber = (event) => {
-  console.log('HHHHHH', event)
-  user.value.userAddresses[addressToEditIndex.value].phoneNumbers.splice(event, 1)
-  if (user.value.userAddresses[addressToEditIndex.value].phoneNumbers.length === 1) {
-    user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
-  } else {
-    if (!user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find((p) => p.isDefault))
-      user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
-  }
-}
+// const removePhoneNumber = (event) => {
+//   console.log('HHHHHH', event)
+//   user.value.userAddresses[addressToEditIndex.value].phoneNumbers.splice(event, 1)
+//   if (user.value.userAddresses[addressToEditIndex.value].phoneNumbers.length === 1) {
+//     user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
+//   } else {
+//     if (!user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find((p) => p.isDefault))
+//       user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].isDefault = true
+//   }
+// }
 
-const setDefaultPhoneNumber = (event) => {
-  console.log('HHHHHH', event)
-  for (const prop in user.value.userAddresses[addressToEditIndex.value].phoneNumbers) {
-    user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].isDefault = false
-  }
-  user.value.userAddresses[addressToEditIndex.value].phoneNumbers[event].isDefault = true
-}
+// const setDefaultPhoneNumber = (event) => {
+//   console.log('HHHHHH', event)
+//   for (const prop in user.value.userAddresses[addressToEditIndex.value].phoneNumbers) {
+//     user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].isDefault = false
+//   }
+//   user.value.userAddresses[addressToEditIndex.value].phoneNumbers[event].isDefault = true
+// }
 
 const closeModal = () => {
   if (currentUserAddress !== JSON.stringify(user.value.userAddresses))
@@ -122,35 +136,101 @@ const cancelAddressUpdate = () => {
 // user.userAddresses[addressToEditIndex] = $event
 // }
 
+const saveUserInfo = async () => {
+  const newUser = await saveDoc('users', {
+    id: user.value.id,
+    name: user.value.name,
+    email: user.value.email,
+    password: !user.value.id ? user.value.password : undefined,
+    verified: user.value.verified,
+    active: user.value.active,
+  })
+  if (newUser) {
+    user.value = newUser
+    console.log(newUser)
+    router.push({ name: 'admin-users-id', params: { id: user.value.id } })
+  }
+}
+
 const saveAddress = async () => {
   console.log(user.value.userAddresses[addressToEditIndex.value].phoneNumbers)
-  showAddressFormModal.value = false
+  let errorMessage = ''
+  for (const prop in user.value.userAddresses[addressToEditIndex.value].phoneNumbers) {
+    if (!user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].phoneNumber) {
+      errorMessage += '<p>Phone number is required</p>'
+    }
+    if (!user.value.userAddresses[addressToEditIndex.value].phoneNumbers[prop].phoneCountryCode) {
+      errorMessage += '<p>Phone Country Code is required<p>'
+    }
+    if (errorMessage) return (errorMsg.value = errorMessage)
+  }
+
+  const defaultPhoneNumber = user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find(
+    (p) => p.default
+  )
+  if (!defaultPhoneNumber) user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].default = true
+
   const newPhoneNumbers = []
   await Promise.all(
     user.value.userAddresses[addressToEditIndex.value].phoneNumbers.map(async (item) => {
-      const newPhoneNumber = await saveDoc('phonenumbers', item)
-      if (newPhoneNumber) newPhoneNumbers.push(newPhoneNumber)
+      const savedPhoneNumber = await saveDoc('phonenumbers', item)
+      if (savedPhoneNumber) {
+        response = await fetchDoc('phonenumbers', savedPhoneNumber.id)
+        console.log('RRRRRRRRRR', response)
+        if (response) newPhoneNumbers.push(response.doc)
+      }
     })
   )
-  user.value.userAddresses[addressToEditIndex.value].phoneNumbers = newPhoneNumbers
   console.log(newPhoneNumbers)
+  user.value.userAddresses[addressToEditIndex.value].phoneNumbers = newPhoneNumbers
+
+  for (const prop in user.value.userAddresses) {
+    if (!user.value.userAddresses[prop].name) {
+      errorMessage += '<p>Name is required</p>'
+    }
+    if (!user.value.userAddresses[prop].addressLine1) {
+      errorMessage += '<p>Shipping address is required</p>'
+    }
+    if (!user.value.userAddresses[prop].postalCode) {
+      errorMessage += '<p>Postal code is required</p>'
+    }
+    if (!user.value.userAddresses[prop].state) {
+      errorMessage += '<p>State is required<p>'
+    }
+    if (errorMessage) return (errorMsg.value = errorMessage)
+  }
+
+  const defaultShippingAddress = user.value.userAddresses.find((a) => a.defaultShippingAddress)
+  if (!defaultShippingAddress) user.value.userAddresses[0].defaultShippingAddress = true
+
+  const defaultBillAddress = user.value.userAddresses.find((a) => a.defaultBillingAddress)
+  if (!defaultBillAddress) user.value.userAddresses[0].defaultBillingAddress = true
 
   const newUserAddresses = []
   await Promise.all(
     user.value.userAddresses.map(async (item) => {
-      const newUserAddress = await saveDoc('useraddresses', item)
-      if (newUserAddress) newUserAddresses.push(newUserAddress)
+      const savedAddress = await saveDoc('useraddresses', item)
+      if (savedAddress) {
+        response = await fetchDoc('useraddresses', savedAddress.id)
+        console.log('AAAAAAAAAA', response)
+        if (response) newUserAddresses.push(response.doc)
+      }
+      // if (newUserAddress) newUserAddresses.push(newUserAddress)
     })
   )
+  console.log(newUserAddresses)
   user.value.userAddresses = newUserAddresses
 
   const newUser = await saveDoc('users', user.value)
   if (newUser) {
-    user.value = newUser
-    router.push({ name: 'admin-users-id', params: { id: user.value.id } })
+    console.log(newUser)
+    // user.value = newUser
+    // router.push({ name: 'admin-users-id', params: { id: user.value.id } })
   }
 
   console.log(user.value)
+
+  showAddressFormModal.value = false
 }
 
 // watch(
@@ -166,7 +246,7 @@ const saveAddress = async () => {
   <div class="hfull flex-col items-center gap-2 p-3">
     <Title>{{ pageTitle }}</Title>
     <header class="flex-col gap-2 w-full max-width-130">
-      {{ user }}===={{ addressToEditIndex }}
+      <!-- {{ user }}===={{ addressToEditIndex }} -->
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-users' }"> <IconsArrowWest /><span>Users</span> </NuxtLink>
       </div>
@@ -177,7 +257,7 @@ const saveAddress = async () => {
         <EcommerceAdminProductLeftSidebar :product="product" />
       </div> -->
       <div class="flex-col gap-2">
-        <AdminUsersUserInfo :user="user" @updateUser="user = $event" />
+        <AdminUsersUserInfo :user="user" @updateUser="user = $event" @saveUserInfo="saveUserInfo" />
 
         <section class="shadow-md w-full bg-white p-2 br-5" id="general-info">
           <div class="flex-row items-center justify-between text-sm mb-1">
@@ -185,18 +265,22 @@ const saveAddress = async () => {
             <div></div>
           </div>
           <div class="flex-col gap-2">
-            <div>
+            <div v-if="!user.id">Please save user information before adding userAddresses</div>
+            <div v-else>
               <div
-                class="customer-address flex-row items-center text-xs p-2 border border-slate-200 br-3"
+                class="customer-address flex-col items-start gap-2 text-xs p-2 border border-slate-200 br-3"
                 v-for="(userAddress, i) in user.userAddresses"
                 :key="userAddress.id"
               >
-                <AdminUsersUserAddress :userAddress="userAddress" :countries="countries" :states="states" />
+                <AdminUsersUserAddress :addressIndex="i" />
                 <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">Edit Address</button>
               </div>
             </div>
-
-            <button class="btn btn__secondary px-2 py-05 items-self-end text-xs" @click="insertNewAddress">
+            <button
+              class="btn btn__secondary px-2 py-05 items-self-end text-xs"
+              :class="{ disabled: !user.id }"
+              @click="insertNewAddress"
+            >
               Add Address
             </button>
           </div>
@@ -206,14 +290,9 @@ const saveAddress = async () => {
             </template>
             <template v-slot:default>
               <AdminUsersUserAddressForm
-                :userAddress="user.userAddresses[addressToEditIndex]"
-                :countries="countries"
-                :states="states"
-                :showDefaultToggleField="true"
+                :addressIndex="addressToEditIndex"
                 @updateUserAddress="user.userAddresses[addressToEditIndex] = $event"
                 @insertNewPhoneNumber="insertNewPhoneNumber"
-                @removePhoneNumber="removePhoneNumber"
-                @setDefaultPhoneNumber="setDefaultPhoneNumber"
               />
             </template>
             <template v-slot:footer>
@@ -260,7 +339,7 @@ const saveAddress = async () => {
         <!-- <EcommerceProductMisc :product="product" /> -->
       </div>
       <div class="right-sidebar">
-        <!-- <EcommerceAdminProductRightSidebar @productStatusUpdated="product.status = $event" @saveProduct="saveProduct" /> -->
+        <AdminUsersRightSidebar />
         <section class="admin-image-gallery shadow-md p-2 flex-col gap-2 bg-white" id="image-gallery">
           <!-- <EcommerceAdminImageGallery :gallery="product.gallery" /> -->
         </section>

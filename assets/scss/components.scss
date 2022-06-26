@@ -92,6 +92,12 @@
     &:hover {
       background-color: $slate-300;
     }
+
+    &.disabled {
+      background-color: $slate-200;
+      color: $slate-400;
+      cursor: not-allowed;
+    }
   }
 
   &:disabled {

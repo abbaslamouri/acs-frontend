@@ -1,22 +1,22 @@
 <script setup>
 const props = defineProps({
-  countries: {
-    type: Array,
-    required: true,
-  },
-
-  states: {
-    type: Array,
-    required: true,
-  },
-
-  userAddress: {
-    type: Object,
-    required: true,
-  },
-  // index: {
-  //   type: Number,
+  // countries: {
+  //   type: Array,
+  //   required: true,
   // },
+
+  // states: {
+  //   type: Array,
+  //   required: true,
+  // },
+
+  // userAddress: {
+  //   type: Object,
+  //   required: true,
+  // },
+  addressIndex: {
+    type: Number,
+  },
   // orderCustomer: {
   //   type: Object,
   // },
@@ -36,80 +36,99 @@ const props = defineProps({
   // },
 })
 
-const emit = defineEmits(['updateUserAddress', 'insertNewPhoneNumber', 'removePhoneNumber', 'updatePhoneNumbers'])
+const emit = defineEmits(['updateUserAddress', 'insertNewPhoneNumber', 'updatePhoneNumber'])
 
-// const { cart } = useCart()
+const user = useState('user')
 
-// const countries = inject('countries')
-// const states = inject('states')
+const countries = inject('countries')
+const states = inject('states')
+
 // const localOrderCustomer = ref({})
-const localUserAddress = ref({ ...props.userAddress })
-// const localUserAddress.shippingAddress = ref({})
-// const localUserAddress.customer.phoneNumbers = ref([...props.orderPhoneNumbers])
+// const localUserAddress = ref({ ...props.userAddress })
+// const user.userAddresses[addressIndex].shippingAddress = ref({})
+// const user.userAddresses[addressIndex].customer.phoneNumbers = ref([...props.orderPhoneNumbers])
 
 // const blankPhoneNumber = { phoneType: 'Cell', phoneCountryCode: '62ae373e2347015d44d3fb2d', phoneNumber: '2165026378' }
 
-// localUserAddress.value =
+// user.userAddresses[addressIndex].value =
 //   props.orderShippingAddress && Object.values(props.orderShippingAddress).length
 //     ? { ...props.orderShippingAddress }
 //     : { addressType: 'Residential' }
 
 // if (!props.orderPhoneNumbers.length) {
-//   localUserAddress.customer.phoneNumbers.value = [blankPhoneNumber]
+//   user.userAddresses[addressIndex].customer.phoneNumbers.value = [blankPhoneNumber]
 // } else {
 //   for (const prop in props.orderPhoneNumbers) {
-//     localUserAddress.customer.phoneNumbers.value[prop] = props.orderPhoneNumbers[prop]
+//     user.userAddresses[addressIndex].customer.phoneNumbers.value[prop] = props.orderPhoneNumbers[prop]
 //   }
 // }
 // const localEmail = ref(props.customerEmail)
 
-// localUserAddress.value = { ...props.orderShippingAddress }
+// user.userAddresses[addressIndex].value = { ...props.orderShippingAddress }
 // localEmail.value = props.email
 
-const setLocalUserAddressState = (event) => {
-  console.log(event.target.value)
-  const selectedState = props.states.find((s) => s.id == event.target.value)
-  if (selectedState) localUserAddress.value.state = selectedState
+// const updatePhoneNumber = (payload) => {
+//   console.log('HHHHHH', payload)
+//   user.userAddresses[addressIndex].value.phoneNumbers[payload.index] = payload.phoneNumber
+//   if (user.userAddresses[addressIndex].value.phoneNumbers[payload.index].isDefault) {
+//     for (const prop in user.userAddresses[addressIndex].value.phoneNumbers) {
+//       user.userAddresses[addressIndex].value.phoneNumbers[prop].isDefault = false
+//     }
+//     user.userAddresses[addressIndex].value.phoneNumbers[payload.index].isDefault = true
+//   }
+//   // user.userAddresses[addressIndex].phoneNumbers[k] = $event
+// }
+
+const setAddressState = (event) => {
+  const selectedState = states.value.find((s) => s.id == event.target.value)
+  if (selectedState) user.value.userAddresses[props.addressIndex].state = selectedState
 }
 
-const setLocalUserAddressCountry = (event) => {
-  console.log(event.target.value)
-  const selectedCountry = props.countries.find((c) => c.id == event.target.value)
-  if (selectedCountry) localUserAddress.value.country = selectedCountry
+const setAddressCountry = (event) => {
+  const selectedCountry = countries.value.find((c) => c.id == event.target.value)
+  if (selectedCountry) user.value.userAddresses[props.addressIndex].country = selectedCountry
+}
+
+const setDefaultShippingAddress = () => {
+  console.log('HHHHHH')
+  for (const prop in user.value.userAddresses) {
+    user.value.userAddresses[prop].defaultShippingAddress = false
+  }
+  user.value.userAddresses[props.addressIndex].defaultShippingAddress = true
 }
 
 // const insertNewPhoneNumber = () => {
-//   localUserAddress.customer.phoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
+//   user.userAddresses[addressIndex].customer.phoneNumbers.value.push({ phoneType: '', phoneCountryCode: '', phoneNumber: '' })
 // }
 
 // watch(
-//   () => localUserAddress.customer.phoneNumbers.value,
+//   () => user.userAddresses[addressIndex].customer.phoneNumbers.value,
 //   (newVal) => {
 //     emit('updatePhoneNumbers', newVal)
 //   },
 //   { deep: true }
 // )
 
-watch(
-  () => localUserAddress.value,
-  (newVal) => {
-    emit('updateUserAddress', newVal)
-  },
-  { deep: true }
-)
+// watch(
+//   () => user.userAddresses[addressIndex].value,
+//   (newVal) => {
+//     emit('updateUserAddress', newVal)
+//   },
+//   { deep: true }
+// )
 </script>
 
 <template>
   <!-- <div class="flex-row gap-2 bg-slate-900"> -->
   <div class="flex-1 flex-col gap-1 bg-slate-50 p-2">
-    {{ localUserAddress.phoneNumbers }}
+    <!-- {{ user }}=== -->
     <!-- <h3>Shipping Address</h3> -->
     <p>All fields with * are mandatory</p>
     <section class="flex-col gap-1">
       <div>
         <FormsBaseRadioGroup
           label="My delivery address is"
-          v-model="localUserAddress.addressType"
+          v-model="user.userAddresses[addressIndex].addressType"
           :options="[
             { key: 'Residential', name: 'Residential' },
             { key: 'Commercial', name: 'Commercial' },
@@ -120,7 +139,7 @@ watch(
         <div class="min-w-20">
           <FormsBaseSelect
             label="Title"
-            v-model="localUserAddress.title"
+            v-model="user.userAddresses[addressIndex].title"
             :options="[
               { key: 'Mr/Ms', name: 'Mr/Ms' },
               { key: 'Ms', name: 'Ms' },
@@ -136,28 +155,32 @@ watch(
             class="flex-1"
             label="Name"
             placeholder="Name"
-            v-model="localUserAddress.name"
+            v-model="user.userAddresses[addressIndex].name"
             :required="true"
           />
         </div>
       </div>
-      <div class="flex-1">
-        <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="localUserAddress.email" />
-      </div>
+      <!-- <div class="flex-1">
+        <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="user.userAddresses[addressIndex].email" />
+      </div> -->
     </section>
-    <section class="flex-col gap-1">
+    <section class="flex-col gap-1 border border-slate-400 p-2 br-3">
       <AdminUsersPhoneNumbersForm
-        :countries="countries"
-        :states="states"
-        :phoneNumbers="userAddress.phoneNumbers"
+        :phoneNumbers="user.userAddresses[addressIndex].phoneNumbers"
+        :addressIndex="addressIndex"
         @insertNewPhoneNumber="$emit('insertNewPhoneNumber')"
-        @removePhoneNumber="$emit('removePhoneNumber', $event)"
-        @setDefaultPhoneNumber="$emit('setDefaultPhoneNumber', $event)"
-        @updatePhoneNumbers="$emit('updatePhoneNumbers')"
       />
+      <button
+        class="btn btn__secondary items-self-end px-2 py-05"
+        @click="$emit('insertNewPhoneNumber')"
+        :disabled="user.userAddresses[addressIndex].phoneNumbers.length >= 4"
+      >
+        Add Phone Number
+      </button>
+      <!-- </div> -->
       <!-- <div
         class="flex-row gap-2 items-center"
-        v-for="(phone, j) in localUserAddress.phoneNumbers"
+        v-for="(phone, j) in user.userAddresses[addressIndex].phoneNumbers"
         :key="`${phone}-${j}`"
       >
         <div class="min-w-14">
@@ -188,8 +211,8 @@ watch(
         </div>
         <button
           class="btn btn__secondary"
-          @click="localUserAddress.phoneNumbers.splice(j, 1)"
-          v-if="localUserAddress.phoneNumbers.length > 1"
+          @click="user.userAddresses[addressIndex].phoneNumbers.splice(j, 1)"
+          v-if="user.userAddresses[addressIndex].phoneNumbers.length > 1"
         >
           <IconsMinus />
         </button>
@@ -197,28 +220,36 @@ watch(
       <button
         class="btn btn__secondary items-self-end px-2 py-05"
         @click="$emit('insertNewPhoneNumber')"
-        :disabled="localUserAddress.phoneNumbers.length >= 4"
+        :disabled="user.userAddresses[addressIndex].phoneNumbers.length >= 4"
       >
         Add Phone Number
       </button> -->
     </section>
     <section>
-      <FormsBaseInput label="Company" placeholder="Company" v-model="localUserAddress.company" />
+      <FormsBaseInput label="Company" placeholder="Company" v-model="user.userAddresses[addressIndex].company" />
       <div class="flex-row gap-2">
         <div class="flex-1">
-          <FormsBaseInput label="Address Line 1" placeholder="Address Line 1" v-model="localUserAddress.addressLine1" />
+          <FormsBaseInput
+            label="Address Line 1"
+            placeholder="Address Line 1"
+            v-model="user.userAddresses[addressIndex].addressLine1"
+          />
         </div>
         <div class="flex-1">
-          <FormsBaseInput label="Address Line 2" placeholder="Address Line 2" v-model="localUserAddress.addressLine2" />
+          <FormsBaseInput
+            label="Address Line 2"
+            placeholder="Address Line 2"
+            v-model="user.userAddresses[addressIndex].addressLine2"
+          />
         </div>
       </div>
       <div class="flex-row gap-2 items-center">
         <div class="flex-1">
-          <FormsBaseInput label="City" placeholder="City" v-model="localUserAddress.city" />
+          <FormsBaseInput label="City" placeholder="City" v-model="user.userAddresses[addressIndex].city" />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
-            v-model="localUserAddress.state"
+            v-model="user.userAddresses[addressIndex].state"
             label="State"
             nullOption="-"
             :options="
@@ -229,7 +260,7 @@ watch(
           /> -->
           <label class="base-select">
             <div class="label text-xs px-1">State</div>
-            <select @change="setLocalUserAddressState" class="text-xs">
+            <select @change="setAddressState" class="text-xs">
               <option value=""></option>
               <option
                 v-for="option in states.map((c) => {
@@ -237,7 +268,11 @@ watch(
                 })"
                 :key="option.key"
                 :value="option.key"
-                :selected="localUserAddress.state.id == option.key"
+                :selected="
+                  user.userAddresses[addressIndex] &&
+                  user.userAddresses[addressIndex].state &&
+                  user.userAddresses[addressIndex].state.id == option.key
+                "
               >
                 {{ option.name }}
               </option>
@@ -247,11 +282,15 @@ watch(
       </div>
       <div class="flex-row items-center gap-2">
         <div class="min-w-20">
-          <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localUserAddress.postalCode" />
+          <FormsBaseInput
+            label="Postal Code"
+            placeholder="Postal Code"
+            v-model="user.userAddresses[addressIndex].postalCode"
+          />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
-            v-model="localUserAddress.country"
+            v-model="user.userAddresses[addressIndex].country"
             label="Country"
             nullOption="-"
             :options="
@@ -262,7 +301,7 @@ watch(
           /> -->
           <label class="base-select">
             <div class="label text-xs px-1">Country</div>
-            <select @change="setLocalUserAddressCountry" class="text-xs">
+            <select @change="setAddressCountry" class="text-xs">
               <option value=""></option>
               <option
                 v-for="option in countries.map((c) => {
@@ -270,7 +309,11 @@ watch(
                 })"
                 :key="option.key"
                 :value="option.key"
-                :selected="localUserAddress.country.id == option.key"
+                :selected="
+                  user.userAddresses[addressIndex] &&
+                  user.userAddresses[addressIndex].country &&
+                  user.userAddresses[addressIndex].country.id == option.key
+                "
               >
                 {{ option.name }}
               </option>
@@ -281,32 +324,45 @@ watch(
     </section>
     <section class="delivery-instructions">
       <div class="field-group">
-        <FormsBaseTextarea label="Delivery Instructions" rows="5" v-model="localUserAddress.deliveryInstructions" />
+        <FormsBaseTextarea
+          label="Delivery Instructions"
+          rows="5"
+          v-model="user.userAddresses[addressIndex].deliveryInstructions"
+        />
       </div>
     </section>
-    <section class="items-self-start">
-      <FormsBaseToggle label="Set as the default delivery address" v-model="localUserAddress.isDefault" />
+    <section class="items-self-start flex-row gap-4">
+      <FormsBaseToggle
+        label="Set as the default delivery address"
+        v-model="user.userAddresses[addressIndex].defaultShippingAddress"
+        @update:modelValue="setDefaultShippingAddress"
+      />
+      <FormsBaseToggle
+        label="Set as the default billing address"
+        v-model="user.userAddresses[addressIndex].defaultBillingAddress"
+        @update:modelValue="setDefaultShippingAddress"
+      />
     </section>
   </div>
   <!-- <div class="bg-slate-50 p-2 min-w-30">
       <div class="flex-col gap-1">
         <h3>Shipping Address</h3>
-        <FormsBaseCheckbox label="Same as Shipping" v-model="localUserAddress.billingAddress.sameAsShipping" />
+        <FormsBaseCheckbox label="Same as Shipping" v-model="user.userAddresses[addressIndex].billingAddress.sameAsShipping" />
       </div>
-      <div v-if="!localUserAddress.billingAddress.sameAsShipping">
+      <div v-if="!user.userAddresses[addressIndex].billingAddress.sameAsShipping">
         <FormsBaseInput
           label="Address Line 1"
           placeholder="Address Line 1"
-          v-model="localUserAddress.billingAddress.addressLine1"
+          v-model="user.userAddresses[addressIndex].billingAddress.addressLine1"
         />
         <FormsBaseInput
           label="Address Line 2"
           placeholder="Address Line 2"
-          v-model="localUserAddress.billingAddress.addressLine2"
+          v-model="user.userAddresses[addressIndex].billingAddress.addressLine2"
         />
-        <FormsBaseInput label="City" placeholder="City" v-model="localUserAddress.billingAddress.city" />
+        <FormsBaseInput label="City" placeholder="City" v-model="user.userAddresses[addressIndex].billingAddress.city" />
         <FormsBaseSelect
-          v-model="localUserAddress.billingAddress.state"
+          v-model="user.userAddresses[addressIndex].billingAddress.state"
           label="State"
           nullOption="-"
           :options="
@@ -318,10 +374,10 @@ watch(
         <FormsBaseInput
           label="Postal Code"
           placeholder="Postal Code"
-          v-model="localUserAddress.billingAddress.postalCode"
+          v-model="user.userAddresses[addressIndex].billingAddress.postalCode"
         />
         <FormsBaseSelect
-          v-model="localUserAddress.billingAddress.country"
+          v-model="user.userAddresses[addressIndex].billingAddress.country"
           label="Country"
           nullOption="-"
           :options="
