@@ -56,7 +56,7 @@ const useHttp = () => {
     } catch (err) {
       console.log('MYERROR', err)
       errorMsg.value = err
-      return {}
+      return false
     }
 
     // errorMsg.value = null

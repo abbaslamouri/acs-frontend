@@ -97,9 +97,9 @@ const setDefaultPhoneNumber = (event, j) => {
   console.log(event, j)
   if (event) {
     for (const prop in user.value.userAddresses[props.addressIndex].phoneNumbers) {
-      user.value.userAddresses[props.addressIndex].phoneNumbers[prop].isDefault = false
+      user.value.userAddresses[props.addressIndex].phoneNumbers[prop].default = false
     }
-    user.value.userAddresses[props.addressIndex].phoneNumbers[j].isDefault = true
+    user.value.userAddresses[props.addressIndex].phoneNumbers[j].default = true
   }
 }
 
@@ -107,10 +107,10 @@ const removePhoneNumber = (j) => {
   console.log('HHHHHH', j)
   user.value.userAddresses[props.addressIndex].phoneNumbers.splice(j, 1)
   if (user.value.userAddresses[props.addressIndex].phoneNumbers.length === 1) {
-    user.value.userAddresses[props.addressIndex].phoneNumbers[0].isDefault = true
+    user.value.userAddresses[props.addressIndex].phoneNumbers[0].default = true
   } else {
-    if (!user.value.userAddresses[props.addressIndex].phoneNumbers.find((p) => p.isDefault))
-      user.value.userAddresses[props.addressIndex].phoneNumbers[0].isDefault = true
+    if (!user.value.userAddresses[props.addressIndex].phoneNumbers.find((p) => p.default))
+      user.value.userAddresses[props.addressIndex].phoneNumbers[0].default = true
   }
 }
 
@@ -216,7 +216,7 @@ const removePhoneNumber = (j) => {
         </div>
         <div class="">
           <FormsBaseCheckbox
-            v-model="user.userAddresses[addressIndex].phoneNumbers[j].isDefault"
+            v-model="user.userAddresses[addressIndex].phoneNumbers[j].default"
             label="Set as Default"
             @update:modelValue="setDefaultPhoneNumber($event, j)"
           />

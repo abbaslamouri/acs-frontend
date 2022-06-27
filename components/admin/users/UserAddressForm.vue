@@ -90,11 +90,17 @@ const setAddressCountry = (event) => {
 }
 
 const setDefaultShippingAddress = () => {
-  console.log('HHHHHH')
   for (const prop in user.value.userAddresses) {
     user.value.userAddresses[prop].defaultShippingAddress = false
   }
   user.value.userAddresses[props.addressIndex].defaultShippingAddress = true
+}
+
+const setDefaultBillingAddress = () => {
+  for (const prop in user.value.userAddresses) {
+    user.value.userAddresses[prop].defaultBillingAddress = false
+  }
+  user.value.userAddresses[props.addressIndex].defaultBillingAddress = true
 }
 
 // const insertNewPhoneNumber = () => {
@@ -340,7 +346,7 @@ const setDefaultShippingAddress = () => {
       <FormsBaseToggle
         label="Set as the default billing address"
         v-model="user.userAddresses[addressIndex].defaultBillingAddress"
-        @update:modelValue="setDefaultShippingAddress"
+        @update:modelValue="setDefaultBillingAddress"
       />
     </section>
   </div>

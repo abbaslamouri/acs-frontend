@@ -64,12 +64,11 @@ const insertNewAddress = () => {
     // deliveryInstructions: 'Some delivery instructions1',
   })
   if (user.value.userAddresses.length == 1) {
-    user.value.userAddresses[0].defaultBillAddress = true
+    user.value.userAddresses[0].defaultShippingAddress = true
     user.value.userAddresses[0].defaultBillingAddress = true
   }
   addressToEditIndex.value = user.value.userAddresses.length - 1
   showAddressFormModal.value = true
-  console.log(user.value)
   // displayStatus.value = 'editing'
   // editAction.value = 'add'
 }
@@ -94,7 +93,6 @@ const editAddress = (i) => {
 }
 
 const insertNewPhoneNumber = () => {
-  console.log('HHHHHH')
   user.value.userAddresses[addressToEditIndex.value].phoneNumbers.push({
     ...blankPhoneNumber,
     default: false,
@@ -165,9 +163,7 @@ const saveAddress = async () => {
     if (errorMessage) return (errorMsg.value = errorMessage)
   }
 
-  const defaultPhoneNumber = user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find(
-    (p) => p.default
-  )
+  const defaultPhoneNumber = user.value.userAddresses[addressToEditIndex.value].phoneNumbers.find((p) => p.default)
   if (!defaultPhoneNumber) user.value.userAddresses[addressToEditIndex.value].phoneNumbers[0].default = true
 
   const newPhoneNumbers = []
@@ -200,8 +196,8 @@ const saveAddress = async () => {
     if (errorMessage) return (errorMsg.value = errorMessage)
   }
 
-  const defaultShippingAddress = user.value.userAddresses.find((a) => a.defaultShippingAddress)
-  if (!defaultShippingAddress) user.value.userAddresses[0].defaultShippingAddress = true
+  const defaultShipAddress = user.value.userAddresses.find((a) => a.defaultShippingAddress)
+  if (!defaultShipAddress) user.value.userAddresses[0].defaultShippingAddress = true
 
   const defaultBillAddress = user.value.userAddresses.find((a) => a.defaultBillingAddress)
   if (!defaultBillAddress) user.value.userAddresses[0].defaultBillingAddress = true
@@ -212,7 +208,6 @@ const saveAddress = async () => {
       const savedAddress = await saveDoc('useraddresses', item)
       if (savedAddress) {
         response = await fetchDoc('useraddresses', savedAddress.id)
-        console.log('AAAAAAAAAA', response)
         if (response) newUserAddresses.push(response.doc)
       }
       // if (newUserAddress) newUserAddresses.push(newUserAddress)
@@ -223,12 +218,10 @@ const saveAddress = async () => {
 
   const newUser = await saveDoc('users', user.value)
   if (newUser) {
-    console.log(newUser)
     // user.value = newUser
     // router.push({ name: 'admin-users-id', params: { id: user.value.id } })
   }
 
-  console.log(user.value)
 
   showAddressFormModal.value = false
 }

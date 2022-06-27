@@ -20,7 +20,7 @@ const sort = reactive({
   order: '',
 })
 
-let response = null
+let response
 const sortOptions = [
   { key: 'sortOrder', name: 'Order' },
   { key: 'name', name: 'Name' },
@@ -76,7 +76,26 @@ const setPerPage = async () => {
 
 const deleteUser = async (userId) => {
   if (!confirm('Are you sure you want to delete this user?')) return
-  if (!(await deleteDoc('users', userId))) return
+  const selectedUser = users.value.find((u) => u.id == userId)
+  console.log(selectedUser.userAddresses)
+  if (!selectedUser) return
+  await Promise.all(
+    selectedUser.userAddresses.map(async (userAddressId) => {
+      response = await fetchDoc('useraddresses', userAddressId)
+      console.log('UA', response)
+      if (!response || !Object.values(response).length) return
+      const userAddress = response.doc
+      await Promise.all(
+        userAddress.phoneNumbers.map(async (phoneNumber) => {
+          const deletedPhoneNumber = await deleteDoc('phonenumbers', phoneNumber.id)
+          console.log('DDDDDDD', deletedPhoneNumber)
+        })
+      )
+      const deletedUserAddress = await deleteDoc('useraddresses', userAddress.id)
+      console.log('UUUUUUUUU', deletedUserAddress)
+    })
+  )
+  if (!(await deleteDoc('users', selectedUser.id))) return
   console.log(response)
   fetchAllUsers()
   message.value = 'user deleted succesfully'

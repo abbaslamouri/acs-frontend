@@ -39,7 +39,7 @@ const user = useState('user')
         <div class="link flex-row items-center" v-if="user.userAddresses[addressIndex].defaultShippingAddress">
           <IconsCheck class="w-16px h-16px" /> <span>Customer default shipping address</span>
         </div>
-        <div class="link flex-row items-center" v-if="user.userAddresses[addressIndex].billingAddress">
+        <div class="link flex-row items-center" v-if="user.userAddresses[addressIndex].defaultBillingAddress">
           <IconsCheck class="w-16px h-16px" /> <span>Customer default billing address</span>
         </div>
       </div>
@@ -48,7 +48,10 @@ const user = useState('user')
       <h3>Phone Numbers</h3>
       <div class="flex-row" v-for="phoneNbr in user.userAddresses[addressIndex].phoneNumbers">
         <div v-if="phoneNbr.phoneCountryCode">+{{ phoneNbr.phoneCountryCode.phoneCode }}-</div>
-        <div>{{ phoneNbr.phoneNumber }}</div>
+        <div class="flex-row gap-1">
+          <span>{{ phoneNbr.phoneNumber }}</span
+          ><span class="link" v-if="phoneNbr.default">Default phone Number</span>
+        </div>
       </div>
     </div>
   </div>
