@@ -14,9 +14,10 @@ const showAddressFormModal = ref(false)
 const countries = ref([])
 const states = ref([])
 let response = null
-const user = useState('user', () => {
-  return { userAddresses: [] }
-})
+const user = ref({})
+// const user = useState('user', () => {
+//   return { userAddresses: [] }
+// })
 
 const id = route.params.id === '_' ? undefined : route.params.id
 
@@ -40,6 +41,7 @@ const blankPhoneNumber = {
   phoneNumber: '2165026378',
   phoneCountryCode: countries.value.find((c) => c.threeLetterCountryCode == 'USA'),
 }
+provide('blankPhoneNumber', blankPhoneNumber)
 
 const currentUserAddress = JSON.stringify(user.value.userAddresses)
 
@@ -92,12 +94,12 @@ const editAddress = (i) => {
   // editAction.value = 'add'
 }
 
-const insertNewPhoneNumber = () => {
-  user.value.userAddresses[addressToEditIndex.value].phoneNumbers.push({
-    ...blankPhoneNumber,
-    default: false,
-  })
-}
+// const insertNewPhoneNumber = () => {
+//   user.value.userAddresses[addressToEditIndex.value].phoneNumbers.push({
+//     ...blankPhoneNumber,
+//     default: false,
+//   })
+// }
 
 // const removePhoneNumber = (event) => {
 //   console.log('HHHHHH', event)
@@ -222,7 +224,6 @@ const saveAddress = async () => {
     // router.push({ name: 'admin-users-id', params: { id: user.value.id } })
   }
 
-
   showAddressFormModal.value = false
 }
 
@@ -239,7 +240,7 @@ const saveAddress = async () => {
   <div class="hfull flex-col items-center gap-2 p-3">
     <Title>{{ pageTitle }}</Title>
     <header class="flex-col gap-2 w-full max-width-130">
-      <!-- {{ user }}===={{ addressToEditIndex }} -->
+      {{ user }}===={{ addressToEditIndex }}
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-users' }"> <IconsArrowWest /><span>Users</span> </NuxtLink>
       </div>
@@ -265,7 +266,7 @@ const saveAddress = async () => {
                 v-for="(userAddress, i) in user.userAddresses"
                 :key="userAddress.id"
               >
-                <AdminUsersUserAddress :addressIndex="i" />
+                <AdminUsersUserAddress :userAddress="userAddress" />
                 <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">Edit Address</button>
               </div>
             </div>
@@ -283,9 +284,8 @@ const saveAddress = async () => {
             </template>
             <template v-slot:default>
               <AdminUsersUserAddressForm
-                :addressIndex="addressToEditIndex"
+                :userAddress="user.userAddresses[addressToEditIndex]"
                 @updateUserAddress="user.userAddresses[addressToEditIndex] = $event"
-                @insertNewPhoneNumber="insertNewPhoneNumber"
               />
             </template>
             <template v-slot:footer>

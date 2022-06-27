@@ -1,4 +1,5 @@
 <script setup>
+import cloneDeep from 'lodash.clonedeep'
 const props = defineProps({
   // countries: {
   //   type: Array,
@@ -10,13 +11,13 @@ const props = defineProps({
   //   required: true,
   // },
 
-  // userAddress: {
-  //   type: Object,
-  //   required: true,
-  // },
-  addressIndex: {
-    type: Number,
+  userAddress: {
+    type: Object,
+    required: true,
   },
+  // addressIndex: {
+  //   type: Number,
+  // },
   // orderCustomer: {
   //   type: Object,
   // },
@@ -44,7 +45,7 @@ const countries = inject('countries')
 const states = inject('states')
 
 // const localOrderCustomer = ref({})
-// const localUserAddress = ref({ ...props.userAddress })
+const localUserAddress = ref(cloneDeep(props.userAddress))
 // const user.userAddresses[addressIndex].shippingAddress = ref({})
 // const user.userAddresses[addressIndex].customer.phoneNumbers = ref([...props.orderPhoneNumbers])
 
@@ -115,13 +116,13 @@ const setDefaultBillingAddress = () => {
 //   { deep: true }
 // )
 
-// watch(
-//   () => user.userAddresses[addressIndex].value,
-//   (newVal) => {
-//     emit('updateUserAddress', newVal)
-//   },
-//   { deep: true }
-// )
+watch(
+  () => localUserAddress.value,
+  (newVal) => {
+    emit('updateUserAddress', newVal)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -134,7 +135,7 @@ const setDefaultBillingAddress = () => {
       <div>
         <FormsBaseRadioGroup
           label="My delivery address is"
-          v-model="user.userAddresses[addressIndex].addressType"
+          v-model="localUserAddress.addressType"
           :options="[
             { key: 'Residential', name: 'Residential' },
             { key: 'Commercial', name: 'Commercial' },
@@ -145,7 +146,7 @@ const setDefaultBillingAddress = () => {
         <div class="min-w-20">
           <FormsBaseSelect
             label="Title"
-            v-model="user.userAddresses[addressIndex].title"
+            v-model="localUserAddress.title"
             :options="[
               { key: 'Mr/Ms', name: 'Mr/Ms' },
               { key: 'Ms', name: 'Ms' },
@@ -161,32 +162,28 @@ const setDefaultBillingAddress = () => {
             class="flex-1"
             label="Name"
             placeholder="Name"
-            v-model="user.userAddresses[addressIndex].name"
+            v-model="localUserAddress.name"
             :required="true"
           />
         </div>
       </div>
       <!-- <div class="flex-1">
-        <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="user.userAddresses[addressIndex].email" />
+        <FormsBaseInput class="flex-1" label="Email" placeholder="Email" v-model="localUserAddress.email" />
       </div> -->
     </section>
     <section class="flex-col gap-1 border border-slate-400 p-2 br-3">
-      <AdminUsersPhoneNumbersForm
-        :phoneNumbers="user.userAddresses[addressIndex].phoneNumbers"
-        :addressIndex="addressIndex"
-        @insertNewPhoneNumber="$emit('insertNewPhoneNumber')"
-      />
-      <button
+      <AdminUsersPhoneNumbersForm :phoneNumbers="localUserAddress.phoneNumbers" @updatePhoneNumbers="localUserAddress.phoneNumbers = $event" />
+      <!-- <button
         class="btn btn__secondary items-self-end px-2 py-05"
         @click="$emit('insertNewPhoneNumber')"
-        :disabled="user.userAddresses[addressIndex].phoneNumbers.length >= 4"
+        :disabled="localUserAddress.phoneNumbers.length >= 4"
       >
         Add Phone Number
-      </button>
+      </button> -->
       <!-- </div> -->
       <!-- <div
         class="flex-row gap-2 items-center"
-        v-for="(phone, j) in user.userAddresses[addressIndex].phoneNumbers"
+        v-for="(phone, j) in localUserAddress.phoneNumbers"
         :key="`${phone}-${j}`"
       >
         <div class="min-w-14">
@@ -217,8 +214,8 @@ const setDefaultBillingAddress = () => {
         </div>
         <button
           class="btn btn__secondary"
-          @click="user.userAddresses[addressIndex].phoneNumbers.splice(j, 1)"
-          v-if="user.userAddresses[addressIndex].phoneNumbers.length > 1"
+          @click="localUserAddress.phoneNumbers.splice(j, 1)"
+          v-if="localUserAddress.phoneNumbers.length > 1"
         >
           <IconsMinus />
         </button>
@@ -226,36 +223,28 @@ const setDefaultBillingAddress = () => {
       <button
         class="btn btn__secondary items-self-end px-2 py-05"
         @click="$emit('insertNewPhoneNumber')"
-        :disabled="user.userAddresses[addressIndex].phoneNumbers.length >= 4"
+        :disabled="localUserAddress.phoneNumbers.length >= 4"
       >
         Add Phone Number
       </button> -->
     </section>
     <section>
-      <FormsBaseInput label="Company" placeholder="Company" v-model="user.userAddresses[addressIndex].company" />
+      <FormsBaseInput label="Company" placeholder="Company" v-model="localUserAddress.company" />
       <div class="flex-row gap-2">
         <div class="flex-1">
-          <FormsBaseInput
-            label="Address Line 1"
-            placeholder="Address Line 1"
-            v-model="user.userAddresses[addressIndex].addressLine1"
-          />
+          <FormsBaseInput label="Address Line 1" placeholder="Address Line 1" v-model="localUserAddress.addressLine1" />
         </div>
         <div class="flex-1">
-          <FormsBaseInput
-            label="Address Line 2"
-            placeholder="Address Line 2"
-            v-model="user.userAddresses[addressIndex].addressLine2"
-          />
+          <FormsBaseInput label="Address Line 2" placeholder="Address Line 2" v-model="localUserAddress.addressLine2" />
         </div>
       </div>
       <div class="flex-row gap-2 items-center">
         <div class="flex-1">
-          <FormsBaseInput label="City" placeholder="City" v-model="user.userAddresses[addressIndex].city" />
+          <FormsBaseInput label="City" placeholder="City" v-model="localUserAddress.city" />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
-            v-model="user.userAddresses[addressIndex].state"
+            v-model="localUserAddress.state"
             label="State"
             nullOption="-"
             :options="
@@ -274,11 +263,7 @@ const setDefaultBillingAddress = () => {
                 })"
                 :key="option.key"
                 :value="option.key"
-                :selected="
-                  user.userAddresses[addressIndex] &&
-                  user.userAddresses[addressIndex].state &&
-                  user.userAddresses[addressIndex].state.id == option.key
-                "
+                :selected="localUserAddress && localUserAddress.state && localUserAddress.state.id == option.key"
               >
                 {{ option.name }}
               </option>
@@ -288,15 +273,11 @@ const setDefaultBillingAddress = () => {
       </div>
       <div class="flex-row items-center gap-2">
         <div class="min-w-20">
-          <FormsBaseInput
-            label="Postal Code"
-            placeholder="Postal Code"
-            v-model="user.userAddresses[addressIndex].postalCode"
-          />
+          <FormsBaseInput label="Postal Code" placeholder="Postal Code" v-model="localUserAddress.postalCode" />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
-            v-model="user.userAddresses[addressIndex].country"
+            v-model="localUserAddress.country"
             label="Country"
             nullOption="-"
             :options="
@@ -315,11 +296,7 @@ const setDefaultBillingAddress = () => {
                 })"
                 :key="option.key"
                 :value="option.key"
-                :selected="
-                  user.userAddresses[addressIndex] &&
-                  user.userAddresses[addressIndex].country &&
-                  user.userAddresses[addressIndex].country.id == option.key
-                "
+                :selected="localUserAddress && localUserAddress.country && localUserAddress.country.id == option.key"
               >
                 {{ option.name }}
               </option>
@@ -330,22 +307,18 @@ const setDefaultBillingAddress = () => {
     </section>
     <section class="delivery-instructions">
       <div class="field-group">
-        <FormsBaseTextarea
-          label="Delivery Instructions"
-          rows="5"
-          v-model="user.userAddresses[addressIndex].deliveryInstructions"
-        />
+        <FormsBaseTextarea label="Delivery Instructions" rows="5" v-model="localUserAddress.deliveryInstructions" />
       </div>
     </section>
     <section class="items-self-start flex-row gap-4">
       <FormsBaseToggle
         label="Set as the default delivery address"
-        v-model="user.userAddresses[addressIndex].defaultShippingAddress"
+        v-model="localUserAddress.defaultShippingAddress"
         @update:modelValue="setDefaultShippingAddress"
       />
       <FormsBaseToggle
         label="Set as the default billing address"
-        v-model="user.userAddresses[addressIndex].defaultBillingAddress"
+        v-model="localUserAddress.defaultBillingAddress"
         @update:modelValue="setDefaultBillingAddress"
       />
     </section>
@@ -353,22 +326,22 @@ const setDefaultBillingAddress = () => {
   <!-- <div class="bg-slate-50 p-2 min-w-30">
       <div class="flex-col gap-1">
         <h3>Shipping Address</h3>
-        <FormsBaseCheckbox label="Same as Shipping" v-model="user.userAddresses[addressIndex].billingAddress.sameAsShipping" />
+        <FormsBaseCheckbox label="Same as Shipping" v-model="localUserAddress.billingAddress.sameAsShipping" />
       </div>
-      <div v-if="!user.userAddresses[addressIndex].billingAddress.sameAsShipping">
+      <div v-if="!localUserAddress.billingAddress.sameAsShipping">
         <FormsBaseInput
           label="Address Line 1"
           placeholder="Address Line 1"
-          v-model="user.userAddresses[addressIndex].billingAddress.addressLine1"
+          v-model="localUserAddress.billingAddress.addressLine1"
         />
         <FormsBaseInput
           label="Address Line 2"
           placeholder="Address Line 2"
-          v-model="user.userAddresses[addressIndex].billingAddress.addressLine2"
+          v-model="localUserAddress.billingAddress.addressLine2"
         />
-        <FormsBaseInput label="City" placeholder="City" v-model="user.userAddresses[addressIndex].billingAddress.city" />
+        <FormsBaseInput label="City" placeholder="City" v-model="localUserAddress.billingAddress.city" />
         <FormsBaseSelect
-          v-model="user.userAddresses[addressIndex].billingAddress.state"
+          v-model="localUserAddress.billingAddress.state"
           label="State"
           nullOption="-"
           :options="
@@ -380,10 +353,10 @@ const setDefaultBillingAddress = () => {
         <FormsBaseInput
           label="Postal Code"
           placeholder="Postal Code"
-          v-model="user.userAddresses[addressIndex].billingAddress.postalCode"
+          v-model="localUserAddress.billingAddress.postalCode"
         />
         <FormsBaseSelect
-          v-model="user.userAddresses[addressIndex].billingAddress.country"
+          v-model="localUserAddress.billingAddress.country"
           label="Country"
           nullOption="-"
           :options="

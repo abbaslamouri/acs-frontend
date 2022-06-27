@@ -1,4 +1,6 @@
 <script setup>
+import cloneDeep from 'lodash.clonedeep'
+
 const props = defineProps({
   // countries: {
   //   type: Array,
@@ -18,19 +20,19 @@ const props = defineProps({
   // orderBillingAddress: {
   //   type: Object,
   // },
-  // phoneNumbers: {
-  //   type: Array,
-  //   // default: [],
-  // },
+  phoneNumbers: {
+    type: Array,
+    // default: [],
+  },
 
   // phoneNumber: {
   //   type: Object,
   //   // default: [],
   // },
 
-  addressIndex: {
-    type: Number,
-  },
+  // addressIndex: {
+  //   type: Number,
+  // },
   // phoneIndex: {
   //   type: Number,
   // },
@@ -40,15 +42,17 @@ const props = defineProps({
   // },
 })
 
-const emit = defineEmits(['insertNewPhoneNumber', 'removePhoneNumber', 'setDefaultPhoneNumber', 'updatePhoneNumber'])
+const emit = defineEmits(['insertNewPhoneNumber', 'removePhoneNumber', 'setDefaultPhoneNumber', 'updatePhoneNumbers'])
 
-const user = useState('user')
+const localPhoneNumbers = ref(cloneDeep(props.phoneNumbers))
+
+// const user = useState('user')
 // console.log(user.value)
 
 // const { cart } = useCart()
 
 const countries = inject('countries')
-// const states = inject('states')
+const blankPhoneNumber = inject('blankPhoneNumber')
 
 // const user.userAddresses[addressIndex].phoneNumbers[phoneIndex] = ref({ ...props.phoneNumber })
 const phoneTypeOptions = [
@@ -56,6 +60,13 @@ const phoneTypeOptions = [
   { key: 'Home', name: 'Home' },
   { key: 'Work', name: 'Work' },
 ]
+
+const insertNewPhoneNumber = () => {
+  localPhoneNumbers.value.push({
+    ...blankPhoneNumber,
+    default: false,
+  })
+}
 // const localCartPhoneNumber = ref({ ...props.cartPhoneNumber })
 
 // for (const prop in props.phoneNumbers) {
@@ -96,21 +107,20 @@ const phoneTypeOptions = [
 const setDefaultPhoneNumber = (event, j) => {
   console.log(event, j)
   if (event) {
-    for (const prop in user.value.userAddresses[props.addressIndex].phoneNumbers) {
-      user.value.userAddresses[props.addressIndex].phoneNumbers[prop].default = false
+    for (const prop in localPhoneNumbers.value) {
+      localPhoneNumbers.value[prop].default = false
     }
-    user.value.userAddresses[props.addressIndex].phoneNumbers[j].default = true
+    localPhoneNumbers.value[j].default = true
   }
 }
 
 const removePhoneNumber = (j) => {
   console.log('HHHHHH', j)
-  user.value.userAddresses[props.addressIndex].phoneNumbers.splice(j, 1)
-  if (user.value.userAddresses[props.addressIndex].phoneNumbers.length === 1) {
-    user.value.userAddresses[props.addressIndex].phoneNumbers[0].default = true
+  localPhoneNumbers.value.splice(j, 1)
+  if (localPhoneNumbers.value.length === 1) {
+    localPhoneNumbers.value[0].default = true
   } else {
-    if (!user.value.userAddresses[props.addressIndex].phoneNumbers.find((p) => p.default))
-      user.value.userAddresses[props.addressIndex].phoneNumbers[0].default = true
+    if (!localPhoneNumbers.value.find((p) => p.default)) localPhoneNumbers.value[0].default = true
   }
 }
 
@@ -129,6 +139,14 @@ const removePhoneNumber = (j) => {
 //   },
 //   { deep: true }
 // )
+
+watch(
+  () => localPhoneNumbers.value,
+  (newVal) => {
+    emit('updatePhoneNumbers', newVal)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -137,11 +155,7 @@ const removePhoneNumber = (j) => {
     <!-- {{ user.userAddresses[addressIndex].phoneNumbers[phoneIndex] }} -->
 
     <div class="flex-col items-center gap-2">
-      <div
-        class="flex-row gap-2 items-center"
-        v-for="(phoneNbr, j) in user.userAddresses[addressIndex].phoneNumbers"
-        :key="`phone-number-${j}`"
-      >
+      <div class="flex-row gap-2 items-center" v-for="(phoneNbr, j) in localPhoneNumbers" :key="`phone-number-${j}`">
         <!-- {{ user.userAddresses[addressIndex].phoneNumbers[j] }} -->
         <div class="min-w-14">
           <!-- <label class="base-select">
@@ -160,7 +174,7 @@ const removePhoneNumber = (j) => {
           </label> -->
           <FormsBaseSelect
             label="PhoneType"
-            v-model="user.userAddresses[addressIndex].phoneNumbers[j].phoneType"
+            v-model="localPhoneNumbers[j].phoneType"
             :options="[
               { key: 'Cell', name: 'Cell' },
               { key: 'Home', name: 'Home' },
@@ -169,16 +183,12 @@ const removePhoneNumber = (j) => {
           />
         </div>
         <div class="min-w-20">
-          <FormsBaseInput
-            label="Phone Number"
-            placeholder="Phone Number"
-            v-model="user.userAddresses[addressIndex].phoneNumbers[j].phoneNumber"
-          />
+          <FormsBaseInput label="Phone Number" placeholder="Phone Number" v-model="localPhoneNumbers[j].phoneNumber" />
         </div>
         <div class="flex-1">
           <!-- <FormsBaseSelect
-          :value="user.userAddresses[addressIndex].phoneNumbers[phoneIndex].phoneCountryCode.id"
-          @update:modelValue="user.userAddresses[addressIndex].phoneNumbers[phoneIndex].phoneCountryCode = countries.find((c) => c.id == $event)"
+          :value="localPhoneNumbers[phoneIndex].phoneCountryCode.id"
+          @update:modelValue="localPhoneNumbers[phoneIndex].phoneCountryCode = countries.find((c) => c.id == $event)"
           label="Country Code"
           nullOption="-"
           :options="
@@ -190,11 +200,7 @@ const removePhoneNumber = (j) => {
           <label class="base-select">
             <div class="label text-xs px-1">Country</div>
             <select
-              @change="
-                user.userAddresses[addressIndex].phoneNumbers[j].phoneCountryCode = countries.find(
-                  (c) => c.id == $event.target.value
-                )
-              "
+              @change="localPhoneNumbers[j].phoneCountryCode = countries.find((c) => c.id == $event.target.value)"
               class="text-xs"
             >
               <option value=""></option>
@@ -204,10 +210,7 @@ const removePhoneNumber = (j) => {
                 })"
                 :key="option.key"
                 :value="option.key"
-                :selected="
-                  user.userAddresses[addressIndex].phoneNumbers[j] &&
-                  user.userAddresses[addressIndex].phoneNumbers[j].phoneCountryCode.id == option.key
-                "
+                :selected="localPhoneNumbers[j] && localPhoneNumbers[j].phoneCountryCode.id == option.key"
               >
                 {{ option.name }}
               </option>
@@ -216,24 +219,27 @@ const removePhoneNumber = (j) => {
         </div>
         <div class="">
           <FormsBaseCheckbox
-            v-model="user.userAddresses[addressIndex].phoneNumbers[j].default"
+            v-model="localPhoneNumbers[j].default"
             label="Set as Default"
             @update:modelValue="setDefaultPhoneNumber($event, j)"
           />
         </div>
-        <button
-          class="btn btn__secondary"
-          @click="removePhoneNumber(j)"
-          v-if="user.userAddresses[addressIndex].phoneNumbers.length > 1"
-        >
+        <button class="btn btn__secondary" @click="removePhoneNumber(j)" v-if="localPhoneNumbers.length > 1">
           <IconsMinus />
         </button>
       </div>
+      <button
+        class="btn btn__secondary items-self-end px-2 py-05"
+        @click="insertNewPhoneNumber"
+        :disabled="localPhoneNumbers.length >= 4"
+      >
+        Add Phone Number
+      </button>
     </div>
     <!-- <button
       class="btn btn__secondary items-self-end px-2 py-05"
       @click="$emit('insertNewPhoneNumber')"
-      :disabled="user.userAddresses[addressIndex].phoneNumbers[phoneIndex]s.length >= 4"
+      :disabled="localPhoneNumbers[phoneIndex]s.length >= 4"
     >
       Add Phone Number
     </button> -->
