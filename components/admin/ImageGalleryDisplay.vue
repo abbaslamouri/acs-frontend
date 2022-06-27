@@ -96,11 +96,11 @@ const setFeaturedImage = (event) => {
 </script>
 
 <template>
-  <section class="flex-col gap-2">
+  <section class="flex-col gap-1">
     <div class="image-name br-3 h-2 flex-row items-center">
       <span class="px-3 text-xs" v-if="hoveredImage">{{ hoveredImage.originalName }}</span>
     </div>
-    <div class="gallery flex-row gap-2 wrap justify-center " v-if="gallery.length">
+    <div class="gallery flex-row gap-1 wrap justify-center" v-if="gallery.length">
       <div
         class="thumb relative w-16 h-16 shadow-md border border-slate-200 p-1 br-5 cursor-pointer"
         :class="{ product: galleryType === 'product' || galleryType == 'variant' }"

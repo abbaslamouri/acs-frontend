@@ -25,8 +25,6 @@ if (slug) {
   }
 }
 
-
-
 watch(
   () => galleryMedia.value,
   (currentVal) => {

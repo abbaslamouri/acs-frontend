@@ -31,11 +31,11 @@ const selectedAddress = computed(() => {
   return cart.value.shippingAddress
 })
 
-// onMounted(async () => {
-// cart.value = JSON.parse(localStorage.getItem('cart')) || {}
-// localAddress.value = cloneDeep(cart.value.shippingAddress.value)
-// console.log(cart.value)
-// })
+onMounted(async () => {
+  // cart.value = JSON.parse(localStorage.getItem('cart')) || {}
+  // localAddress.value = cloneDeep(cart.value.shippingAddress.value)
+  console.log(cart.value)
+})
 
 const saveAddress = () => {
   console.log('ADR', localAddress.value)
@@ -97,10 +97,40 @@ const addAddress = () => {
   editAction.value = 'add'
 }
 
-const editAddress = () => {
-  // localAddress.value = cloneDeep(cart.value.shippingAddress.value)
-  displayStatus.value = 'editing'
-  editAction.value = 'edit'
+// const editAddress = () => {
+//   // localAddress.value = cloneDeep(cart.value.shippingAddress.value)
+//   displayStatus.value = 'editing'
+//   editAction.value = 'edit'
+// }
+
+const editAddress = (i) => {
+  addressToEditIndex.value = i
+  showAddressFormModal.value = true
+  // displayStatus.value = 'editing'
+  // editAction.value = 'add'
+}
+
+const deleteAddress = async (i) => {
+  if (!confirm('Are you sure you want to delete this address?')) return
+  console.log('user', user.value)
+  if (!user.value.id) return (errorMsg.value = 'Nothing to delete')
+  user.value.userAddresses.splice(i, 1)
+
+  const defaultShipAddress = user.value.userAddresses.find((a) => a.defaultShippingAddress)
+  if (!defaultShipAddress) user.value.userAddresses[0].defaultShippingAddress = true
+
+  const defaultBillAddress = user.value.userAddresses.find((a) => a.defaultBillingAddress)
+  if (!defaultBillAddress) user.value.userAddresses[0].defaultBillingAddress = true
+
+  const newUser = await saveDoc('users', user.value)
+  if (newUser) {
+    console.log(newUser)
+    // user.value = newUser
+    router.push({ name: 'admin-users-id', params: { id: user.value.id } })
+  }
+
+  // displayStatus.value = 'editing'
+  // editAction.value = 'add'
 }
 
 const cancelAddressUpdate = () => {
@@ -143,32 +173,89 @@ const continueToPayment = () => {
       <div class="gap-2 w-996p flex-row justify-center gap-2" v-if="cart.items && cart.items.length">
         <div class="main flex-1 bg-slate-50">
           <div class="bg-stone-400 p-1 text-slate-50">Shipping Address</div>
-          <div class="p-2 flex-col gap-1" v-if="displayStatus == 'displaying'">
+          <!-- <div class="p-2 flex-col gap-1"> -->
+          <div class="flex-col gap-2">
+            <!-- <div> -->
+            <div class="flex-col gap-1 p-2 border border-slate-200 br-3" v-if="displayStatus == 'displaying'">
+              <AdminUsersUserAddress :userAddress="cart.customer.userAddresses.find((a) => a.defaultShippingAddress)" />
+              <button class="btn btn__link px-2 py-05 text-sm br-3" @click="editAddress(i)">Edit Address</button>
+              <div class="flex-row justify-between">
+                <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="displayStatus = 'switching'">
+                  Change Address
+                </button>
+                <button
+                  class="btn btn__secondary px-2 py-05 items-self-end text-xs"
+                  :class="{ disabled: !cart.customer.id }"
+                  @click="insertNewAddress"
+                >
+                  Add Address
+                </button>
+              </div>
+            </div>
+            <!-- </div> -->
+            <!-- <button
+                class="btn btn__secondary px-2 py-05 items-self-end text-xs"
+                :class="{ disabled: !cart.customer.id }"
+                @click="insertNewAddress"
+              >
+                Add Address
+              </button> -->
+            <!-- </div> -->
+            <div class="p-2 flex-col gap-1" v-if="displayStatus == 'switching'">
+              <div class="flex-col gap-2">
+                <div>
+                  <div
+                    class="flex-col items-start gap-2 p-2 border border-slate-200 br-3"
+                    v-for="(userAddress, i) in cart.customer.userAddresses"
+                    :key="userAddress.id"
+                  >
+                    <AdminUsersUserAddress :userAddress="userAddress" />
+                    <div class="flex-row gap-1">
+                      <button class="btn btn__secondary px-2 py-05 text-xs br-3" @click="editAddress(i)">
+                        Edit Address
+                      </button>
+                      <button class="btn btn__link px-2 py-05 text-sm br-3" @click="deleteAddress(i)">
+                        Delete Address
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="btn btn__secondary px-2 py-05 items-self-end text-xs"
+                  :class="{ disabled: !cart.customer.id }"
+                  @click="insertNewAddress"
+                >
+                  Add Address
+                </button>
+              </div>
+            </div>
+
             <div class="flex-row gap-4 items-center">
-              <EcommerceCheckoutShippingAddress :customerAddress="cart.shippingAddress" />
+              <!-- <EcommerceCheckoutShippingAddress :customerAddress="cart.shippingAddress" /> -->
+              <!-- <AdminUsersUserAddress :userAddress="cart.customer.userAddresses.find((a) => a.defaultShippingAddress)" />
               <button
                 class="btn btn__secondary px-2 py-05 text-xs"
                 @click.prevent="displayStatus = 'selecting'"
                 v-if="isAuthenticated"
               >
                 Switch Address
-              </button>
+              </button> -->
             </div>
-            <div class="link text-xs" v-if="isAuthenticated">Currently set as your default delivery address</div>
-            <button
+            <!-- <div class="link text-xs" v-if="isAuthenticated">Currently set as your default delivery address</div> -->
+            <!-- <button
               class="btn btn__link py-05 items-self-start text-base"
               @click.prevent="editAddress"
               v-if="isAuthenticated"
             >
               Edit Address
-            </button>
-            <button
+            </button> -->
+            <!-- <button
               class="btn btn__secondary px-2 py-05 items-self-end text-xs"
               v-if="isAuthenticated"
               @click="addAddress"
             >
               Add Address
-            </button>
+            </button> -->
           </div>
           <div class="p-2 flex-col gap-2" v-if="isAuthenticated && displayStatus == 'selecting'">
             <!-- <div
@@ -195,11 +282,11 @@ const continueToPayment = () => {
               <h3>Selected Shipping Address</h3>
             </template>
             <template v-slot:default>
-              <EcommerceCheckoutAddressForm
+              <!-- <EcommerceCheckoutAddressForm
                 :address="localAddress"
                 :showDefaultToggleField="true"
                 @updateAddress="localAddress = $event"
-              />
+              /> -->
             </template>
             <template v-slot:footer>
               <section class="flex-row gap-2 justify-end px-3">
@@ -208,7 +295,7 @@ const continueToPayment = () => {
               </section>
             </template>
           </Modal>
-          <EcommerceCheckoutShippingOptions />
+          <!-- <EcommerceCheckoutShippingOptions /> -->
           <div class="flex-row items-end justify-between gap-2 bg-stone-300 px-3 py-1 text-sm">
             <NuxtLink class="link btn__link" :to="{ name: 'ecommerce-checkout' }">
               <IconsChevronLeft /><span>Back to Basket</span>
@@ -217,7 +304,7 @@ const continueToPayment = () => {
           </div>
         </div>
         <div class="aside bg-slate-50 w-32">
-          <EcommerceCheckoutShippingCartOverview />
+          <!-- <EcommerceCheckoutShippingCartOverview /> -->
         </div>
       </div>
       <EcommerceCheckoutEmptyCart v-else class="bg-slate-50 p3" />

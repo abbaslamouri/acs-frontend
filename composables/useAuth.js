@@ -191,7 +191,7 @@ const useAuth = () => {
     //   useCookie('auth') && useCookie('auth').value && useCookie('auth').value.token
     //     ? useCookie('auth').value.token
     //     : null
-    // console.log('KKKKKKKK')
+    console.log('KKKKKKKK', token.value)
     try {
       const response = await fetch(`${config.apiUrl}/users/fetch-loggedin-user`, {
         method: 'GET',
