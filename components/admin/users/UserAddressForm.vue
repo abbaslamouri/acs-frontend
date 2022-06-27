@@ -39,7 +39,7 @@ const props = defineProps({
 
 const emit = defineEmits(['updateUserAddress', 'insertNewPhoneNumber', 'updatePhoneNumber'])
 
-const user = useState('user')
+// const user = useState('user')
 
 const countries = inject('countries')
 const states = inject('states')
@@ -172,7 +172,10 @@ watch(
       </div> -->
     </section>
     <section class="flex-col gap-1 border border-slate-400 p-2 br-3">
-      <AdminUsersPhoneNumbersForm :phoneNumbers="localUserAddress.phoneNumbers" @updatePhoneNumbers="localUserAddress.phoneNumbers = $event" />
+      <AdminUsersPhoneNumbersForm
+        :phoneNumbers="localUserAddress.phoneNumbers"
+        @updatePhoneNumbers="localUserAddress.phoneNumbers = $event"
+      />
       <!-- <button
         class="btn btn__secondary items-self-end px-2 py-05"
         @click="$emit('insertNewPhoneNumber')"
